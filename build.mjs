@@ -22,5 +22,5 @@ css=css.replace(/([^{}]+)\{([^{}]*)\}/g,(rule,selector,decls)=>{
 css=msBase+css;
 const template=await readFile('src/index.html','utf8');
 await mkdir('dist',{recursive:true});
-await writeFile('dist/index.html',template.replace('/* STYLES */',()=>css).replace('/* DATA */',()=>data.replaceAll('export ','' )).replace('/* APP */',()=>app.replace(/^import .*;\n/m,'')+'\n'+fidelity+'\n'+people+'\n'+tables));
+await writeFile('dist/index.html',template.replace('/* STYLES */',()=>css).replace('/* DATA */',()=>data.replaceAll('export ','' )).replace('/* APP */',()=>app.replace(/^import[\s\S]*?from ["']\.\/data\.js["'];\n/m,'')+'\n'+fidelity+'\n'+people+'\n'+tables));
 console.log('Built dist/index.html — standalone, no dependencies.');
