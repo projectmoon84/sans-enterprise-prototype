@@ -1,0 +1,135 @@
+{
+  "date": "2026-10-16",
+  "file_key": "pnIhrEB1BTFB8UcwMUAP5J",
+  "section": "2965:8564",
+  "frames": [
+    {
+      "node_id": "2970:22288",
+      "name": "Portal Users",
+      "reference": "Desktop shell, table and toolbar",
+      "implementation": "Rebuilt sidebar/top bar, 4 content columns, metadata/status, selection, actions, role/status filters and search.",
+      "route": "Portal users",
+      "reference_image": "reference/2970-22288.png"
+    },
+    {
+      "node_id": "2973:22817",
+      "name": "Students",
+      "reference": "Desktop shell, table and toolbar",
+      "implementation": "Matched Back/title/CTA positions, six columns, row spacing and assignment/status treatments.",
+      "route": "Students",
+      "reference_image": "reference/2973-22817.png"
+    },
+    {
+      "node_id": "3015:10439",
+      "name": "Add students \u2014 details",
+      "reference": "960 \u00d7 786 reference frame",
+      "implementation": "Restored four-field row, numbered entry, saved assignments, Delete/Edit, reuse checkbox and Add Another. Measured final populated dialog 960 \u00d7 787.2.",
+      "route": "Students \u2192 Add students \u2192 Individuals",
+      "reference_image": "reference/3015-10439.png"
+    },
+    {
+      "node_id": "3018:12373",
+      "name": "Add students \u2014 review",
+      "reference": "960 \u00d7 728 reference frame",
+      "implementation": "Restored stepper, email list, Delete/Edit, required confirmation and footer. Counts reflect actual drafts.",
+      "route": "Save drafts \u2192 Save",
+      "reference_image": "reference/3018-12373.png"
+    },
+    {
+      "node_id": "3018:12825",
+      "name": "Add students \u2014 results",
+      "reference": "960 \u00d7 672 reference frame",
+      "implementation": "Added per-row Sending/Sent/Failed results, partial success summary, retry failed invitations and invitation-list route. Completion copy follows actual completion.",
+      "route": "Review \u2192 confirm \u2192 Send",
+      "reference_image": "reference/3018-12825.png"
+    },
+    {
+      "node_id": "3018:13130",
+      "name": "CSV upload \u2014 idle",
+      "reference": "768 \u00d7 642 reference frame",
+      "implementation": "Matched instruction panel, file drop zone, CSV template and disabled Continue footer.",
+      "route": "Students \u2192 Add students \u2192 Upload a CSV",
+      "reference_image": "reference/3018-13130.png"
+    },
+    {
+      "node_id": "3018:13139",
+      "name": "CSV upload \u2014 drag over",
+      "reference": "768 \u00d7 642 reference frame",
+      "implementation": "Added drag-over border/background and file drop handlers; rejected unsupported/oversize files. OS drag-and-drop not directly exercised.",
+      "route": "Drag a CSV over the drop zone",
+      "reference_image": "reference/3018-13139.png"
+    },
+    {
+      "node_id": "3018:13148",
+      "name": "CSV upload \u2014 uploading",
+      "reference": "768 \u00d7 642 reference frame",
+      "implementation": "Restored filename/file size, progress bar and explicit intermediate 70% state with disabled Continue.",
+      "route": "Choose CSV or profile \u2192 Use sample CSV",
+      "reference_image": "reference/3018-13148.png"
+    },
+    {
+      "node_id": "3018:13157",
+      "name": "CSV upload \u2014 ready",
+      "reference": "768 \u00d7 642 reference frame",
+      "implementation": "Restored 100% Ready state, remove-file action, enabled Continue; no automatic advance.",
+      "route": "Wait for local upload simulation",
+      "reference_image": "reference/3018-13157.png"
+    },
+    {
+      "node_id": "3018:13169",
+      "name": "Add to Team picker",
+      "reference": "562 \u00d7 482 reference frame",
+      "implementation": "Searchable choices, selected row, Done gating and Create new team continuation.",
+      "route": "CSV review \u2192 Team cell",
+      "reference_image": "reference/3018-13169.png"
+    },
+    {
+      "node_id": "3018:15694",
+      "name": "CSV Review Students",
+      "reference": "1512-wide desktop reference",
+      "implementation": "Matched warning summary, correction links, status, filter/search/action toolbar and table. Ready/error counts are data-dependent.",
+      "route": "CSV Ready \u2192 Continue",
+      "reference_image": "reference/3018-15694.png"
+    },
+    {
+      "node_id": "3018:13535",
+      "name": "Add Sub-Org picker",
+      "reference": "562 \u00d7 390 reference frame",
+      "implementation": "Compact searchable two-option picker, selected state and Done. Final browser measurement 562 \u00d7 390.",
+      "route": "CSV review \u2192 Admin Groups cell",
+      "reference_image": "reference/3018-13535.png"
+    },
+    {
+      "node_id": "3018:16146",
+      "name": "Add Voucher picker",
+      "reference": "562 \u00d7 482 reference frame",
+      "implementation": "Searchable voucher options, selected row and Done; corrected runtime error that previously prevented opening.",
+      "route": "CSV review \u2192 Voucher cell",
+      "reference_image": "reference/3018-16146.png"
+    },
+    {
+      "node_id": "3040:15830",
+      "name": "Portal invitation \u2014 review",
+      "reference": "1100 \u00d7 756 reference frame",
+      "implementation": "Restored white Summary, assignment breakdown and can/cannot columns, confirmation and edit/back behaviour.",
+      "route": "Invite Portal user \u2192 complete required scope \u2192 Review Invitation",
+      "reference_image": "reference/3040-15830.png"
+    },
+    {
+      "node_id": "3040:27686",
+      "name": "Portal invitation \u2014 success",
+      "reference": "430 \u00d7 242 reference frame",
+      "implementation": "Restored compact icon/message composition and Done footer, with pending invitation persisted locally.",
+      "route": "Review \u2192 confirm \u2192 Send",
+      "reference_image": "reference/3040-27686.png"
+    },
+    {
+      "node_id": "3058:28741",
+      "name": "Portal invitation \u2014 details",
+      "reference": "1100 \u00d7 1512 reference frame",
+      "implementation": "Email-only details, 3 roles, All Groups, voucher/team search, Select all, membership counts and permission summary. Tall content scrolls with footer visible.",
+      "route": "Portal users \u2192 Invite Portal user",
+      "reference_image": "reference/3058-28741.png"
+    }
+  ]
+}

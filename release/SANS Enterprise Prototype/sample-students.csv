@@ -1,0 +1,6 @@
+name,email,voucher,admin_group,team,work_role
+Alex Chen,alex.chen@example.com,Cyber Defense FY26,Federal Division,Security Operations,SOC Analyst I
+Samira Khan,samira.khan@example.com,Cloud Security FY26,EMEA Operations,Cloud Platform,Cloud Security Engineer
+Jamie Lee,jamie.lee@example.com,,Federal Division,,SOC Analyst I
+Taylor Morgan,taylor.invalid,Leadership FY26,,,Security Program Lead
+Riley Ng,riley.ng@example.com,Offensive Ops FY26,APAC Operations,Security Operations,SOC Analyst II
