@@ -283,17 +283,13 @@ saveEdit = function () {
     return;
   }
   if (
-    commit((db2) => {
-      const user = db2.users.find((u) => u.id === old.id);
-      Object.assign(user, next);
-      if (status === "Active") user.accountSetup = false;
-      user.updatedAt = new Date().toISOString();
-      user.modifiedBy = "Demo administrator";
-      user.modifiedDetail = new Date().toLocaleDateString("en-GB");
-      delete user.accessLabel;
-      delete user.lastAccess;
-      record(db2, `Updated ${user.name}`);
-    }, "Changes saved")
+    dispatch(
+      (st) =>
+        old.type === "portal"
+          ? st.editPortalAccess(old.id, next)
+          : st.editStudentDetails(old.id, next),
+      "Changes saved",
+    )
   ) {
     $("#modal").close();
     state.modal = null;

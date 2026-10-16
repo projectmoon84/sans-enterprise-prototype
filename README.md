@@ -39,7 +39,7 @@ The built-in sample is intended for a fresh/reset database. Using it again corre
 
 ## Mock database behaviour
 
-Records live in **localStorage** under `sans-enterprise-prototype-v2` (the v2 key starts everyone on the new demo data). Every browser/profile has a separate database. Data persists after reloads and browser restarts until browser storage is cleared or reset. Moving between file opening and the local server creates separate storage contexts. Keep the localhost port unchanged to retain the same dataset.
+Records live in **localStorage** under `sans-enterprise-prototype-v3`. Data saved under the old v2 key is migrated automatically on first load. Every browser/profile has a separate database. Data persists after reloads and browser restarts until browser storage is cleared or reset. Moving between file opening and the local server creates separate storage contexts. Keep the localhost port unchanged to retain the same dataset.
 
 The zip contains the original seed data, never records from the author's browser. Sharing an updated dataset requires exporting a JSON snapshot and having the recipient import it. Drafts and uncommitted CSV rows are held in memory and disappear on reload.
 
@@ -59,7 +59,9 @@ python3 serve.py
 ```
 
 - `src/data.js`: record schema, fictional seed records, CSV parser and validation.
-- `src/app.js`: views, modal flows, interaction handlers, and the `commit()` persistence boundary. Database writes clone current state, persist it, then update the visible app.
+- `src/store.js`: database v3, v2 migration and the command layer. Every change is a named function that validates, applies, logs and saves in one step; a failed command leaves data untouched. Deleting archives the person.
+- `src/activity.js`: structured event wording and activity filtering. The seeded database includes realistic history and the current actor comes from the profile menu’s “Sign in as…” switcher.
+- `src/app.js`: views, modal flows and interaction handlers. `dispatch()` calls a store command, then refreshes the visible app.
 - `src/styles.css` and `src/fidelity.css`: base presentation and measured Figma layout/component refinements. Fira Sans is bundled into the HTML at build time.
 - `src/tables.js`: table behaviour: sticky header row, frozen checkbox, name and ⋮ columns, right-click row menu, and click-a-row to open the placeholder profile page. Loaded after people.js.
 - `src/people.js`: people model v2 (voucher-first admin groups, dual roles, SANS account invites, team membership vs access). Loaded last.
@@ -69,7 +71,7 @@ python3 serve.py
 - `build.mjs`: creates the standalone HTML with embedded CSS, JavaScript and fonts.
 - `tests/data.test.mjs`: data integrity, CSV quoting, duplicates, malformed records, and custom team coverage.
 
-Database schema v2:
+Database schema v2 (legacy; still imported and migrated). The current v3 shape is documented in `docs/profile-and-activity-plan.md` and `src/store.js`:
 
 ```text
 { version: 2, users: User[], teams: string[], groups: string[], activity: Activity[] }
@@ -95,7 +97,7 @@ Activity = { id, message, time }
 - **Vouchers sit at the top level.** Choosing a voucher narrows the admin groups on offer. The voucher-to-admin-group mapping is mock data in `src/data.js` (`VOUCHER_GROUPS`) and is waiting for SANS to confirm it. Teams are never filtered, because one team can include students from different vouchers.
 - **Students** hold exactly one voucher (required), plus at most one admin group and one team (both optional).
 - **Approvals:** Admins and Limited Admins approve training requests within their scope. Admins also manage voucher settings, teams and portal users. A Limited Admin is scoped to **one voucher** (single choice) but can cover **one or more admin groups** within it.
-- **Team access is not team membership.** Portal users get *access* to teams. Students are *members* of a team.
+- **Team access is not team membership.** Portal users get _access_ to teams. Students are _members_ of a team.
 - **One person, two roles.** The same email can be both a portal user and a student. Both invite flows detect the match, tables show an "Also a student" or "Also a portal user" tag, and row menus offer "Add as student" or "Invite as portal user".
 - **No SANS account found** does not block an invitation. The person is invited to create an account, shows "Awaiting SANS account" until they accept, and is then added automatically (simulate this by setting the status to Active).
 - **SSO Admin** stays in the data as a future-scope role. It isn't offered when inviting.

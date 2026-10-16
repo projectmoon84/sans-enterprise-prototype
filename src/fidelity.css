@@ -12,6 +12,38 @@
   font-size: 14px;
   --focus: #007c9b;
 }
+
+.profile-dropdown {
+  width: 280px;
+  max-height: min(620px, calc(100vh - 76px));
+  overflow-y: auto;
+}
+.profile-dropdown .profile-menu-current {
+  display: grid;
+  gap: 2px;
+  padding: 10px 14px;
+}
+.profile-dropdown .dropdown-label {
+  display: block;
+  padding: 8px 14px 4px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.profile-dropdown .dropdown-divider {
+  height: 1px;
+  margin: 6px 0;
+  background: var(--border);
+}
+.profile-dropdown button {
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.profile-dropdown button[aria-current="true"] {
+  background: var(--surface-hover, #f3f5f7);
+  font-weight: 600;
+}
 body {
   font-size: 14px;
   line-height: 1.45;

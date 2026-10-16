@@ -207,6 +207,16 @@ document.addEventListener(
   "click",
   (e) => {
     const t = e.target.closest("[data-action]");
+    if (t?.dataset.action === "open-event-person") {
+      e.stopImmediatePropagation();
+      const row =
+        db.users.find(
+          (user) =>
+            user.personId === t.dataset.personId && user.type === "portal",
+        ) || db.users.find((user) => user.personId === t.dataset.personId);
+      if (row) openProfile(row.id);
+      return;
+    }
     if (t?.dataset.action === "row-menu") state.menuAt = null;
     if (t?.dataset.action === "open-profile") {
       e.stopImmediatePropagation();

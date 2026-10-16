@@ -6,12 +6,12 @@ import {
   VOUCHER_GROUPS,
   groupsForVouchers,
   uid,
-  seed,
   parseCSV,
   validateCandidate,
-  validateDatabase,
 } from "./data.js";
-const KEY = "sans-enterprise-prototype-v2";
+import { createStore, normaliseDatabase, STORAGE_KEY } from "./store.js";
+import { describeEvent } from "./activity.js";
+const KEY = STORAGE_KEY;
 const $ = (s) => document.querySelector(s);
 const esc = (v) =>
   String(v ?? "").replace(
@@ -83,16 +83,17 @@ const opts = (arr, value = "", blank = "Choose") =>
   arr
     .map((x) => `<option ${x === value ? "selected" : ""}>${esc(x)}</option>`)
     .join("");
-let db,
+let store,
+  db,
   storageError = "";
 try {
-  const saved = localStorage.getItem(KEY);
-  db = saved ? validateDatabase(JSON.parse(saved)) : seed();
+  store = createStore({ storage: localStorage });
 } catch (e) {
-  db = seed();
+  store = createStore();
   storageError =
     "Saved data could not be loaded. A temporary demo is open; export your changes before closing.";
 }
+db = store.view();
 const state = {
   view: "portal",
   search: "",
@@ -113,26 +114,23 @@ function toast(message) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => $("#toast").classList.remove("visible"), 4200);
 }
-function commit(change, message) {
-  const next = structuredClone(db);
-  change(next);
+// Every data change goes through a store command. Screens read `db`, a flat
+// view of the store that is rebuilt after each change.
+function dispatch(command, message) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(next));
-    storageError = "";
+    command(store);
   } catch (e) {
+    if (e.code !== "storage") throw e;
     toast(
       "Changes could not be saved. Allow browser storage or export your data.",
     );
     return false;
   }
-  db = next;
+  storageError = "";
+  db = store.view();
   if (message) toast(message);
   render();
   return true;
-}
-function record(next, message) {
-  next.activity.unshift({ id: uid(), message, time: new Date().toISOString() });
-  next.activity = next.activity.slice(0, 100);
 }
 function initial(name) {
   return name
@@ -245,12 +243,12 @@ function home() {
       .join(
         "",
       )}</div><div class="overview-grid"><section class="card"><h2>Recent activity</h2><p class="secondary">Changes made in this demo</p>${
-      db.activity.length
-        ? db.activity
+      db.events.length
+        ? db.events
             .slice(0, 6)
             .map(
-              (a) =>
-                `<div class="activity-row"><span class="activity-icon">${icon("clock")}</span><div>${esc(a.message)}<p class="secondary">${new Date(a.time).toLocaleString("en-GB")}</p></div></div>`,
+              (event) =>
+                `<div class="activity-row"><span class="activity-icon">${icon("clock")}</span><div>${describeEvent(event)}<p class="secondary">${new Date(event.at).toLocaleString("en-GB")}</p></div></div>`,
             )
             .join("")
         : `<div class="empty">${icon("clock")}<h2>Your next step starts here</h2><p>Invite a portal user or add students. Changes will appear in this activity feed.</p></div>`
@@ -487,21 +485,15 @@ function portalSend() {
     );
     return;
   }
-  const ok = commit((next) => {
-    const student = next.users.find(
-      (u) => u.type === "student" && u.email.toLowerCase() === p.email,
-    );
-    next.users.push({
-      ...p,
-      name: student?.name || p.name,
-      id: uid(),
-      type: "portal",
-      status: "Pending invite",
-      accountSetup: !student && !accountLinked(p.email),
-      updatedAt: new Date().toISOString(),
-    });
-    record(next, `Invited ${p.name} as ${p.role}`);
-  }, "Portal invitation saved");
+  const ok = dispatch(
+    (st) =>
+      st.invitePortalUser({
+        ...p,
+        accountSetup:
+          !linkedPerson(p.email, "student") && !accountLinked(p.email),
+      }),
+    "Portal invitation saved",
+  );
   if (ok) {
     state.modal = "success";
     openModal(
@@ -560,20 +552,15 @@ function studentReview() {
     steps("Add student details", "Review & Send", 2),
   );
 }
-function toUser(d) {
+function toStudentInput(d) {
   return {
-    id: uid(),
     name: d.name || d.email.split("@")[0].replace(/[._]/g, " "),
     email: d.email.trim().toLowerCase(),
-    role: "Student",
-    type: "student",
-    groups: d.group ? [d.group] : [],
-    teams: d.team ? [d.team] : [],
-    vouchers: [d.voucher],
+    group: d.group || "",
+    team: d.team || "",
+    voucher: d.voucher,
     workRole: d.workRole || "Student",
-    status: "Pending invite",
     accountSetup: !linkedPerson(d.email, "portal") && !accountLinked(d.email),
-    updatedAt: new Date().toISOString(),
   };
 }
 function studentSend() {
@@ -587,13 +574,10 @@ function studentSend() {
     return;
   }
   if (
-    commit((next) => {
-      next.users.push(...drafts.map(toUser));
-      record(
-        next,
-        `Added ${drafts.length} ${drafts.length === 1 ? "student" : "students"} and recorded training invitations`,
-      );
-    }, "Students added to your mock database")
+    dispatch(
+      (st) => st.addStudents(drafts.map(toStudentInput)),
+      "Students added to your mock database",
+    )
   ) {
     const count = drafts.length;
     state.drafts = [];
@@ -754,37 +738,29 @@ function saveEdit() {
     toast("Import row updated");
     return;
   }
-  const ok = commit((next) => {
-    const user = next.users.find((u) => u.id === old.id);
-    user.name = data.name;
-    user.email = data.email;
-    user.groups =
-      user.type === "portal"
-        ? fd.getAll("groups")
-        : data.group
-          ? [data.group]
-          : [];
-    user.teams =
-      user.type === "portal"
-        ? fd.getAll("teams")
-        : data.team
-          ? [data.team]
-          : [];
-    if (user.type === "portal") {
-      user.role = fd.get("role");
-      user.vouchers = fd.getAll("vouchers");
-    } else {
-      user.vouchers = [data.voucher];
-      user.workRole = data.workRole;
-    }
-    user.status = fd.get("status");
-    user.updatedAt = new Date().toISOString();
-    user.modifiedBy = "Demo administrator";
-    user.modifiedDetail = new Date().toLocaleDateString("en-GB");
-    delete user.accessLabel;
-    delete user.lastAccess;
-    record(next, `Updated ${user.name}`);
-  }, "Changes saved");
+  const ok = dispatch(
+    (st) =>
+      old.type === "portal"
+        ? st.editPortalAccess(old.id, {
+            name: data.name,
+            email: data.email,
+            role: fd.get("role"),
+            vouchers: fd.getAll("vouchers"),
+            groups: fd.getAll("groups"),
+            teams: fd.getAll("teams"),
+            status: fd.get("status"),
+          })
+        : st.editStudentDetails(old.id, {
+            name: data.name,
+            email: data.email,
+            voucher: data.voucher,
+            group: data.group,
+            team: data.team,
+            workRole: data.workRole,
+            status: fd.get("status"),
+          }),
+    "Changes saved",
+  );
   if (ok) {
     $("#modal").close();
     state.modal = null;
@@ -794,10 +770,10 @@ function importCommit() {
   const valid = state.staged.filter((r) => !importErrors(r).length);
   if (!valid.length) return;
   if (
-    commit((next) => {
-      next.users.push(...valid.map(toUser));
-      record(next, `Imported ${valid.length} students from CSV`);
-    }, `${valid.length} students added to the mock database`)
+    dispatch(
+      (st) => st.commitCsvImport(valid.map(toStudentInput)),
+      `${valid.length} students added to the mock database`,
+    )
   ) {
     state.staged = state.staged.filter((r) => !valid.includes(r));
     if (state.staged.length) render();
@@ -849,12 +825,7 @@ document.addEventListener("submit", (event) => {
         $("#team-error").textContent = "Enter a unique team name.";
         return;
       }
-      if (
-        commit((next) => {
-          next.teams.push(name);
-          record(next, `Created team ${name}`);
-        }, "Team created")
-      ) {
+      if (dispatch((st) => st.createTeam(name), "Team created")) {
         $("#modal").close();
         state.modal = null;
       }
@@ -896,13 +867,13 @@ document.addEventListener("change", async (e) => {
     try {
       if (el.files[0].size > 5 * 1024 * 1024)
         throw Error("This file is too large.");
-      const imported = validateDatabase(JSON.parse(await el.files[0].text()));
+      const imported = normaliseDatabase(JSON.parse(await el.files[0].text()));
       state.pendingDatabase = imported;
       state.modal = "import-db";
       openModal(
         "Replace your demo database?",
         "This replaces the data saved in this browser.",
-        `<p class="muted">The snapshot contains ${imported.users.length} people and ${imported.teams.length} teams. Export your current database first if you want to keep it.</p>`,
+        `<p class="muted">The snapshot contains ${imported.people.length} people and ${imported.teams.length} teams. Export your current database first if you want to keep it.</p>`,
         `<div class="actions">${btn("Cancel", "data")}${btn("Replace database", "confirm-import-db", "primary")}</div>`,
         "",
         true,
@@ -1040,13 +1011,7 @@ document.addEventListener("click", (event) => {
         break;
       }
       case "confirm-delete":
-        if (
-          commit((next) => {
-            const u = next.users.find((u) => u.id === id);
-            next.users = next.users.filter((u) => u.id !== id);
-            record(next, `Deleted ${u.name}`);
-          }, "Record deleted")
-        ) {
+        if (dispatch((st) => st.archivePerson(id), "Record deleted")) {
           $("#modal").close();
           state.modal = null;
         }
@@ -1057,17 +1022,17 @@ document.addEventListener("click", (event) => {
       case "export-db":
         download(
           "sans-demo-database.json",
-          JSON.stringify(db, null, 2),
+          JSON.stringify(store.snapshot(), null, 2),
           "application/json",
         );
         toast("Database snapshot exported");
         break;
       case "confirm-import-db":
         if (
-          commit((next) => {
-            Object.keys(next).forEach((k) => delete next[k]);
-            Object.assign(next, state.pendingDatabase);
-          }, "Database imported")
+          dispatch(
+            (st) => st.replaceDatabase(state.pendingDatabase),
+            "Database imported",
+          )
         ) {
           state.staged = [];
           state.drafts = [];
@@ -1088,11 +1053,7 @@ document.addEventListener("click", (event) => {
         );
         break;
       case "confirm-reset":
-        if (
-          commit((next) => {
-            Object.assign(next, seed());
-          }, "Demo data reset")
-        ) {
+        if (dispatch((st) => st.reset(), "Demo data reset")) {
           state.staged = [];
           state.drafts = [];
           $("#modal").close();
@@ -1175,7 +1136,8 @@ $("#modal").addEventListener("cancel", (e) => {
 window.addEventListener("storage", (e) => {
   if (e.key === KEY && e.newValue) {
     try {
-      db = validateDatabase(JSON.parse(e.newValue));
+      store.acceptExternalDatabase(JSON.parse(e.newValue));
+      db = store.view();
       render();
       toast("Demo database updated in another tab");
     } catch {

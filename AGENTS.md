@@ -4,10 +4,12 @@ This is a browser-only prototype. Source lives in `src/`; `build.mjs` embeds the
 
 ## Source map and load order
 
-The JavaScript load order is significant: `data.js` → `app.js` → `fidelity.js` → `people.js` → `tables.js`.
+The JavaScript load order is significant: `data.js` → `store.js` → `activity.js` → `app.js` → `fidelity.js` → `people.js` → `tables.js`.
 
 - `src/data.js`: v2 data schema, fictional seed records, voucher-to-admin-group mapping, CSV parsing and validation.
-- `src/app.js`: base views, modal flows, event handlers and the `commit()` localStorage persistence boundary.
+- `src/store.js`: database v3 (people with attached portal/student roles, id-based directories, session and append-only events), the v2 migration, read helpers and one command per data change. Screens change data only through these commands (via `dispatch()` in `app.js`); never mutate `db` directly. `store.view()` gives the flat per-role rows the screens read.
+- `src/activity.js`: event descriptions and person activity filtering. Keep event wording keyed by the event catalogue in the profile and activity plan.
+- `src/app.js`: base views, modal flows and event handlers. `dispatch()` runs a store command, then refreshes `db` and re-renders.
 - `src/fidelity.js`: Figma-specific people tables, invitation flows, student drafts/results, CSV review and assignment pickers. It extends and overrides the base app.
 - `src/people.js`: people-model v2 behaviour, including voucher-first choices, dual roles, account invitations and team membership versus access. It extends and overrides earlier behaviour.
 - `src/tables.js`: sticky and frozen table behaviour, row menus and profile-page navigation. It loads last.
@@ -46,4 +48,3 @@ After any source change, run the syntax check, tests and build. Use `http://127.
 - One person may be both a portal user and a student, matched by email, but may not have duplicate records for the same role.
 - Missing SANS accounts do not block invitations; those people remain in the awaiting-account state until simulated acceptance.
 - SSO Admin remains future scope and is not offered in invitation flows.
-

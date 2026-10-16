@@ -19,25 +19,6 @@ Object.assign(state, {
   importAlertDismissed: false,
 });
 
-// Upgrade only untouched fixtures from the first prototype; edited/imported data stays intact.
-if (
-  db.users.length === 20 &&
-  db.activity.length === 0 &&
-  db.users.every((u) => u.updatedAt === "2026-10-15T09:00:00.000Z")
-) {
-  const fresh = seed();
-  if (db.users.every((u) => fresh.users.some((n) => n.name === u.name))) {
-    fresh.users = fresh.users.map((u) => ({
-      ...u,
-      id: db.users.find((old) => old.name === u.name).id,
-    }));
-    try {
-      localStorage.setItem(KEY, JSON.stringify(fresh));
-      db = fresh;
-    } catch {}
-  }
-}
-
 const mockUnavailable = new Set([
   "samira.khan@example.com",
   "jane.doe@example.com",
@@ -133,11 +114,24 @@ navigate = function (view) {
   state.rowMenu = null;
   oldNavigate(view);
 };
+function signedInPortalUser() {
+  const actorId = store.snapshot().session.actorId;
+  return (
+    db.users.find(
+      (user) => user.type === "portal" && user.personId === actorId,
+    ) || db.users.find((user) => user.type === "portal")
+  );
+}
+function profileMenuContents() {
+  const actor = signedInPortalUser();
+  const users = db.users.filter((user) => user.type === "portal");
+  return `<div class="profile-menu-current"><span class="secondary">Signed in as</span><strong>${esc(actor?.name || "Portal user")}</strong><span class="secondary">${esc(actor?.role || "")}</span></div><div class="dropdown-divider"></div><span class="dropdown-label">Sign in as…</span>${users.map((user) => `<button data-action="sign-in-as" data-person-id="${esc(user.personId)}" ${user.personId === actor?.personId ? 'aria-current="true"' : ""}>${esc(user.name)}<span class="secondary">${esc(user.role)}</span></button>`).join("")}<div class="dropdown-divider"></div>${btn(icon("database") + "Demo data", "data")}${btn("Use sample CSV", "demo-sample")}${btn("About this prototype", "navigate", "", 'data-view="help"')}`;
+}
 render = function () {
   const focus = document.activeElement?.id,
     position = document.activeElement?.selectionStart;
   $("#app").innerHTML =
-    `<header class="topbar"><button class="icon-btn mobile-menu" data-action="mobile-menu" aria-label="Toggle navigation">${icon("menu")}</button><div class="logo" aria-label="SANS">${SANS_LOGO}</div><span class="org">Organization name</span><div class="right"><div class="menu-anchor"><button class="profile-button" data-action="profile-menu" aria-label="Open profile and demo tools" aria-expanded="${state.profileOpen}"><span class="avatar">MS</span>${icon("chevron")}</button>${state.profileOpen ? `<div class="dropdown-menu">${btn(icon("database") + "Demo data", "data")}${btn("Use sample CSV", "demo-sample")}${btn("About this prototype", "navigate", "", 'data-view="help"')}</div>` : ""}</div></div></header><aside class="sidebar" aria-label="Main navigation">${nav("Home", "home", "home")}${nav("Learning", "learning", "book")}${nav("Account & Finance", "finance", "building")}<div class="nav-divider"></div><div class="nav-section">Admin</div><button class="nav-btn nav-parent" data-action="toggle-people" aria-expanded="${!state.hidePeople}">${icon("person")}People${icon("chevron")}</button>${state.hidePeople ? "" : nav("Portal users", "portal", "", true) + nav("Students", "students", "", true)}<button class="nav-btn nav-parent groups-parent" data-action="toggle-groups" aria-expanded="${!state.hideGroups}">${icon("groups")}Groups${icon("chevron")}</button>${state.hideGroups ? "" : nav("Admin Groups", "groups", "", true) + nav("Teams", "teams", "", true)}<div class="nav-divider bottom-divider"></div>${nav("Help & Support", "help", "help")}</aside><main class="page view-${state.view}" id="main">${storageError ? `<div class="note warning">${icon("info")}${esc(storageError)}</div>` : ""}${content()}</main>`;
+    `<header class="topbar"><button class="icon-btn mobile-menu" data-action="mobile-menu" aria-label="Toggle navigation">${icon("menu")}</button><div class="logo" aria-label="SANS">${SANS_LOGO}</div><span class="org">Organization name</span><div class="right"><div class="menu-anchor"><button class="profile-button" data-action="profile-menu" aria-label="Open profile and demo tools" aria-expanded="${state.profileOpen}"><span class="avatar">${esc(initial(signedInPortalUser()?.name || "Portal user"))}</span>${icon("chevron")}</button>${state.profileOpen ? `<div class="dropdown-menu profile-dropdown">${profileMenuContents()}</div>` : ""}</div></div></header><aside class="sidebar" aria-label="Main navigation">${nav("Home", "home", "home")}${nav("Learning", "learning", "book")}${nav("Account & Finance", "finance", "building")}<div class="nav-divider"></div><div class="nav-section">Admin</div><button class="nav-btn nav-parent" data-action="toggle-people" aria-expanded="${!state.hidePeople}">${icon("person")}People${icon("chevron")}</button>${state.hidePeople ? "" : nav("Portal users", "portal", "", true) + nav("Students", "students", "", true)}<button class="nav-btn nav-parent groups-parent" data-action="toggle-groups" aria-expanded="${!state.hideGroups}">${icon("groups")}Groups${icon("chevron")}</button>${state.hideGroups ? "" : nav("Admin Groups", "groups", "", true) + nav("Teams", "teams", "", true)}<div class="nav-divider bottom-divider"></div>${nav("Help & Support", "help", "help")}</aside><main class="page view-${state.view}" id="main">${storageError ? `<div class="note warning">${icon("info")}${esc(storageError)}</div>` : ""}${content()}</main>`;
   if (focus && document.getElementById(focus)) {
     const el = document.getElementById(focus);
     el.focus();
@@ -462,10 +456,7 @@ studentSend = function () {
             ? "sent"
             : "account";
         if (d.result !== "failed") {
-          const ok = commit((next) => {
-            next.users.push(toUser(d));
-            record(next, `Invited student ${d.email}`);
-          });
+          const ok = dispatch((st) => st.addStudent(toStudentInput(d)));
           if (!ok) d.result = "failed";
         }
         if (state.modal === "student-results") renderStudentResults();
@@ -672,10 +663,10 @@ function finishImport() {
   const valid = state.staged.filter((r) => !r.saved && !importErrors(r).length);
   if (
     valid.length &&
-    !commit((next) => {
-      next.users.push(...valid.map(toUser));
-      record(next, `Imported ${valid.length} students from CSV`);
-    }, `${valid.length} students added`)
+    !dispatch(
+      (st) => st.commitCsvImport(valid.map(toStudentInput)),
+      `${valid.length} students added`,
+    )
   )
     return;
   valid.forEach((r) => (r.saved = true));
@@ -731,6 +722,18 @@ document.addEventListener("click", (event) => {
         state.profileOpen = !state.profileOpen;
         render();
         break;
+      case "sign-in-as": {
+        const personId = target.dataset.personId;
+        const person = db.users.find(
+          (user) => user.type === "portal" && user.personId === personId,
+        );
+        state.profileOpen = false;
+        dispatch(
+          (st) => st.setActor(personId),
+          `Signed in as ${person?.name || "portal user"}`,
+        );
+        break;
+      }
       case "toggle-people":
         state.hidePeople = !state.hidePeople;
         render();
@@ -767,49 +770,31 @@ document.addEventListener("click", (event) => {
         render();
         break;
       case "set-user-status":
-        commit((next) => {
-          const u = next.users.find((u) => u.id === id);
-          u.status = target.dataset.status;
-          u.updatedAt = new Date().toISOString();
-          delete u.accessLabel;
-          record(
-            next,
-            `${u.status === "Active" ? "Activated" : "Suspended"} ${u.name}`,
-          );
-        }, "Status updated");
+        dispatch(
+          (st) => st.changeStatus(id, target.dataset.status),
+          "Status updated",
+        );
         state.rowMenu = null;
         render();
         break;
       case "resend-user":
-        commit((next) => {
-          record(
-            next,
-            `Resent invitation to ${next.users.find((u) => u.id === id).email}`,
-          );
-        }, "Invitation resent in this demo");
+        dispatch((st) => st.resendInvite(id), "Invitation resent in this demo");
         state.rowMenu = null;
         render();
         break;
       case "bulk-status":
-        commit((next) => {
-          next.users
-            .filter((u) => state.selected.includes(u.id))
-            .forEach((u) => {
-              u.status = target.dataset.status;
-              u.updatedAt = new Date().toISOString();
-            });
-          record(next, `Updated ${state.selected.length} selected users`);
-        }, "Selected records updated");
+        dispatch(
+          (st) => st.bulkStatus(state.selected, target.dataset.status),
+          "Selected records updated",
+        );
         state.actionsOpen = false;
         render();
         break;
       case "bulk-resend":
-        commit((next) => {
-          record(
-            next,
-            `Resent invitations for ${next.users.filter((u) => state.selected.includes(u.id) && u.status === "Pending invite").length} pending users`,
-          );
-        }, "Pending invitations resent in this demo");
+        dispatch(
+          (st) => st.bulkResend(state.selected),
+          "Pending invitations resent in this demo",
+        );
         state.actionsOpen = false;
         render();
         break;
@@ -818,12 +803,7 @@ document.addEventListener("click", (event) => {
         break;
       case "confirm-bulk-delete":
         if (
-          commit((next) => {
-            next.users = next.users.filter(
-              (u) => !state.selected.includes(u.id),
-            );
-            record(next, `Deleted ${state.selected.length} selected records`);
-          }, "Records deleted")
+          dispatch((st) => st.archivePeople(state.selected), "Records deleted")
         ) {
           state.selected = [];
           state.actionsOpen = false;
@@ -1070,12 +1050,7 @@ document.addEventListener("submit", (e) => {
     $("#picker-team-error").textContent = "Enter a unique team name.";
     return;
   }
-  if (
-    commit((next) => {
-      next.teams.push(name);
-      record(next, `Created team ${name}`);
-    }, "Team created")
-  ) {
+  if (dispatch((st) => st.createTeam(name), "Team created")) {
     state.picker = state.returnToPicker;
     state.picker.value = name;
     showPicker();

@@ -3,7 +3,10 @@ let css=await readFile('src/styles.css','utf8');
 const fonts=await Promise.all([['regular',400],['medium',500],['semibold',600]].map(async([name,weight])=>`@font-face{font-family:'Fira Sans';font-style:normal;font-weight:${weight};font-display:swap;src:url(data:font/ttf;base64,${(await readFile('src/fonts/fira-sans-'+name+'.ttf')).toString('base64')}) format('truetype');}`));
 css=css.replace(/^@import[^\n]+\n/,fonts.join('\n')+'\n');
 const data=await readFile('src/data.js','utf8');
-const app=await readFile('src/app.js','utf8');
+const stripImports=source=>source.replace(/^import[\s\S]*?from ["'][^"']+["'];\n/gm,'');
+const store=stripImports(await readFile('src/store.js','utf8'));
+const activity=stripImports(await readFile('src/activity.js','utf8'));
+const app=stripImports(await readFile('src/app.js','utf8'));
 const fidelity=(await readFile('src/fidelity.js','utf8')).replace('/* SANS LOGO */',await readFile('src/assets/sans-logo.svg','utf8'));
 const people=await readFile('src/people.js','utf8');
 const tables=await readFile('src/tables.js','utf8');
@@ -22,5 +25,5 @@ css=css.replace(/([^{}]+)\{([^{}]*)\}/g,(rule,selector,decls)=>{
 css=msBase+css;
 const template=await readFile('src/index.html','utf8');
 await mkdir('dist',{recursive:true});
-await writeFile('dist/index.html',template.replace('/* STYLES */',()=>css).replace('/* DATA */',()=>data.replaceAll('export ','' )).replace('/* APP */',()=>app.replace(/^import[\s\S]*?from ["']\.\/data\.js["'];\n/m,'')+'\n'+fidelity+'\n'+people+'\n'+tables));
+await writeFile('dist/index.html',template.replace('/* STYLES */',()=>css).replace('/* DATA */',()=>data.replaceAll('export ','' )+'\n'+store.replaceAll('export ','')+'\n'+activity.replaceAll('export ','')).replace('/* APP */',()=>app+'\n'+fidelity+'\n'+people+'\n'+tables));
 console.log('Built dist/index.html — standalone, no dependencies.');
