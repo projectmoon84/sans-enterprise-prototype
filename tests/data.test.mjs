@@ -117,3 +117,22 @@ test("students hold exactly one voucher and at most one admin group and team", (
   s.vouchers = [...VOUCHERS.slice(0, 2)];
   assert.throws(() => validateDatabase(d), /invalid/);
 });
+
+test("readStudentCSV matches forgiving headings and reports ignored columns", async () => {
+  const { readStudentCSV } = await import("../src/data.js");
+  const out = readStudentCSV(
+    "﻿First name,Surname,E-mail address,Department,Job title\nPat,Kerr,pat.kerr@example.com,Finance,\n",
+  );
+  assert.equal(out.rows[0].name, "Pat Kerr");
+  assert.equal(out.rows[0].email, "pat.kerr@example.com");
+  assert.equal(out.rows[0].workRole, "", "a blank work role stays blank");
+  assert.deepEqual(out.ignored, ["Department"]);
+  assert.ok(out.missing.includes("Voucher"));
+});
+
+test("template headings with (required) are understood", async () => {
+  const { readStudentCSV } = await import("../src/data.js");
+  const out = readStudentCSV("Name,Email (required),Voucher,Admin group,Team,Work role\nA,a@b.co,,,,\n");
+  assert.equal(out.matched.length, 6);
+  assert.equal(out.ignored.length, 0);
+});

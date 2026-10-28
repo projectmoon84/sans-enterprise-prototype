@@ -5674,6 +5674,77 @@ html::-webkit-scrollbar {
     display: none;
   }
 }
+
+/* ---------- CSV upload: guided steps, column guide, pre-check summary ---------- */
+.upload-modal .modal-body { padding-top: 24px; }
+.upload-modal .modal-footer { padding: 24px 40px 32px; }
+.upload-modal .actions { width: 100%; }
+.upload-modal .actions > .button { flex: 0 1 200px; }
+.upload-modal .actions { justify-content: flex-end; }
+.csv-steps { list-style: none; margin: 0 0 16px; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.csv-steps li { display: flex; gap: 12px; align-items: flex-start; background: #f8fafc; border-radius: 8px; padding: 14px 14px 16px; }
+.csv-steps strong { display: block; font-weight: 500; font-size: 14px; line-height: 20px; color: #0f172b; }
+.csv-steps p { margin: 2px 0 0; font-size: 13px; line-height: 18px; color: #45556c; }
+.csv-step-num { flex: none; width: 24px; height: 24px; border-radius: 50%; background: #e0f5fa; color: #00627a; font-weight: 600; font-size: 13px; display: grid; place-items: center; }
+.csv-template-btn { margin-top: 10px; min-height: 32px; padding: 5px 12px; font-size: 13px; gap: 6px; }
+.csv-template-btn .ms { font-size: 18px; }
+.csv-guide { border: 1px solid #dce6f1; border-radius: 8px; margin-bottom: 16px; }
+.csv-guide summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 10px 14px; font-size: 14px; color: #00627a; font-weight: 500; }
+.csv-guide summary::-webkit-details-marker { display: none; }
+.csv-guide summary span:not(.ms) { flex: 1; }
+.csv-guide summary .ms { color: #45556c; }
+.csv-guide[open] summary [data-icon="expand_more"] { transform: rotate(180deg); }
+.csv-guide summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 8px; }
+.csv-guide-table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 18px; }
+.csv-guide-table th, .csv-guide-table td { text-align: left; vertical-align: top; padding: 10px 14px; border-top: 1px solid #edf2f7; }
+.csv-guide-table thead th { color: #45556c; font-weight: 500; font-size: 12px; background: #f8fafc; }
+.csv-guide-table tbody th { font-weight: 500; color: #0f172b; width: 150px; white-space: nowrap; }
+.csv-guide-table td { color: #31445f; }
+.csv-guide .req { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 500; color: #9f2d00; background: #fff1eb; border-radius: 4px; padding: 0 5px; }
+.value-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.value-chip { font-size: 12px; line-height: 18px; padding: 1px 8px; border-radius: 999px; background: #f1f5f9; color: #31445f; user-select: all; }
+.csv-guide-foot { margin: 0; padding: 10px 14px 12px; border-top: 1px solid #edf2f7; font-size: 12px; color: #45556c; }
+.upload-modal .upload-zone { height: 150px; }
+.upload-modal .upload-visual > .ms { margin-bottom: 8px; }
+.csv-upload-error { display: flex; gap: 10px; align-items: flex-start; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; color: #7f1d1d; }
+.csv-upload-error .ms { color: #c10007; margin-top: 1px; }
+.csv-upload-error strong { display: block; font-weight: 500; font-size: 14px; }
+.csv-upload-error p { margin: 2px 0 0; font-size: 13px; line-height: 18px; }
+.csv-file-row.is-ready, .csv-file-row.is-checking { background: #fff; height: auto; min-height: 74px; }
+.csv-progress { height: 4px; border-radius: 4px; background: #edf2f7; margin-top: 8px; overflow: hidden; }
+.csv-progress div { height: 100%; background: #00b5d5; transition: width 0.35s ease; }
+.csv-summary { margin-top: 20px; }
+.csv-summary h3 { margin: 0 0 12px; font-size: 18px; line-height: 26px; font-weight: 500; color: #0f172b; outline: none; }
+.csv-tiles { display: grid; gap: 8px; }
+.csv-tile { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid #dce6f1; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+.csv-tile:hover { border-color: #8aa4c5; background: #f8fafc; }
+.csv-tile:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.csv-tile-icon { flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; }
+.csv-tile.ready .csv-tile-icon { background: #ecfdf3; color: #008236; }
+.csv-tile.needs .csv-tile-icon { background: #fffbeb; color: #b45309; }
+.csv-tile.error .csv-tile-icon { background: #fef2f2; color: #c10007; }
+.csv-tile-text { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.csv-tile-text strong { font-weight: 500; font-size: 15px; line-height: 22px; color: #0f172b; }
+.csv-tile-text span { font-size: 13px; line-height: 18px; color: #45556c; }
+.csv-tile > .ms:last-child { color: #8aa4c5; font-size: 18px; }
+.csv-tile:hover > .ms:last-child { color: #00627a; }
+.csv-columns { margin-top: 14px; display: grid; gap: 4px; font-size: 13px; line-height: 18px; color: #31445f; }
+.csv-columns p { margin: 0; display: flex; gap: 6px; align-items: flex-start; }
+.csv-columns .ms { font-size: 16px; margin-top: 1px; color: #008236; }
+.csv-columns .muted-line, .csv-columns .muted-line .ms { color: #62748e; }
+.csv-columns .warn-line { color: #92400e; }
+.csv-columns .warn-line .ms { color: #b45309; }
+.csv-columns strong { font-weight: 500; }
+@media (max-width: 720px) {
+  .csv-steps { grid-template-columns: 1fr; }
+  .upload-modal .modal-body, .upload-modal .modal-footer { padding-left: 20px; padding-right: 20px; }
+  .csv-guide-table tbody th { white-space: normal; width: 96px; }
+  .upload-modal .actions > .button { flex: 1; }
+}
+.csv-guide-table { table-layout: fixed; }
+.csv-guide-table th, .csv-guide-table td { height: auto; }
+.csv-guide-table tbody th { width: 170px; }
+.upload-modal .modal-body { overflow-y: auto; }
 </style></head>
 <body><div class="proto-bar" role="note"><strong>Prototype</strong><span>Fictional demo data. Changes stay in this browser.</span></div><div id="app"></div><dialog id="modal" aria-labelledby="modal-title"></dialog><div id="toast" role="status" aria-live="polite"></div><script type="module">const GROUPS = [
   "Federal Division",
@@ -5892,7 +5963,26 @@ function seed() {
     activity: [],
   };
 }
-function parseCSV(input) {
+// Column headings people actually use, mapped to the field they fill. Headings are
+// compared lower-case with anything in brackets and all punctuation removed, so
+// "Email (required)", "E-mail address" and "email_address" all match.
+const CSV_COLUMNS = [
+  { field: "name", label: "Name", aliases: ["name", "fullname", "studentname", "displayname", "learner", "learnername"] },
+  { field: "email", label: "Email", aliases: ["email", "emailaddress", "workemail", "mail", "emailid", "businessemail"] },
+  { field: "voucher", label: "Voucher", aliases: ["voucher", "vouchers", "vouchername", "trainingvoucher"] },
+  { field: "group", label: "Admin group", aliases: ["admingroup", "admingroups", "group", "suborg", "suborganisation", "suborganization", "division"] },
+  { field: "team", label: "Team", aliases: ["team", "teamname", "teams"] },
+  { field: "workRole", label: "Work role", aliases: ["workrole", "role", "jobrole", "jobtitle", "title", "position"] },
+];
+const FIRST_NAME = ["firstname", "givenname", "forename"];
+const LAST_NAME = ["lastname", "surname", "familyname"];
+function normaliseHeading(heading) {
+  return String(heading || "")
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+function splitCSV(input) {
   const rows = [];
   let row = [],
     cell = "",
@@ -5920,34 +6010,53 @@ function parseCSV(input) {
     throw Error("A quoted field is not closed. Check the CSV and try again.");
   row.push(cell);
   if (row.some((v) => v.trim())) rows.push(row);
-  if (rows.length < 2)
-    throw Error("Add a header row and at least one student.");
-  const headers = rows.shift().map((x) =>
-    x
-      .trim()
-      .toLowerCase()
-      .replace(/[ _-]+/g, ""),
-  );
-  if (!headers.includes("email"))
-    throw Error(
-      "Your CSV needs an email column. Download the template for an example.",
-    );
-  if (rows.length > 500)
-    throw Error("This prototype supports up to 500 students per import.");
-  return rows.map((r, i) => {
-    const o = {};
-    headers.forEach((h, j) => (o[h] = (r[j] || "").trim()));
-    return {
-      id: uid(),
-      row: i + 2,
-      name: o.name || "",
-      email: o.email || "",
-      voucher: o.voucher || "",
-      group: o.admingroup || o.admingroups || o.suborg || o.group || "",
-      team: o.team || "",
-      workRole: o.workrole || "SOC Analyst I",
-    };
+  return rows;
+}
+// Reads a student CSV and reports which columns were matched and which were ignored,
+// so the upload step can tell people exactly what it understood.
+function readStudentCSV(input) {
+  const rows = splitCSV(input);
+  if (!rows.length) throw Error("This file is empty. Add a heading row and at least one student.");
+  const raw = rows.shift().map((x) => x.trim());
+  const keys = raw.map(normaliseHeading);
+  const columnFor = {};
+  const matched = [];
+  const ignored = [];
+  keys.forEach((key, index) => {
+    const column = CSV_COLUMNS.find((c) => c.aliases.includes(key));
+    if (column && columnFor[column.field] === undefined) {
+      columnFor[column.field] = index;
+      matched.push({ field: column.field, label: column.label, heading: raw[index] });
+    } else if (FIRST_NAME.includes(key) && columnFor.first === undefined) columnFor.first = index;
+    else if (LAST_NAME.includes(key) && columnFor.last === undefined) columnFor.last = index;
+    else if (raw[index]) ignored.push(raw[index]);
   });
+  if (columnFor.name === undefined && (columnFor.first !== undefined || columnFor.last !== undefined))
+    matched.unshift({ field: "name", label: "Name", heading: [raw[columnFor.first], raw[columnFor.last]].filter(Boolean).join(" + ") });
+  if (columnFor.email === undefined)
+    throw Error(
+      `We couldn't find an email column. Add a column headed "Email" or download the template.${raw.filter(Boolean).length ? ` Columns found: ${raw.filter(Boolean).join(", ")}.` : ""}`,
+    );
+  if (!rows.length) throw Error("This file has headings but no students. Add at least one student, one per row.");
+  if (rows.length > 500)
+    throw Error(`This file has ${rows.length} students. Split it into files of up to 500 and import them one at a time.`);
+  const cell = (r, field) => (columnFor[field] === undefined ? "" : (r[columnFor[field]] || "").trim());
+  const parsed = rows.map((r, i) => ({
+    id: uid(),
+    row: i + 2,
+    name: cell(r, "name") || [cell(r, "first"), cell(r, "last")].filter(Boolean).join(" "),
+    email: cell(r, "email"),
+    voucher: cell(r, "voucher"),
+    group: cell(r, "group"),
+    team: cell(r, "team"),
+    workRole: cell(r, "workRole"),
+  }));
+  const present = new Set(matched.map((m) => m.field));
+  const missing = CSV_COLUMNS.filter((c) => !present.has(c.field)).map((c) => c.label);
+  return { rows: parsed, matched, ignored, missing };
+}
+function parseCSV(input) {
+  return readStudentCSV(input).rows;
 }
 // The one set of rules for a student row, used by the CSV review, the add-student
 // form and the edit dialogs. Each problem is { level, code, message, field }:
@@ -9436,11 +9545,12 @@ function studentSend() {
     );
   }
 }
+// The template is headings only: an example row would be imported if someone forgot to delete it.
+// The byte-order mark makes Excel open it as UTF-8, so names like Zoë survive.
 const TEMPLATE =
-  "name,email,voucher,admin_group,team,work_role\r\nAlex Chen,alex.chen@example.com,Cyber Defense FY26,Federal Division,Security Operations,SOC Analyst I\r\n";
+  "\uFEFFName,Email (required),Voucher,Admin group,Team,Work role\r\n";
 const SAMPLE =
-  TEMPLATE +
-  "Samira Khan,samira.khan@example.com,Cloud Security FY26,EMEA Operations,Cloud Platform,Cloud Security Engineer\r\nJamie Lee,jamie.lee@example.com,,Federal Division,,SOC Analyst I\r\nTaylor Morgan,taylor.invalid,Leadership FY26,,,Security Program Lead\r\nRiley Ng,riley.ng@example.com,Offensive Ops FY26,APAC Operations,Security Operations,SOC Analyst II\r\n";
+  "name,email,voucher,admin_group,team,work_role\r\nAlex Chen,alex.chen@example.com,Cyber Defense FY26,Federal Division,Security Operations,SOC Analyst I\r\nSamira Khan,samira.khan@example.com,Cloud Security FY26,EMEA Operations,Cloud Platform,Cloud Security Engineer\r\nJamie Lee,jamie.lee@example.com,,Federal Division,,SOC Analyst I\r\nTaylor Morgan,taylor.invalid,Leadership FY26,,,Security Program Lead\r\nRiley Ng,riley.ng@example.com,Offensive Ops FY26,APAC Operations,Security Operations,SOC Analyst II\r\n";
 function download(name, text, type = "text/plain") {
   const a = document.createElement("a");
   const url = URL.createObjectURL(new Blob([text], { type }));
@@ -9698,7 +9808,7 @@ document.addEventListener("change", async (e) => {
   if (el.id === "csv-file" && el.files[0]) {
     const f = el.files[0];
     if (f.size > 2 * 1024 * 1024) {
-      uploadForm("Use a CSV smaller than 2 MB.");
+      uploadForm("Split it into smaller files of up to 500 students and import them one at a time.", "That file is over 2 MB");
       return;
     }
     try {
@@ -10520,60 +10630,115 @@ closeModal = function () {
   state.modal = null;
   state.editing = null;
 };
+// Upload step: say what goes in each column up front, then check the file the moment
+// it lands and say what was found before the admin commits to reviewing it.
+function csvColumnGuide() {
+  const list = (items) => items.map((x) => `<span class="value-chip">${esc(x)}</span>`).join("");
+  const vouchers = db.vouchers?.length ? db.vouchers : VOUCHERS;
+  return `<details class="csv-guide"><summary>${icon("info")}<span>What goes in each column</span>${icon("expand_more")}</summary><table class="csv-guide-table"><tbody>
+<tr><th scope="row">Email <span class="req">Required</span></th><td>Their work email. This is how we match them to a SANS account.</td></tr>
+<tr><th scope="row">Name</th><td>First and last name. Separate First name and Last name columns work too.</td></tr>
+<tr><th scope="row">Voucher</th><td>Pays for their training. Leave it blank to assign one after upload; they won't be invited until you do.<div class="value-list">${list(vouchers)}</div></td></tr>
+<tr><th scope="row">Admin group</th><td>Optional. It must be one the voucher covers.<div class="value-list">${list(db.groups || GROUPS)}</div></td></tr>
+<tr><th scope="row">Team</th><td>Optional.<div class="value-list">${list(db.teams || TEAMS)}</div></td></tr>
+<tr><th scope="row">Work role</th><td>Optional, for example SOC Analyst I.</td></tr>
+</tbody></table><p class="csv-guide-foot">Column order doesn't matter, and extra columns are ignored. Up to 500 students per file.</p></details>`;
+}
+const PROBLEM_LABELS = {
+  invalid_email: ["invalid email", "invalid emails"],
+  duplicate_email: ["duplicate in this file", "duplicates in this file"],
+  already_student: ["already a student", "already students"],
+  unknown_voucher: ["voucher not recognised", "vouchers not recognised"],
+  unknown_group: ["admin group not recognised", "admin groups not recognised"],
+  group_not_covered: ["admin group outside its voucher", "admin groups outside their voucher"],
+  unknown_team: ["team not recognised", "teams not recognised"],
+};
+function csvSummary(u) {
+  const c = precheckImport(u.rows);
+  const tile = (kind, iconName, count, title, detail, chip) =>
+    count
+      ? `<button type="button" class="csv-tile ${kind}" data-action="csv-continue" data-chip="${chip}"><span class="csv-tile-icon">${icon(iconName)}</span><span class="csv-tile-text"><strong>${count} ${title}</strong>${detail ? `<span>${detail}</span>` : ""}</span>${icon("arrow_forward")}</button>`
+      : "";
+  const problemText = Object.entries(c.problems)
+    .sort((x, y) => y[1] - x[1])
+    .map(([code, n]) => `${n} ${(PROBLEM_LABELS[code] || [code, code])[n === 1 ? 0 : 1]}`)
+    .join(" · ");
+  const readyNotes = [
+    c.newAccount ? `${c.newAccount} will be asked to create a SANS account` : "",
+    c.alsoPortal ? `${c.alsoPortal} already ${c.alsoPortal === 1 ? "has" : "have"} portal access` : "",
+  ].filter(Boolean).join(" · ");
+  const columns = `<div class="csv-columns"><p>${icon("check")}<span><strong>Columns matched:</strong> ${u.matched.map((m) => esc(m.label)).join(", ")}</span></p>${u.ignored.length ? `<p class="muted-line">${icon("info")}<span><strong>Ignored:</strong> ${u.ignored.map(esc).join(", ")}</span></p>` : ""}${u.missing.includes("Voucher") ? `<p class="warn-line">${icon("info")}<span>No voucher column, so everyone will need a voucher assigned before they're invited.</span></p>` : ""}</div>`;
+  return `<div class="csv-summary" aria-live="polite"><h3>${pluralize(c.total, "student")} found</h3><div class="csv-tiles">${tile("ready", "check_circle", c.ready, "ready to invite", readyNotes, "ready")}${tile("needs", "error", c.needsVoucher, c.needsVoucher === 1 ? "needs a voucher" : "need a voucher", "Add them now and assign a voucher on the next screen", "needsVoucher")}${tile("error", "error", c.error, c.error === 1 ? "needs fixing" : "need fixing", esc(problemText), "error")}</div>${columns}</div>`;
+}
 function uploadDisplay() {
   state.modal = state.upload?.phase === "uploading" ? "uploading" : "upload";
   const u = state.upload;
   const ready = u?.phase === "ready";
+  const total = u?.rows?.length || 0;
+  const fileRow = u?.fileName
+    ? `<div class="csv-file-row ${ready ? "is-ready" : "is-checking"}">${csvIcon()}<div class="csv-file-detail"><strong>${esc(u.fileName)}</strong><p>${esc(u.sizeLabel)} <span class="file-divider">|</span> ${ready ? `<span class="file-done">${icon("check")}</span> Checked` : `Checking ${pluralize(total, "row")}…`}</p>${ready ? "" : `<div class="csv-progress" role="progressbar" aria-label="Checking file" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${u.progress}"><div style="width:${u.progress}%"></div></div>`}</div><button class="icon-btn" data-action="remove-upload" aria-label="Remove ${esc(u.fileName)} and choose another file">${icon("close")}</button></div>`
+    : "";
+  const empty = `<ol class="csv-steps"><li><span class="csv-step-num">1</span><div><strong>Download the template</strong><p>Or use your own spreadsheet. We'll match the columns.</p><button class="button csv-template-btn" data-action="csv-template">${icon("download")}Download CSV template</button></div></li><li><span class="csv-step-num">2</span><div><strong>Add one student per row</strong><p>Only email is required. You can fill gaps on the next screen.</p></div></li><li><span class="csv-step-num">3</span><div><strong>Upload it below</strong><p>We'll check every row before anything is saved.</p></div></li></ol>${csvColumnGuide()}`;
+  const error = u?.error
+    ? `<div class="csv-upload-error" role="alert">${icon("error")}<div><strong>${esc(u.errorTitle || "We couldn't read that file")}</strong><p>${esc(u.error)}</p></div></div>`
+    : "";
+  const zone = `<div class="upload-zone" id="csv-dropzone"><label for="csv-file" class="upload-visual">${icon("upload")}<span><strong>Click to upload</strong> or drag and drop</span><small>CSV · up to 500 students · 2 MB</small></label><input type="file" id="csv-file" accept=".csv,text/csv,.xlsx,.xls" aria-label="Choose a CSV file"></div>`;
   openModal(
-    "Import users via CSV",
+    "Import students from a CSV",
     "",
-    `<div class="csv-instructions"><ol><li>Download <button class="button-link" data-action="csv-template">CSV template</button></li><li>Add user details</li><li>Upload CSV file to proceed</li></ol></div>${u?.error ? `<p class="inline-error" role="alert">${esc(u.error)}</p>` : ""}${u?.fileName ? `<div class="csv-file-row">${csvIcon()}<div class="csv-file-detail"><strong>${esc(u.fileName)}</strong><p>${esc(u.sizeLabel)} <span class="file-divider">|</span> ${ready ? `<span class="file-done">${icon("check")}</span>` : icon("upload")} ${u.progress}%</p></div><button class="icon-btn" data-action="remove-upload" aria-label="Remove uploaded file">${icon("close")}</button></div>` : `<div class="upload-zone" id="csv-dropzone"><label for="csv-file" class="upload-visual">${icon("upload")}<span><strong>Click to upload</strong> or drag and drop</span><small>csv files only</small></label><input type="file" id="csv-file" accept=".csv,text/csv" aria-label="Choose a CSV file"></div>`}`,
-    `<div class="actions">${btn("Cancel", "close-modal")}${btn("Continue", "csv-continue", "primary", ready ? "" : "disabled")}</div>`,
+    u?.fileName ? `${fileRow}${ready ? csvSummary(u) : ""}` : `${empty}${error}${zone}`,
+    `<div class="actions">${btn("Cancel", "close-modal")}${btn(ready ? `Review ${pluralize(total, "student")}` : "Continue", "csv-continue", "primary", ready ? "" : "disabled")}</div>`,
   );
 }
-uploadForm = function (error = "") {
+uploadForm = function (error = "", errorTitle = "") {
   state.uploadToken = (state.uploadToken || 0) + 1;
-  state.upload = error ? { error } : null;
+  state.upload = error ? { error, errorTitle } : null;
   state.menu = false;
   render();
   uploadDisplay();
 };
 stageCSV = function (text, name, size) {
+  if (/\.xlsx?$/i.test(name)) {
+    uploadForm("In Excel, choose File → Save a copy → CSV UTF-8 (comma delimited), then upload the .csv file.", "That's an Excel file");
+    return;
+  }
   if (!/\.csv$/i.test(name)) {
-    uploadForm("Choose a CSV file.");
+    uploadForm("Choose a file that ends in .csv. You can save one from Excel, Numbers or Google Sheets.", "That isn't a CSV file");
     return;
   }
   let parsed;
   try {
-    parsed = parseCSV(text);
+    parsed = readStudentCSV(text);
   } catch (e) {
     uploadForm(e.message);
     return;
   }
   state.uploadToken = (state.uploadToken || 0) + 1;
   const token = state.uploadToken;
+  const bytes = size ?? new Blob([text]).size;
   state.upload = {
     fileName: name,
-    sizeLabel:
-      (size ?? new Blob([text]).size) > 1024
-        ? `${Math.ceil((size ?? new Blob([text]).size) / 1024)} KB`
-        : `${size ?? new Blob([text]).size} bytes`,
-    progress: 0,
+    sizeLabel: bytes > 1024 ? `${Math.ceil(bytes / 1024)} KB` : `${bytes} bytes`,
+    progress: 15,
     phase: "uploading",
-    rows: parsed,
+    rows: parsed.rows,
+    matched: parsed.matched,
+    ignored: parsed.ignored,
+    missing: parsed.missing,
   };
   uploadDisplay();
   setTimeout(() => {
     if (token !== state.uploadToken) return;
     state.upload.progress = 70;
     uploadDisplay();
-  }, 200);
+  }, 250);
   setTimeout(() => {
     if (token !== state.uploadToken) return;
     state.upload.progress = 100;
     state.upload.phase = "ready";
     uploadDisplay();
-  }, 850);
+    $("#modal .csv-summary h3")?.focus?.();
+  }, 700);
 };
 importErrors = function (row) {
   if (row.saved) return [];
@@ -11086,8 +11251,8 @@ document.addEventListener("drop", async (e) => {
   zone.classList.remove("dragging");
   const f = e.dataTransfer.files[0];
   if (!f) return;
-  if (!/\.csv$/i.test(f.name) || f.size > 2 * 1024 * 1024) {
-    uploadForm("Choose a CSV file smaller than 2 MB.");
+  if (f.size > 2 * 1024 * 1024) {
+    uploadForm("Split it into smaller files of up to 500 students and import them one at a time.", "That file is over 2 MB");
     return;
   }
   stageCSV(await f.text(), f.name, f.size);
@@ -13625,6 +13790,23 @@ importErrors = function (row) {
 function importStatus(row) {
   return rowStatus(rowProblems(row));
 }
+// The same checks as the review screen, run on a freshly read file before it's staged,
+// so the upload step can say what was found.
+function precheckImport(rows) {
+  const out = { total: rows.length, ready: 0, needsVoucher: 0, error: 0, problems: {}, newAccount: 0, alsoPortal: 0 };
+  const existing = db.users.filter((u) => u.type === "student");
+  for (const row of rows) {
+    const problems = checkStudentRow(row, { existing, batch: rows, directory: db, requireVoucher: false, accountExists: importAccountExists });
+    const status = rowStatus(problems);
+    out[status] += 1;
+    for (const p of problems) {
+      if (p.level === "error") out.problems[p.code] = (out.problems[p.code] || 0) + 1;
+      if (p.code === "new_account" && status === "ready") out.newAccount += 1;
+    }
+    if (status === "ready" && linkedPerson(String(row.email).trim().toLowerCase(), "portal")) out.alsoPortal += 1;
+  }
+  return out;
+}
 function importCounts() {
   const counts = { all: state.staged.length, error: 0, needsVoucher: 0, ready: 0, noGroup: 0, noTeam: 0 };
   for (const row of state.staged) {
@@ -13950,6 +14132,7 @@ document.addEventListener("click", (event) => {
     if (action === "csv-continue" && state.upload?.phase === "ready") {
       intercept();
       startImport(state.upload.rows, state.upload.fileName);
+      if (target.dataset.chip) chipKey().import = target.dataset.chip;
       state.upload = null;
       state.importAlertDismissed = false;
       $("#modal").close();

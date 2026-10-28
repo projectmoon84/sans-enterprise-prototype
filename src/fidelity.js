@@ -518,60 +518,115 @@ closeModal = function () {
   state.modal = null;
   state.editing = null;
 };
+// Upload step: say what goes in each column up front, then check the file the moment
+// it lands and say what was found before the admin commits to reviewing it.
+function csvColumnGuide() {
+  const list = (items) => items.map((x) => `<span class="value-chip">${esc(x)}</span>`).join("");
+  const vouchers = db.vouchers?.length ? db.vouchers : VOUCHERS;
+  return `<details class="csv-guide"><summary>${icon("info")}<span>What goes in each column</span>${icon("expand_more")}</summary><table class="csv-guide-table"><tbody>
+<tr><th scope="row">Email <span class="req">Required</span></th><td>Their work email. This is how we match them to a SANS account.</td></tr>
+<tr><th scope="row">Name</th><td>First and last name. Separate First name and Last name columns work too.</td></tr>
+<tr><th scope="row">Voucher</th><td>Pays for their training. Leave it blank to assign one after upload; they won't be invited until you do.<div class="value-list">${list(vouchers)}</div></td></tr>
+<tr><th scope="row">Admin group</th><td>Optional. It must be one the voucher covers.<div class="value-list">${list(db.groups || GROUPS)}</div></td></tr>
+<tr><th scope="row">Team</th><td>Optional.<div class="value-list">${list(db.teams || TEAMS)}</div></td></tr>
+<tr><th scope="row">Work role</th><td>Optional, for example SOC Analyst I.</td></tr>
+</tbody></table><p class="csv-guide-foot">Column order doesn't matter, and extra columns are ignored. Up to 500 students per file.</p></details>`;
+}
+const PROBLEM_LABELS = {
+  invalid_email: ["invalid email", "invalid emails"],
+  duplicate_email: ["duplicate in this file", "duplicates in this file"],
+  already_student: ["already a student", "already students"],
+  unknown_voucher: ["voucher not recognised", "vouchers not recognised"],
+  unknown_group: ["admin group not recognised", "admin groups not recognised"],
+  group_not_covered: ["admin group outside its voucher", "admin groups outside their voucher"],
+  unknown_team: ["team not recognised", "teams not recognised"],
+};
+function csvSummary(u) {
+  const c = precheckImport(u.rows);
+  const tile = (kind, iconName, count, title, detail, chip) =>
+    count
+      ? `<button type="button" class="csv-tile ${kind}" data-action="csv-continue" data-chip="${chip}"><span class="csv-tile-icon">${icon(iconName)}</span><span class="csv-tile-text"><strong>${count} ${title}</strong>${detail ? `<span>${detail}</span>` : ""}</span>${icon("arrow_forward")}</button>`
+      : "";
+  const problemText = Object.entries(c.problems)
+    .sort((x, y) => y[1] - x[1])
+    .map(([code, n]) => `${n} ${(PROBLEM_LABELS[code] || [code, code])[n === 1 ? 0 : 1]}`)
+    .join(" · ");
+  const readyNotes = [
+    c.newAccount ? `${c.newAccount} will be asked to create a SANS account` : "",
+    c.alsoPortal ? `${c.alsoPortal} already ${c.alsoPortal === 1 ? "has" : "have"} portal access` : "",
+  ].filter(Boolean).join(" · ");
+  const columns = `<div class="csv-columns"><p>${icon("check")}<span><strong>Columns matched:</strong> ${u.matched.map((m) => esc(m.label)).join(", ")}</span></p>${u.ignored.length ? `<p class="muted-line">${icon("info")}<span><strong>Ignored:</strong> ${u.ignored.map(esc).join(", ")}</span></p>` : ""}${u.missing.includes("Voucher") ? `<p class="warn-line">${icon("info")}<span>No voucher column, so everyone will need a voucher assigned before they're invited.</span></p>` : ""}</div>`;
+  return `<div class="csv-summary" aria-live="polite"><h3>${pluralize(c.total, "student")} found</h3><div class="csv-tiles">${tile("ready", "check_circle", c.ready, "ready to invite", readyNotes, "ready")}${tile("needs", "error", c.needsVoucher, c.needsVoucher === 1 ? "needs a voucher" : "need a voucher", "Add them now and assign a voucher on the next screen", "needsVoucher")}${tile("error", "error", c.error, c.error === 1 ? "needs fixing" : "need fixing", esc(problemText), "error")}</div>${columns}</div>`;
+}
 function uploadDisplay() {
   state.modal = state.upload?.phase === "uploading" ? "uploading" : "upload";
   const u = state.upload;
   const ready = u?.phase === "ready";
+  const total = u?.rows?.length || 0;
+  const fileRow = u?.fileName
+    ? `<div class="csv-file-row ${ready ? "is-ready" : "is-checking"}">${csvIcon()}<div class="csv-file-detail"><strong>${esc(u.fileName)}</strong><p>${esc(u.sizeLabel)} <span class="file-divider">|</span> ${ready ? `<span class="file-done">${icon("check")}</span> Checked` : `Checking ${pluralize(total, "row")}…`}</p>${ready ? "" : `<div class="csv-progress" role="progressbar" aria-label="Checking file" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${u.progress}"><div style="width:${u.progress}%"></div></div>`}</div><button class="icon-btn" data-action="remove-upload" aria-label="Remove ${esc(u.fileName)} and choose another file">${icon("close")}</button></div>`
+    : "";
+  const empty = `<ol class="csv-steps"><li><span class="csv-step-num">1</span><div><strong>Download the template</strong><p>Or use your own spreadsheet. We'll match the columns.</p><button class="button csv-template-btn" data-action="csv-template">${icon("download")}Download CSV template</button></div></li><li><span class="csv-step-num">2</span><div><strong>Add one student per row</strong><p>Only email is required. You can fill gaps on the next screen.</p></div></li><li><span class="csv-step-num">3</span><div><strong>Upload it below</strong><p>We'll check every row before anything is saved.</p></div></li></ol>${csvColumnGuide()}`;
+  const error = u?.error
+    ? `<div class="csv-upload-error" role="alert">${icon("error")}<div><strong>${esc(u.errorTitle || "We couldn't read that file")}</strong><p>${esc(u.error)}</p></div></div>`
+    : "";
+  const zone = `<div class="upload-zone" id="csv-dropzone"><label for="csv-file" class="upload-visual">${icon("upload")}<span><strong>Click to upload</strong> or drag and drop</span><small>CSV · up to 500 students · 2 MB</small></label><input type="file" id="csv-file" accept=".csv,text/csv,.xlsx,.xls" aria-label="Choose a CSV file"></div>`;
   openModal(
-    "Import users via CSV",
+    "Import students from a CSV",
     "",
-    `<div class="csv-instructions"><ol><li>Download <button class="button-link" data-action="csv-template">CSV template</button></li><li>Add user details</li><li>Upload CSV file to proceed</li></ol></div>${u?.error ? `<p class="inline-error" role="alert">${esc(u.error)}</p>` : ""}${u?.fileName ? `<div class="csv-file-row">${csvIcon()}<div class="csv-file-detail"><strong>${esc(u.fileName)}</strong><p>${esc(u.sizeLabel)} <span class="file-divider">|</span> ${ready ? `<span class="file-done">${icon("check")}</span>` : icon("upload")} ${u.progress}%</p></div><button class="icon-btn" data-action="remove-upload" aria-label="Remove uploaded file">${icon("close")}</button></div>` : `<div class="upload-zone" id="csv-dropzone"><label for="csv-file" class="upload-visual">${icon("upload")}<span><strong>Click to upload</strong> or drag and drop</span><small>csv files only</small></label><input type="file" id="csv-file" accept=".csv,text/csv" aria-label="Choose a CSV file"></div>`}`,
-    `<div class="actions">${btn("Cancel", "close-modal")}${btn("Continue", "csv-continue", "primary", ready ? "" : "disabled")}</div>`,
+    u?.fileName ? `${fileRow}${ready ? csvSummary(u) : ""}` : `${empty}${error}${zone}`,
+    `<div class="actions">${btn("Cancel", "close-modal")}${btn(ready ? `Review ${pluralize(total, "student")}` : "Continue", "csv-continue", "primary", ready ? "" : "disabled")}</div>`,
   );
 }
-uploadForm = function (error = "") {
+uploadForm = function (error = "", errorTitle = "") {
   state.uploadToken = (state.uploadToken || 0) + 1;
-  state.upload = error ? { error } : null;
+  state.upload = error ? { error, errorTitle } : null;
   state.menu = false;
   render();
   uploadDisplay();
 };
 stageCSV = function (text, name, size) {
+  if (/\.xlsx?$/i.test(name)) {
+    uploadForm("In Excel, choose File → Save a copy → CSV UTF-8 (comma delimited), then upload the .csv file.", "That's an Excel file");
+    return;
+  }
   if (!/\.csv$/i.test(name)) {
-    uploadForm("Choose a CSV file.");
+    uploadForm("Choose a file that ends in .csv. You can save one from Excel, Numbers or Google Sheets.", "That isn't a CSV file");
     return;
   }
   let parsed;
   try {
-    parsed = parseCSV(text);
+    parsed = readStudentCSV(text);
   } catch (e) {
     uploadForm(e.message);
     return;
   }
   state.uploadToken = (state.uploadToken || 0) + 1;
   const token = state.uploadToken;
+  const bytes = size ?? new Blob([text]).size;
   state.upload = {
     fileName: name,
-    sizeLabel:
-      (size ?? new Blob([text]).size) > 1024
-        ? `${Math.ceil((size ?? new Blob([text]).size) / 1024)} KB`
-        : `${size ?? new Blob([text]).size} bytes`,
-    progress: 0,
+    sizeLabel: bytes > 1024 ? `${Math.ceil(bytes / 1024)} KB` : `${bytes} bytes`,
+    progress: 15,
     phase: "uploading",
-    rows: parsed,
+    rows: parsed.rows,
+    matched: parsed.matched,
+    ignored: parsed.ignored,
+    missing: parsed.missing,
   };
   uploadDisplay();
   setTimeout(() => {
     if (token !== state.uploadToken) return;
     state.upload.progress = 70;
     uploadDisplay();
-  }, 200);
+  }, 250);
   setTimeout(() => {
     if (token !== state.uploadToken) return;
     state.upload.progress = 100;
     state.upload.phase = "ready";
     uploadDisplay();
-  }, 850);
+    $("#modal .csv-summary h3")?.focus?.();
+  }, 700);
 };
 importErrors = function (row) {
   if (row.saved) return [];
@@ -1084,8 +1139,8 @@ document.addEventListener("drop", async (e) => {
   zone.classList.remove("dragging");
   const f = e.dataTransfer.files[0];
   if (!f) return;
-  if (!/\.csv$/i.test(f.name) || f.size > 2 * 1024 * 1024) {
-    uploadForm("Choose a CSV file smaller than 2 MB.");
+  if (f.size > 2 * 1024 * 1024) {
+    uploadForm("Split it into smaller files of up to 500 students and import them one at a time.", "That file is over 2 MB");
     return;
   }
   stageCSV(await f.text(), f.name, f.size);

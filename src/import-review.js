@@ -25,6 +25,23 @@ importErrors = function (row) {
 function importStatus(row) {
   return rowStatus(rowProblems(row));
 }
+// The same checks as the review screen, run on a freshly read file before it's staged,
+// so the upload step can say what was found.
+function precheckImport(rows) {
+  const out = { total: rows.length, ready: 0, needsVoucher: 0, error: 0, problems: {}, newAccount: 0, alsoPortal: 0 };
+  const existing = db.users.filter((u) => u.type === "student");
+  for (const row of rows) {
+    const problems = checkStudentRow(row, { existing, batch: rows, directory: db, requireVoucher: false, accountExists: importAccountExists });
+    const status = rowStatus(problems);
+    out[status] += 1;
+    for (const p of problems) {
+      if (p.level === "error") out.problems[p.code] = (out.problems[p.code] || 0) + 1;
+      if (p.code === "new_account" && status === "ready") out.newAccount += 1;
+    }
+    if (status === "ready" && linkedPerson(String(row.email).trim().toLowerCase(), "portal")) out.alsoPortal += 1;
+  }
+  return out;
+}
 function importCounts() {
   const counts = { all: state.staged.length, error: 0, needsVoucher: 0, ready: 0, noGroup: 0, noTeam: 0 };
   for (const row of state.staged) {
@@ -350,6 +367,7 @@ document.addEventListener("click", (event) => {
     if (action === "csv-continue" && state.upload?.phase === "ready") {
       intercept();
       startImport(state.upload.rows, state.upload.fileName);
+      if (target.dataset.chip) chipKey().import = target.dataset.chip;
       state.upload = null;
       state.importAlertDismissed = false;
       $("#modal").close();
