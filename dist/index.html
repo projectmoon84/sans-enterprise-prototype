@@ -5681,19 +5681,11 @@ html::-webkit-scrollbar {
 .upload-modal .actions { width: 100%; }
 .upload-modal .actions > .button { flex: 0 1 200px; }
 .upload-modal .actions { justify-content: flex-end; }
-.csv-steps { list-style: none; margin: 0 0 16px; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.csv-steps li { display: flex; gap: 12px; align-items: flex-start; background: #f8fafc; border-radius: 8px; padding: 14px 14px 16px; }
-.csv-steps strong { display: block; font-weight: 500; font-size: 14px; line-height: 20px; color: #0f172b; }
-.csv-steps p { margin: 2px 0 0; font-size: 13px; line-height: 18px; color: #45556c; }
-.csv-step-num { flex: none; width: 24px; height: 24px; border-radius: 50%; background: #e0f5fa; color: #00627a; font-weight: 600; font-size: 13px; display: grid; place-items: center; }
-.csv-template-btn { margin-top: 10px; min-height: 32px; padding: 5px 12px; font-size: 13px; gap: 6px; }
-.csv-template-btn .ms { font-size: 18px; }
 .csv-guide { border: 1px solid #dce6f1; border-radius: 8px; margin-bottom: 16px; }
 .csv-guide summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 10px 14px; font-size: 14px; color: #00627a; font-weight: 500; }
 .csv-guide summary::-webkit-details-marker { display: none; }
 .csv-guide summary span:not(.ms) { flex: 1; }
 .csv-guide summary .ms { color: #45556c; }
-.csv-guide[open] summary [data-icon="expand_more"] { transform: rotate(180deg); }
 .csv-guide summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 8px; }
 .csv-guide-table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 18px; }
 .csv-guide-table th, .csv-guide-table td { text-align: left; vertical-align: top; padding: 10px 14px; border-top: 1px solid #edf2f7; }
@@ -5704,7 +5696,6 @@ html::-webkit-scrollbar {
 .value-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
 .value-chip { font-size: 12px; line-height: 18px; padding: 1px 8px; border-radius: 999px; background: #f1f5f9; color: #31445f; user-select: all; }
 .csv-guide-foot { margin: 0; padding: 10px 14px 12px; border-top: 1px solid #edf2f7; font-size: 12px; color: #45556c; }
-.upload-modal .upload-zone { height: 150px; }
 .upload-modal .upload-visual > .ms { margin-bottom: 8px; }
 .csv-upload-error { display: flex; gap: 10px; align-items: flex-start; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; color: #7f1d1d; }
 .csv-upload-error .ms { color: #c10007; margin-top: 1px; }
@@ -5736,8 +5727,7 @@ html::-webkit-scrollbar {
 .csv-columns .warn-line .ms { color: #b45309; }
 .csv-columns strong { font-weight: 500; }
 @media (max-width: 720px) {
-  .csv-steps { grid-template-columns: 1fr; }
-  .upload-modal .modal-body, .upload-modal .modal-footer { padding-left: 20px; padding-right: 20px; }
+    .upload-modal .modal-body, .upload-modal .modal-footer { padding-left: 20px; padding-right: 20px; }
   .csv-guide-table tbody th { white-space: normal; width: 96px; }
   .upload-modal .actions > .button { flex: 1; }
 }
@@ -5745,6 +5735,187 @@ html::-webkit-scrollbar {
 .csv-guide-table th, .csv-guide-table td { height: auto; }
 .csv-guide-table tbody th { width: 170px; }
 .upload-modal .modal-body { overflow-y: auto; }
+
+/* ---------- CSV upload: polish pass ---------- */
+/* Scrolled content now tucks under a solid header instead of showing through the title. */
+.upload-modal .modal-header { background: #fff; position: relative; z-index: 1; padding-bottom: 12px; }
+.upload-modal .modal-body { padding-top: 12px; padding-bottom: 8px; }
+.value-chip { white-space: nowrap; }
+/* Ring only for keyboard focus, drawn inside the zone so the scroll container can't clip it. */
+.upload-zone:focus-within { outline: none; }
+.upload-zone:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: -2px; }
+.upload-zone:hover { border-color: #8aa4c5; }
+.csv-tile > .ms:last-child { color: #62748e; }
+@media (max-width: 720px) {
+      .csv-guide-table tbody th, .csv-guide-table td { display: block; width: auto; padding: 0 14px; border: 0; }
+  .csv-guide-table tbody tr { display: block; padding: 10px 0; border-top: 1px solid #edf2f7; }
+  .csv-guide-table tbody tr:first-child { border-top: 0; }
+  .csv-guide-table tbody th { padding-bottom: 2px; }
+}
+
+/* ---------- CSV upload: distilled empty state ---------- */
+/* Drop zone leads; template and column guide sit under it as secondary help. */
+.upload-modal .upload-zone { height: 220px; }
+.csv-guide { margin-bottom: 0; }
+/* Pre-check results: one list with dividers, not three separate cards. */
+.csv-tiles { gap: 0; border: 1px solid #dce6f1; border-radius: 8px; overflow: hidden; }
+.csv-tile { border: 0; border-radius: 0; border-top: 1px solid #edf2f7; }
+.csv-tile:first-child { border-top: 0; }
+.csv-tile:hover { background: #f8fafc; }
+.csv-tile:focus-visible { outline-offset: -2px; }
+@media (max-width: 720px) {
+  .upload-modal .upload-zone { height: 180px; }
+}
+/* Hug the content: the empty state is short now, and results grow it naturally. */
+dialog.upload-modal { min-height: 0; }
+
+/* ---------- Motion: screen and dialog entrances (driven by motion.js) ---------- */
+:root { --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1); --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes motion-rise { from { opacity: 0; transform: translateY(var(--motion-rise, 10px)); } }
+@keyframes motion-rise-row { from { opacity: 0; transform: translateY(6px); } }
+@keyframes motion-fade { from { opacity: 0; } }
+@keyframes motion-fade-out { to { opacity: 0; } }
+@keyframes motion-dialog-in { from { opacity: 0; transform: translateY(16px) scale(0.985); } }
+@keyframes motion-dialog-out { to { opacity: 0; transform: translateY(8px) scale(0.99); } }
+/* "backwards" holds the start frame through the delay, then leaves no transform behind for sticky headers. */
+.motion-in { animation: motion-rise 360ms var(--ease-out-expo) var(--motion-delay, 0ms) backwards; }
+.motion-row { animation: motion-rise-row 320ms var(--ease-out-expo) var(--motion-delay, 0ms) backwards; }
+/* The outgoing page, frozen and fading; sits under the top bar (10) and sidebar (8). */
+.motion-ghost { position: fixed; z-index: 7; overflow: hidden; pointer-events: none; animation: motion-fade-out 140ms ease-out forwards; }
+/* Dialog open: backdrop fades, dialog rises, content follows a beat later with a shorter, smaller rise. */
+dialog.motion-dialog[open] { animation: motion-dialog-in 240ms var(--ease-out-quint); }
+dialog.motion-dialog[open]::backdrop { animation: motion-fade 200ms ease-out; }
+#modal .motion-in { --motion-rise: 6px; animation-duration: 260ms; }
+#modal .motion-row { animation-duration: 240ms; }
+/* Dialog close: a frozen copy sinks and fades with its backdrop. Sits above the page, below any newly opened dialog. */
+.motion-dialog-ghost { position: fixed; inset: 0; z-index: 90; pointer-events: none; background: #0f172b66; animation: motion-fade-out 180ms ease-out forwards; }
+.motion-dialog-ghost-box { z-index: 91; pointer-events: none; animation: motion-dialog-out 140ms ease-in forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .motion-ghost, .motion-dialog-ghost, .motion-dialog-ghost-box { display: none; }
+}
+
+/* ---------- CSV upload: Figma update (node 3122:10132) ---------- */
+.csv-template-link { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 16px; font-size: 16px; line-height: 24px; color: #007595; text-decoration: none; }
+.csv-template-link:hover span { text-decoration: underline; text-underline-offset: 3px; }
+.csv-template-link svg { flex: none; }
+.csv-template-link .ms { flex: none; }
+.upload-modal .upload-zone { height: 230px; border-color: #e2e8f0; margin-bottom: 16px; }
+.upload-featured-icon { display: grid; place-items: center; width: 40px; height: 40px; box-sizing: border-box; border: 1px solid #cad5e2; border-radius: 8px; background: #fff; margin-bottom: 12px; }
+.upload-visual small { color: #45556c; }
+/* The guide reads as a select: bordered field, then a hint line beneath it. */
+.csv-guide { border-color: #cad5e2; margin: 0; }
+.csv-guide summary { gap: 8px; padding: 8px 12px; font-size: 16px; line-height: 24px; color: #0f172b; }
+.csv-guide summary .ms { font-size: 24px; color: #62748e; }
+.csv-guide summary [data-icon="arrow_drop_down"] { color: #90a1b9; transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1); }
+.csv-guide.is-open summary [data-icon="arrow_drop_down"],
+.csv-guide[open]:not(.is-open) summary [data-icon="arrow_drop_down"] { transform: rotate(180deg); }
+.csv-guide-body { overflow: hidden; }
+.csv-guide-hint { margin: 6px 0 0; font-size: 14px; line-height: 20px; color: #45556c; }
+.upload-modal .actions > .button { flex: 0 1 250px; }
+@media (max-width: 720px) {
+  .upload-modal .upload-zone { height: 180px; }
+  .upload-modal .actions > .button { flex: 1; }
+}
+.csv-template-link { padding: 0; min-height: 0; }
+.upload-modal .modal-header { padding-bottom: 8px; }
+.upload-modal .modal-body { padding-top: 8px; }
+.upload-modal .modal-footer { padding-top: 32px; }
+.csv-template-link:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+
+/* ---------- Hover: every hover state fades in and out over 400ms ---------- */
+/* Colour-type properties only, so transform animations elsewhere (rotating chevrons, the mobile sidebar) keep their own timing. */
+:root { --hover-fade: 400ms ease; }
+a,
+button,
+summary,
+label,
+input,
+select,
+textarea,
+option,
+.button,
+[role="button"],
+[data-action],
+.nav-btn,
+.chip,
+.csv-tile,
+.upload-zone,
+tbody tr,
+tbody td {
+  transition-property: color, background-color, border-color, box-shadow, opacity, filter, text-decoration-color;
+  transition-duration: 400ms;
+  transition-timing-function: ease;
+}
+
+/* ---------- Every <select> opens the same menu as Actions ---------- */
+/* Customizable select (Chrome and Edge 135+): the closed control keeps its existing pill style, and the list it
+   opens is drawn like .dropdown-menu. Browsers without support keep their native list. */
+@supports (appearance: base-select) {
+  /* :root lifts this over the earlier ".toolbar select { appearance: none }" style rules. */
+  :root select,
+  ::picker(select) {
+    appearance: base-select;
+  }
+  select::picker-icon {
+    display: none; /* the pill already draws its own chevron */
+  }
+  ::picker(select) {
+    border: 1px solid #dce6f1;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px #10182824;
+    padding: 5px;
+    margin-top: 4px;
+    min-width: max(200px, anchor-size(width));
+    max-height: min(320px, 50dvh);
+    overflow-y: auto;
+    background: #fff;
+  }
+  select option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 4px;
+    padding: 10px 12px;
+    min-height: 40px;
+    box-sizing: border-box;
+    font-size: 14px;
+    line-height: 20px;
+    color: #31445f;
+    background: #fff;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  select option::checkmark {
+    display: none;
+  }
+  select option:hover,
+  select option:focus-visible {
+    background: #f1f5f9;
+    outline: none;
+  }
+  select option:checked {
+    color: #0f172b;
+    font-weight: 500;
+  }
+  select option:disabled {
+    color: #8fa2b8;
+    cursor: default;
+  }
+}
+
+/* ---------- Sidebar: sliding active bar (placed by motion.js) ---------- */
+.sidebar.has-nav-indicator .nav-btn.active:before { opacity: 0; }
+.nav-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  background: #00b5d5;
+  pointer-events: none;
+  z-index: 1;
+  will-change: transform;
+  transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1), height 380ms cubic-bezier(0.22, 1, 0.36, 1);
+}
 </style></head>
 <body><div class="proto-bar" role="note"><strong>Prototype</strong><span>Fictional demo data. Changes stay in this browser.</span></div><div id="app"></div><dialog id="modal" aria-labelledby="modal-title"></dialog><div id="toast" role="status" aria-live="polite"></div><script type="module">const GROUPS = [
   "Federal Division",
@@ -10113,6 +10284,17 @@ const SANS_LOGO = `<svg width="55" height="28" viewBox="0 0 55 28" fill="none" x
 </svg>
 
 `;
+// Figma icons for the CSV upload step, embedded from src/assets by build.mjs.
+const CSV_FILE_ICON = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Document/file-type-csv">
+<path id="Vector" d="M9.33333 2V4.66667C9.33333 4.84348 9.40357 5.01305 9.5286 5.13807C9.65362 5.2631 9.82319 5.33333 10 5.33333H12.6667M12.6667 8V5.33333L9.33333 2H4.66667C4.31304 2 3.97391 2.14048 3.72386 2.39052C3.47381 2.64057 3.33333 2.97971 3.33333 3.33333V8M4.66667 11C4.66667 10.7348 4.56131 10.4804 4.37377 10.2929C4.18624 10.1054 3.93188 10 3.66667 10C3.40145 10 3.1471 10.1054 2.95956 10.2929C2.77202 10.4804 2.66667 10.7348 2.66667 11V13C2.66667 13.2652 2.77202 13.5196 2.95956 13.7071C3.1471 13.8946 3.40145 14 3.66667 14C3.93188 14 4.18624 13.8946 4.37377 13.7071C4.56131 13.5196 4.66667 13.2652 4.66667 13M6.66667 13.5C6.66667 13.776 6.89067 14 7.16667 14H8C8.17681 14 8.34638 13.9298 8.4714 13.8047C8.59643 13.6797 8.66667 13.5101 8.66667 13.3333V12.6667C8.66667 12.4899 8.59643 12.3203 8.4714 12.1953C8.34638 12.0702 8.17681 12 8 12H7.33333C7.15652 12 6.98695 11.9298 6.86193 11.8047C6.7369 11.6797 6.66667 11.5101 6.66667 11.3333V10.6667C6.66667 10.4899 6.7369 10.3203 6.86193 10.1953C6.98695 10.0702 7.15652 10 7.33333 10H8.16667C8.29928 10 8.42645 10.0527 8.52022 10.1464C8.61399 10.2402 8.66667 10.3674 8.66667 10.5M10.6667 10L12 14L13.3333 10" stroke-linecap="round" stroke-linejoin="round" stroke="#0092B8"/>
+</g>
+</svg>`;
+const UPLOAD_CLOUD_ICON = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="upload-cloud-02">
+<path id="Icon" d="M13.3333 13.3333L10 10L6.66667 13.3333M10 10V17.5M16.6667 13.9524C17.6846 13.1117 18.3333 11.8399 18.3333 10.4167C18.3333 7.88536 16.2813 5.83333 13.75 5.83333C13.5679 5.83333 13.3975 5.73833 13.3051 5.58145C12.2184 3.73736 10.212 2.5 7.91667 2.5C4.46489 2.5 1.66667 5.29822 1.66667 8.75C1.66667 10.4718 2.36287 12.0309 3.48912 13.1613" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#314158"/>
+</g>
+</svg>`;
 Object.assign(state, {
   selected: [],
   group: "",
@@ -10635,15 +10817,41 @@ closeModal = function () {
 function csvColumnGuide() {
   const list = (items) => items.map((x) => `<span class="value-chip">${esc(x)}</span>`).join("");
   const vouchers = db.vouchers?.length ? db.vouchers : VOUCHERS;
-  return `<details class="csv-guide"><summary>${icon("info")}<span>What goes in each column</span>${icon("expand_more")}</summary><table class="csv-guide-table"><tbody>
+  return `<details class="csv-guide"><summary>${icon("info")}<span>What goes in each column</span>${icon("arrow_drop_down")}</summary><div class="csv-guide-body"><table class="csv-guide-table"><tbody>
 <tr><th scope="row">Email <span class="req">Required</span></th><td>Their work email. This is how we match them to a SANS account.</td></tr>
 <tr><th scope="row">Name</th><td>First and last name. Separate First name and Last name columns work too.</td></tr>
 <tr><th scope="row">Voucher</th><td>Pays for their training. Leave it blank to assign one after upload; they won't be invited until you do.<div class="value-list">${list(vouchers)}</div></td></tr>
 <tr><th scope="row">Admin group</th><td>Optional. It must be one the voucher covers.<div class="value-list">${list(db.groups || GROUPS)}</div></td></tr>
 <tr><th scope="row">Team</th><td>Optional.<div class="value-list">${list(db.teams || TEAMS)}</div></td></tr>
 <tr><th scope="row">Work role</th><td>Optional, for example SOC Analyst I.</td></tr>
-</tbody></table><p class="csv-guide-foot">Column order doesn't matter, and extra columns are ignored. Up to 500 students per file.</p></details>`;
+</tbody></table><p class="csv-guide-foot">Extra columns are ignored. Up to 500 students per file.</p></div></details><p class="csv-guide-hint">Only email is required. Column order doesn't matter.</p>`;
 }
+// The column guide opens and closes by animating its height, so the dialog grows and shrinks with it
+// instead of jumping. Interrupting mid-way reverses from wherever it has got to.
+document.addEventListener("click", (event) => {
+  const summary = event.target.closest(".csv-guide > summary");
+  if (!summary || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  event.preventDefault();
+  const details = summary.parentElement;
+  const body = details.querySelector(".csv-guide-body");
+  const opening = !details.classList.contains("is-open");
+  const from = details.open ? body.getBoundingClientRect().height : 0;
+  body.getAnimations().forEach((a) => a.cancel());
+  details.classList.toggle("is-open", opening);
+  details.open = true;
+  const to = opening ? body.scrollHeight : 0;
+  const animation = body.animate(
+    [
+      { height: `${from}px`, opacity: opening ? 0 : 1 },
+      { height: `${to}px`, opacity: opening ? 1 : 0 },
+    ],
+    { duration: opening ? 420 : 280, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+  );
+  animation.onfinish = () => {
+    if (!opening) details.open = false;
+    else details.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  };
+});
 const PROBLEM_LABELS = {
   invalid_email: ["invalid email", "invalid emails"],
   duplicate_email: ["duplicate in this file", "duplicates in this file"],
@@ -10678,17 +10886,20 @@ function uploadDisplay() {
   const fileRow = u?.fileName
     ? `<div class="csv-file-row ${ready ? "is-ready" : "is-checking"}">${csvIcon()}<div class="csv-file-detail"><strong>${esc(u.fileName)}</strong><p>${esc(u.sizeLabel)} <span class="file-divider">|</span> ${ready ? `<span class="file-done">${icon("check")}</span> Checked` : `Checking ${pluralize(total, "row")}…`}</p>${ready ? "" : `<div class="csv-progress" role="progressbar" aria-label="Checking file" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${u.progress}"><div style="width:${u.progress}%"></div></div>`}</div><button class="icon-btn" data-action="remove-upload" aria-label="Remove ${esc(u.fileName)} and choose another file">${icon("close")}</button></div>`
     : "";
-  const empty = `<ol class="csv-steps"><li><span class="csv-step-num">1</span><div><strong>Download the template</strong><p>Or use your own spreadsheet. We'll match the columns.</p><button class="button csv-template-btn" data-action="csv-template">${icon("download")}Download CSV template</button></div></li><li><span class="csv-step-num">2</span><div><strong>Add one student per row</strong><p>Only email is required. You can fill gaps on the next screen.</p></div></li><li><span class="csv-step-num">3</span><div><strong>Upload it below</strong><p>We'll check every row before anything is saved.</p></div></li></ol>${csvColumnGuide()}`;
+  const template = `<button class="button-link csv-template-link" data-action="csv-template">${CSV_FILE_ICON}<span>Download a template</span></button>`;
   const error = u?.error
     ? `<div class="csv-upload-error" role="alert">${icon("error")}<div><strong>${esc(u.errorTitle || "We couldn't read that file")}</strong><p>${esc(u.error)}</p></div></div>`
     : "";
-  const zone = `<div class="upload-zone" id="csv-dropzone"><label for="csv-file" class="upload-visual">${icon("upload")}<span><strong>Click to upload</strong> or drag and drop</span><small>CSV · up to 500 students · 2 MB</small></label><input type="file" id="csv-file" accept=".csv,text/csv,.xlsx,.xls" aria-label="Choose a CSV file"></div>`;
+  const zone = `<div class="upload-zone" id="csv-dropzone"><label for="csv-file" class="upload-visual"><span class="upload-featured-icon">${UPLOAD_CLOUD_ICON}</span><span><strong>Click to upload</strong> or drag and drop</span><small>csv files only</small></label><input type="file" id="csv-file" accept=".csv,text/csv,.xlsx,.xls" aria-label="Choose a CSV file"></div>`;
   openModal(
     "Import students from a CSV",
     "",
-    u?.fileName ? `${fileRow}${ready ? csvSummary(u) : ""}` : `${empty}${error}${zone}`,
+    u?.fileName ? `${fileRow}${ready ? csvSummary(u) : ""}` : `${template}${error}${zone}${csvColumnGuide()}`,
     `<div class="actions">${btn("Cancel", "close-modal")}${btn(ready ? `Review ${pluralize(total, "student")}` : "Continue", "csv-continue", "primary", ready ? "" : "disabled")}</div>`,
   );
+  // openModal focuses the first input, which here is the hidden file input and lights up the whole drop zone.
+  // Start on the template link instead; Tab still reaches the drop zone next.
+  if (!u?.fileName) setTimeout(() => $("#modal .csv-template-link")?.focus({ focusVisible: false }), 0);
 }
 uploadForm = function (error = "", errorTitle = "") {
   state.uploadToken = (state.uploadToken || 0) + 1;
@@ -14192,4 +14403,224 @@ document.addEventListener("click", (event) => {
     toast(error.message);
   }
 }, true);
+
+// ---------- Motion: screen and dialog entrances ----------
+// Every store change re-renders the whole page, so entrances run only on a real screen change or when a
+// dialog opens or moves to a new step, never on ordinary re-renders (typing, selecting, filtering).
+// Rendering stays synchronous: the old page is copied into a fading overlay while the new one staggers in
+// underneath, so code that navigates and then reaches for the new DOM keeps working.
+// Reduced-motion users get none of it (styles.css switches animations off; the overlay is skipped here).
+const REDUCED_MOTION = matchMedia("(prefers-reduced-motion: reduce)");
+const SECTION_STEP = 45; // ms between page sections
+const ROW_STEP = 18; // ms between table rows
+const ROW_CAP = 12; // rows past this arrive together, so long tables don't drag
+const PAGE_DELAY = 90; // let the old page mostly fade before the new one rises
+
+// A lone wrapper (a form, a grid) would animate as one block; step inside it so its parts stagger.
+function staggerTargets(root) {
+  let node = root;
+  for (let depth = 0; depth < 3; depth++) {
+    const kids = [...node.children].filter((el) => el.getClientRects().length);
+    if (kids.length !== 1 || kids[0].matches("table,.table-wrap,section,.card")) return kids;
+    node = kids[0];
+  }
+  return [...node.children].filter((el) => el.getClientRects().length);
+}
+
+// Returns the delay the next block should start at.
+function staggerIn(root, start) {
+  let delay = start;
+  for (const block of staggerTargets(root)) {
+    block.classList.add("motion-in");
+    block.style.setProperty("--motion-delay", `${delay}ms`);
+    block.querySelectorAll("tbody > tr").forEach((tr, i) => {
+      tr.classList.add("motion-row");
+      tr.style.setProperty("--motion-delay", `${delay + 60 + Math.min(i, ROW_CAP) * ROW_STEP}ms`);
+    });
+    delay += SECTION_STEP;
+  }
+  return delay;
+}
+
+function ghostOutgoingPage() {
+  const main = document.getElementById("main");
+  if (!main) return;
+  const r = main.getBoundingClientRect();
+  const top = Math.max(r.top, 0);
+  const bottom = Math.min(r.bottom, innerHeight);
+  if (bottom <= top) return;
+  const frame = document.createElement("div");
+  frame.className = "motion-ghost";
+  frame.setAttribute("aria-hidden", "true");
+  frame.inert = true;
+  Object.assign(frame.style, { top: `${top}px`, left: `${r.left}px`, width: `${r.width}px`, height: `${bottom - top}px` });
+  const copy = main.cloneNode(true);
+  copy.removeAttribute("id");
+  copy.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+  Object.assign(copy.style, { margin: "0", width: `${r.width}px`, minHeight: "0", transform: `translateY(${r.top - top}px)` });
+  frame.append(copy);
+  document.body.append(frame);
+  const remove = () => frame.remove();
+  frame.addEventListener("animationend", remove, { once: true });
+  setTimeout(remove, 400);
+}
+
+const motionBaseNavigate = navigate;
+navigate = function (view) {
+  const animate = view !== state.view && !REDUCED_MOTION.matches;
+  if (animate) ghostOutgoingPage();
+  motionBaseNavigate(view);
+  const main = document.getElementById("main");
+  if (animate && main) staggerIn(main, PAGE_DELAY);
+};
+
+// ---------- Dialogs ----------
+// Open: the backdrop fades in, the dialog rises gently, then its header, body sections and footer stagger in.
+// A new step (title change) re-staggers the content only. Progress updates that keep the title, such as
+// the CSV check, stay still. Everything is kept short because dialogs open constantly in this product.
+const DIALOG_START = 40; // content starts while the dialog is still settling
+const DIALOG_STEP = 30; // ms between dialog sections
+const DIALOG_CAP = 150; // long forms: sections past this arrive together
+const DIALOG_ROW_STEP = 12;
+
+function staggerDialog(modal, start) {
+  const header = modal.querySelector(".modal-header");
+  const body = modal.querySelector(".modal-body");
+  const footer = modal.querySelector(".modal-footer");
+  const mark = (el, delay) => {
+    el.classList.add("motion-in");
+    el.style.setProperty("--motion-delay", `${Math.min(delay, start + DIALOG_CAP)}ms`);
+  };
+  let delay = start;
+  if (header) mark(header, delay), (delay += DIALOG_STEP);
+  if (body)
+    for (const block of staggerTargets(body)) {
+      mark(block, delay);
+      block.querySelectorAll("tbody > tr").forEach((tr, i) => {
+        tr.classList.add("motion-row");
+        tr.style.setProperty("--motion-delay", `${Math.min(delay, start + DIALOG_CAP) + 40 + Math.min(i, ROW_CAP) * DIALOG_ROW_STEP}ms`);
+      });
+      delay += DIALOG_STEP;
+    }
+  if (footer) mark(footer, delay);
+}
+
+// Close: dialogs are closed synchronously from many places, so instead of delaying close() the dialog is
+// copied into a fading overlay at the moment it closes. If another dialog opens in the same tick (closing one
+// to open the next), no overlay is shown and the next one treats it as a step change, so the backdrop never
+// flickers off and on.
+var motionModalTitle = "";
+var motionClosedAt = -Infinity;
+const modalEl = $("#modal");
+const nativeModalClose = modalEl.close.bind(modalEl);
+modalEl.close = function (...args) {
+  if (!modalEl.open || REDUCED_MOTION.matches) return nativeModalClose(...args);
+  const rect = modalEl.getBoundingClientRect();
+  const look = getComputedStyle(modalEl);
+  const snapshot = { html: modalEl.innerHTML, className: modalEl.className, rect, background: look.backgroundColor, radius: look.borderRadius, shadow: look.boxShadow };
+  nativeModalClose(...args);
+  motionClosedAt = performance.now();
+  queueMicrotask(() => {
+    if (!modalEl.open) ghostClosedDialog(snapshot);
+  });
+};
+
+function ghostClosedDialog({ html, className, rect, background, radius, shadow }) {
+  const layer = document.createElement("div");
+  layer.className = "motion-dialog-ghost";
+  layer.setAttribute("aria-hidden", "true");
+  layer.inert = true;
+  const box = document.createElement("div");
+  box.className = className;
+  box.innerHTML = html;
+  box.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+  Object.assign(box.style, {
+    position: "fixed", top: `${rect.top}px`, left: `${rect.left}px`, width: `${rect.width}px`, height: `${rect.height}px`,
+    margin: "0", display: "flex", flexDirection: "column", overflow: "hidden", boxSizing: "border-box",
+    background, borderRadius: radius, boxShadow: shadow,
+  });
+  box.classList.add("motion-dialog-ghost-box");
+  box.setAttribute("aria-hidden", "true");
+  box.inert = true;
+  // Siblings, not nested, so the dialog's fade isn't multiplied by the backdrop's.
+  document.body.append(layer, box);
+  const remove = () => (layer.remove(), box.remove());
+  layer.addEventListener("animationend", remove, { once: true });
+  setTimeout(remove, 300);
+}
+
+// Some flows render the same dialog twice in one go (Add students does), and each render rewrites the
+// dialog's classes and content. A re-render in the same instant as an entrance therefore replays that
+// entrance rather than cancelling it; it hasn't been painted yet, so nothing visibly restarts.
+var motionEntrance = { at: -Infinity, opening: false };
+const motionBaseOpenModal = openModal;
+openModal = function (...args) {
+  const wasOpen = modalEl.open;
+  const now = performance.now();
+  const swapped = !wasOpen && now - motionClosedAt < 50;
+  const result = motionBaseOpenModal(...args);
+  const title = String(args[0] ?? "");
+  const sameInstant = wasOpen && now - motionEntrance.at < 16;
+  if (!REDUCED_MOTION.matches && (!wasOpen || title !== motionModalTitle || sameInstant)) {
+    const opening = sameInstant ? motionEntrance.opening : !wasOpen && !swapped;
+    if (opening) modalEl.classList.add("motion-dialog");
+    staggerDialog(modalEl, opening ? DIALOG_START : 0);
+    if (!sameInstant) motionEntrance = { at: now, opening };
+  }
+  motionModalTitle = title;
+  return result;
+};
+modalEl.addEventListener("close", () => {
+  if (!modalEl.open) motionModalTitle = "";
+});
+
+// ---------- Sidebar: the active bar slides to the new tab ----------
+// The whole sidebar is rebuilt on every render, so the bar is a single element re-placed after each one.
+// When the active tab changes it starts where the old bar was and slides to the new tab.
+var navBar = { top: null, height: null, key: "" };
+function placeNavBar() {
+  const sidebar = document.querySelector(".sidebar");
+  if (!sidebar) return;
+  const active = sidebar.querySelector(".nav-btn.active");
+  let bar = sidebar.querySelector(".nav-indicator");
+  if (!bar) {
+    bar = document.createElement("span");
+    bar.className = "nav-indicator";
+    bar.setAttribute("aria-hidden", "true");
+    sidebar.prepend(bar);
+    sidebar.classList.add("has-nav-indicator");
+  }
+  if (!active) {
+    bar.style.opacity = "0";
+    navBar = { top: null, height: null, key: "" };
+    return;
+  }
+  const top = active.offsetTop;
+  const height = active.offsetHeight;
+  const key = active.dataset.view || active.textContent;
+  const slide = navBar.top !== null && key !== navBar.key && !REDUCED_MOTION.matches;
+  // The bar is a fresh element after each render: pin it to its start point (the old tab when sliding,
+  // the current tab otherwise) with transitions off, then release it.
+  bar.style.transition = "none";
+  bar.style.transform = `translateY(${slide ? navBar.top : top}px)`;
+  bar.style.height = `${slide ? navBar.height : height}px`;
+  bar.style.opacity = "1";
+  bar.getBoundingClientRect();
+  bar.style.transition = "";
+  if (slide) {
+    bar.style.transform = `translateY(${top}px)`;
+    bar.style.height = `${height}px`;
+  }
+  navBar = { top, height, key };
+}
+const motionBaseRender = render;
+render = function (...args) {
+  const result = motionBaseRender(...args);
+  placeNavBar();
+  return result;
+};
+placeNavBar();
+
+// First load gets the same entrance as a screen change.
+if (!REDUCED_MOTION.matches && document.getElementById("main")) staggerIn(document.getElementById("main"), 0);
 </script></body></html>

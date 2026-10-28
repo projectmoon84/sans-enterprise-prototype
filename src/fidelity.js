@@ -1,6 +1,9 @@
 // Original Figma admin-management screens, implemented as reusable DOM components.
 // The app's existing local database and commit boundary remain the source of data.
 const SANS_LOGO = `/* SANS LOGO */`;
+// Figma icons for the CSV upload step, embedded from src/assets by build.mjs.
+const CSV_FILE_ICON = `/* ICON CSV FILE */`;
+const UPLOAD_CLOUD_ICON = `/* ICON UPLOAD CLOUD */`;
 Object.assign(state, {
   selected: [],
   group: "",
@@ -523,15 +526,41 @@ closeModal = function () {
 function csvColumnGuide() {
   const list = (items) => items.map((x) => `<span class="value-chip">${esc(x)}</span>`).join("");
   const vouchers = db.vouchers?.length ? db.vouchers : VOUCHERS;
-  return `<details class="csv-guide"><summary>${icon("info")}<span>What goes in each column</span>${icon("expand_more")}</summary><table class="csv-guide-table"><tbody>
+  return `<details class="csv-guide"><summary>${icon("info")}<span>What goes in each column</span>${icon("arrow_drop_down")}</summary><div class="csv-guide-body"><table class="csv-guide-table"><tbody>
 <tr><th scope="row">Email <span class="req">Required</span></th><td>Their work email. This is how we match them to a SANS account.</td></tr>
 <tr><th scope="row">Name</th><td>First and last name. Separate First name and Last name columns work too.</td></tr>
 <tr><th scope="row">Voucher</th><td>Pays for their training. Leave it blank to assign one after upload; they won't be invited until you do.<div class="value-list">${list(vouchers)}</div></td></tr>
 <tr><th scope="row">Admin group</th><td>Optional. It must be one the voucher covers.<div class="value-list">${list(db.groups || GROUPS)}</div></td></tr>
 <tr><th scope="row">Team</th><td>Optional.<div class="value-list">${list(db.teams || TEAMS)}</div></td></tr>
 <tr><th scope="row">Work role</th><td>Optional, for example SOC Analyst I.</td></tr>
-</tbody></table><p class="csv-guide-foot">Column order doesn't matter, and extra columns are ignored. Up to 500 students per file.</p></details>`;
+</tbody></table><p class="csv-guide-foot">Extra columns are ignored. Up to 500 students per file.</p></div></details><p class="csv-guide-hint">Only email is required. Column order doesn't matter.</p>`;
 }
+// The column guide opens and closes by animating its height, so the dialog grows and shrinks with it
+// instead of jumping. Interrupting mid-way reverses from wherever it has got to.
+document.addEventListener("click", (event) => {
+  const summary = event.target.closest(".csv-guide > summary");
+  if (!summary || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  event.preventDefault();
+  const details = summary.parentElement;
+  const body = details.querySelector(".csv-guide-body");
+  const opening = !details.classList.contains("is-open");
+  const from = details.open ? body.getBoundingClientRect().height : 0;
+  body.getAnimations().forEach((a) => a.cancel());
+  details.classList.toggle("is-open", opening);
+  details.open = true;
+  const to = opening ? body.scrollHeight : 0;
+  const animation = body.animate(
+    [
+      { height: `${from}px`, opacity: opening ? 0 : 1 },
+      { height: `${to}px`, opacity: opening ? 1 : 0 },
+    ],
+    { duration: opening ? 420 : 280, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+  );
+  animation.onfinish = () => {
+    if (!opening) details.open = false;
+    else details.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  };
+});
 const PROBLEM_LABELS = {
   invalid_email: ["invalid email", "invalid emails"],
   duplicate_email: ["duplicate in this file", "duplicates in this file"],
@@ -566,17 +595,20 @@ function uploadDisplay() {
   const fileRow = u?.fileName
     ? `<div class="csv-file-row ${ready ? "is-ready" : "is-checking"}">${csvIcon()}<div class="csv-file-detail"><strong>${esc(u.fileName)}</strong><p>${esc(u.sizeLabel)} <span class="file-divider">|</span> ${ready ? `<span class="file-done">${icon("check")}</span> Checked` : `Checking ${pluralize(total, "row")}…`}</p>${ready ? "" : `<div class="csv-progress" role="progressbar" aria-label="Checking file" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${u.progress}"><div style="width:${u.progress}%"></div></div>`}</div><button class="icon-btn" data-action="remove-upload" aria-label="Remove ${esc(u.fileName)} and choose another file">${icon("close")}</button></div>`
     : "";
-  const empty = `<ol class="csv-steps"><li><span class="csv-step-num">1</span><div><strong>Download the template</strong><p>Or use your own spreadsheet. We'll match the columns.</p><button class="button csv-template-btn" data-action="csv-template">${icon("download")}Download CSV template</button></div></li><li><span class="csv-step-num">2</span><div><strong>Add one student per row</strong><p>Only email is required. You can fill gaps on the next screen.</p></div></li><li><span class="csv-step-num">3</span><div><strong>Upload it below</strong><p>We'll check every row before anything is saved.</p></div></li></ol>${csvColumnGuide()}`;
+  const template = `<button class="button-link csv-template-link" data-action="csv-template">${CSV_FILE_ICON}<span>Download a template</span></button>`;
   const error = u?.error
     ? `<div class="csv-upload-error" role="alert">${icon("error")}<div><strong>${esc(u.errorTitle || "We couldn't read that file")}</strong><p>${esc(u.error)}</p></div></div>`
     : "";
-  const zone = `<div class="upload-zone" id="csv-dropzone"><label for="csv-file" class="upload-visual">${icon("upload")}<span><strong>Click to upload</strong> or drag and drop</span><small>CSV · up to 500 students · 2 MB</small></label><input type="file" id="csv-file" accept=".csv,text/csv,.xlsx,.xls" aria-label="Choose a CSV file"></div>`;
+  const zone = `<div class="upload-zone" id="csv-dropzone"><label for="csv-file" class="upload-visual"><span class="upload-featured-icon">${UPLOAD_CLOUD_ICON}</span><span><strong>Click to upload</strong> or drag and drop</span><small>csv files only</small></label><input type="file" id="csv-file" accept=".csv,text/csv,.xlsx,.xls" aria-label="Choose a CSV file"></div>`;
   openModal(
     "Import students from a CSV",
     "",
-    u?.fileName ? `${fileRow}${ready ? csvSummary(u) : ""}` : `${empty}${error}${zone}`,
+    u?.fileName ? `${fileRow}${ready ? csvSummary(u) : ""}` : `${template}${error}${zone}${csvColumnGuide()}`,
     `<div class="actions">${btn("Cancel", "close-modal")}${btn(ready ? `Review ${pluralize(total, "student")}` : "Continue", "csv-continue", "primary", ready ? "" : "disabled")}</div>`,
   );
+  // openModal focuses the first input, which here is the hidden file input and lights up the whole drop zone.
+  // Start on the template link instead; Tab still reaches the drop zone next.
+  if (!u?.fileName) setTimeout(() => $("#modal .csv-template-link")?.focus({ focusVisible: false }), 0);
 }
 uploadForm = function (error = "", errorTitle = "") {
   state.uploadToken = (state.uploadToken || 0) + 1;

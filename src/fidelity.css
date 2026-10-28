@@ -4164,19 +4164,11 @@ html::-webkit-scrollbar {
 .upload-modal .actions { width: 100%; }
 .upload-modal .actions > .button { flex: 0 1 200px; }
 .upload-modal .actions { justify-content: flex-end; }
-.csv-steps { list-style: none; margin: 0 0 16px; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.csv-steps li { display: flex; gap: 12px; align-items: flex-start; background: #f8fafc; border-radius: 8px; padding: 14px 14px 16px; }
-.csv-steps strong { display: block; font-weight: 500; font-size: 14px; line-height: 20px; color: #0f172b; }
-.csv-steps p { margin: 2px 0 0; font-size: 13px; line-height: 18px; color: #45556c; }
-.csv-step-num { flex: none; width: 24px; height: 24px; border-radius: 50%; background: #e0f5fa; color: #00627a; font-weight: 600; font-size: 13px; display: grid; place-items: center; }
-.csv-template-btn { margin-top: 10px; min-height: 32px; padding: 5px 12px; font-size: 13px; gap: 6px; }
-.csv-template-btn .ms { font-size: 18px; }
 .csv-guide { border: 1px solid #dce6f1; border-radius: 8px; margin-bottom: 16px; }
 .csv-guide summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 10px 14px; font-size: 14px; color: #00627a; font-weight: 500; }
 .csv-guide summary::-webkit-details-marker { display: none; }
 .csv-guide summary span:not(.ms) { flex: 1; }
 .csv-guide summary .ms { color: #45556c; }
-.csv-guide[open] summary [data-icon="expand_more"] { transform: rotate(180deg); }
 .csv-guide summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 8px; }
 .csv-guide-table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 18px; }
 .csv-guide-table th, .csv-guide-table td { text-align: left; vertical-align: top; padding: 10px 14px; border-top: 1px solid #edf2f7; }
@@ -4187,7 +4179,6 @@ html::-webkit-scrollbar {
 .value-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
 .value-chip { font-size: 12px; line-height: 18px; padding: 1px 8px; border-radius: 999px; background: #f1f5f9; color: #31445f; user-select: all; }
 .csv-guide-foot { margin: 0; padding: 10px 14px 12px; border-top: 1px solid #edf2f7; font-size: 12px; color: #45556c; }
-.upload-modal .upload-zone { height: 150px; }
 .upload-modal .upload-visual > .ms { margin-bottom: 8px; }
 .csv-upload-error { display: flex; gap: 10px; align-items: flex-start; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; color: #7f1d1d; }
 .csv-upload-error .ms { color: #c10007; margin-top: 1px; }
@@ -4219,8 +4210,7 @@ html::-webkit-scrollbar {
 .csv-columns .warn-line .ms { color: #b45309; }
 .csv-columns strong { font-weight: 500; }
 @media (max-width: 720px) {
-  .csv-steps { grid-template-columns: 1fr; }
-  .upload-modal .modal-body, .upload-modal .modal-footer { padding-left: 20px; padding-right: 20px; }
+    .upload-modal .modal-body, .upload-modal .modal-footer { padding-left: 20px; padding-right: 20px; }
   .csv-guide-table tbody th { white-space: normal; width: 96px; }
   .upload-modal .actions > .button { flex: 1; }
 }
@@ -4228,3 +4218,183 @@ html::-webkit-scrollbar {
 .csv-guide-table th, .csv-guide-table td { height: auto; }
 .csv-guide-table tbody th { width: 170px; }
 .upload-modal .modal-body { overflow-y: auto; }
+
+/* ---------- CSV upload: polish pass ---------- */
+/* Scrolled content now tucks under a solid header instead of showing through the title. */
+.upload-modal .modal-header { background: #fff; position: relative; z-index: 1; padding-bottom: 12px; }
+.upload-modal .modal-body { padding-top: 12px; padding-bottom: 8px; }
+.value-chip { white-space: nowrap; }
+/* Ring only for keyboard focus, drawn inside the zone so the scroll container can't clip it. */
+.upload-zone:focus-within { outline: none; }
+.upload-zone:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: -2px; }
+.upload-zone:hover { border-color: #8aa4c5; }
+.csv-tile > .ms:last-child { color: #62748e; }
+@media (max-width: 720px) {
+      .csv-guide-table tbody th, .csv-guide-table td { display: block; width: auto; padding: 0 14px; border: 0; }
+  .csv-guide-table tbody tr { display: block; padding: 10px 0; border-top: 1px solid #edf2f7; }
+  .csv-guide-table tbody tr:first-child { border-top: 0; }
+  .csv-guide-table tbody th { padding-bottom: 2px; }
+}
+
+/* ---------- CSV upload: distilled empty state ---------- */
+/* Drop zone leads; template and column guide sit under it as secondary help. */
+.upload-modal .upload-zone { height: 220px; }
+.csv-guide { margin-bottom: 0; }
+/* Pre-check results: one list with dividers, not three separate cards. */
+.csv-tiles { gap: 0; border: 1px solid #dce6f1; border-radius: 8px; overflow: hidden; }
+.csv-tile { border: 0; border-radius: 0; border-top: 1px solid #edf2f7; }
+.csv-tile:first-child { border-top: 0; }
+.csv-tile:hover { background: #f8fafc; }
+.csv-tile:focus-visible { outline-offset: -2px; }
+@media (max-width: 720px) {
+  .upload-modal .upload-zone { height: 180px; }
+}
+/* Hug the content: the empty state is short now, and results grow it naturally. */
+dialog.upload-modal { min-height: 0; }
+
+/* ---------- Motion: screen and dialog entrances (driven by motion.js) ---------- */
+:root { --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1); --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes motion-rise { from { opacity: 0; transform: translateY(var(--motion-rise, 10px)); } }
+@keyframes motion-rise-row { from { opacity: 0; transform: translateY(6px); } }
+@keyframes motion-fade { from { opacity: 0; } }
+@keyframes motion-fade-out { to { opacity: 0; } }
+@keyframes motion-dialog-in { from { opacity: 0; transform: translateY(16px) scale(0.985); } }
+@keyframes motion-dialog-out { to { opacity: 0; transform: translateY(8px) scale(0.99); } }
+/* "backwards" holds the start frame through the delay, then leaves no transform behind for sticky headers. */
+.motion-in { animation: motion-rise 360ms var(--ease-out-expo) var(--motion-delay, 0ms) backwards; }
+.motion-row { animation: motion-rise-row 320ms var(--ease-out-expo) var(--motion-delay, 0ms) backwards; }
+/* The outgoing page, frozen and fading; sits under the top bar (10) and sidebar (8). */
+.motion-ghost { position: fixed; z-index: 7; overflow: hidden; pointer-events: none; animation: motion-fade-out 140ms ease-out forwards; }
+/* Dialog open: backdrop fades, dialog rises, content follows a beat later with a shorter, smaller rise. */
+dialog.motion-dialog[open] { animation: motion-dialog-in 240ms var(--ease-out-quint); }
+dialog.motion-dialog[open]::backdrop { animation: motion-fade 200ms ease-out; }
+#modal .motion-in { --motion-rise: 6px; animation-duration: 260ms; }
+#modal .motion-row { animation-duration: 240ms; }
+/* Dialog close: a frozen copy sinks and fades with its backdrop. Sits above the page, below any newly opened dialog. */
+.motion-dialog-ghost { position: fixed; inset: 0; z-index: 90; pointer-events: none; background: #0f172b66; animation: motion-fade-out 180ms ease-out forwards; }
+.motion-dialog-ghost-box { z-index: 91; pointer-events: none; animation: motion-dialog-out 140ms ease-in forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .motion-ghost, .motion-dialog-ghost, .motion-dialog-ghost-box { display: none; }
+}
+
+/* ---------- CSV upload: Figma update (node 3122:10132) ---------- */
+.csv-template-link { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 16px; font-size: 16px; line-height: 24px; color: #007595; text-decoration: none; }
+.csv-template-link:hover span { text-decoration: underline; text-underline-offset: 3px; }
+.csv-template-link svg { flex: none; }
+.upload-modal .upload-zone { height: 230px; border-color: #e2e8f0; margin-bottom: 16px; }
+.upload-featured-icon { display: grid; place-items: center; width: 40px; height: 40px; box-sizing: border-box; border: 1px solid #cad5e2; border-radius: 8px; background: #fff; margin-bottom: 12px; }
+.upload-visual small { color: #45556c; }
+/* The guide reads as a select: bordered field, then a hint line beneath it. */
+.csv-guide { border-color: #cad5e2; margin: 0; }
+.csv-guide summary { gap: 8px; padding: 8px 12px; font-size: 16px; line-height: 24px; color: #0f172b; }
+.csv-guide summary .ms { font-size: 24px; color: #62748e; }
+.csv-guide summary [data-icon="arrow_drop_down"] { color: #90a1b9; transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1); }
+.csv-guide.is-open summary [data-icon="arrow_drop_down"],
+.csv-guide[open]:not(.is-open) summary [data-icon="arrow_drop_down"] { transform: rotate(180deg); }
+.csv-guide-body { overflow: hidden; }
+.csv-guide-hint { margin: 6px 0 0; font-size: 14px; line-height: 20px; color: #45556c; }
+.upload-modal .actions > .button { flex: 0 1 250px; }
+@media (max-width: 720px) {
+  .upload-modal .upload-zone { height: 180px; }
+  .upload-modal .actions > .button { flex: 1; }
+}
+.csv-template-link { padding: 0; min-height: 0; }
+.upload-modal .modal-header { padding-bottom: 8px; }
+.upload-modal .modal-body { padding-top: 8px; }
+.upload-modal .modal-footer { padding-top: 32px; }
+.csv-template-link:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+
+/* ---------- Hover: every hover state fades in and out over 400ms ---------- */
+/* Colour-type properties only, so transform animations elsewhere (rotating chevrons, the mobile sidebar) keep their own timing. */
+:root { --hover-fade: 400ms ease; }
+a,
+button,
+summary,
+label,
+input,
+select,
+textarea,
+option,
+.button,
+[role="button"],
+[data-action],
+.nav-btn,
+.chip,
+.csv-tile,
+.upload-zone,
+tbody tr,
+tbody td {
+  transition-property: color, background-color, border-color, box-shadow, opacity, filter, text-decoration-color;
+  transition-duration: 400ms;
+  transition-timing-function: ease;
+}
+
+/* ---------- Every <select> opens the same menu as Actions ---------- */
+/* Customizable select (Chrome and Edge 135+): the closed control keeps its existing pill style, and the list it
+   opens is drawn like .dropdown-menu. Browsers without support keep their native list. */
+@supports (appearance: base-select) {
+  /* :root lifts this over the earlier ".toolbar select { appearance: none }" style rules. */
+  :root select,
+  ::picker(select) {
+    appearance: base-select;
+  }
+  select::picker-icon {
+    display: none; /* the pill already draws its own chevron */
+  }
+  ::picker(select) {
+    border: 1px solid #dce6f1;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px #10182824;
+    padding: 5px;
+    margin-top: 4px;
+    min-width: max(200px, anchor-size(width));
+    max-height: min(320px, 50dvh);
+    overflow-y: auto;
+    background: #fff;
+  }
+  select option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 4px;
+    padding: 10px 12px;
+    min-height: 40px;
+    box-sizing: border-box;
+    font-size: 14px;
+    line-height: 20px;
+    color: #31445f;
+    background: #fff;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  select option::checkmark {
+    display: none;
+  }
+  select option:hover,
+  select option:focus-visible {
+    background: #f1f5f9;
+    outline: none;
+  }
+  select option:checked {
+    color: #0f172b;
+    font-weight: 500;
+  }
+  select option:disabled {
+    color: #8fa2b8;
+    cursor: default;
+  }
+}
+
+/* ---------- Sidebar: sliding active bar (placed by motion.js) ---------- */
+.sidebar.has-nav-indicator .nav-btn.active:before { opacity: 0; }
+.nav-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  background: #00b5d5;
+  pointer-events: none;
+  z-index: 1;
+  will-change: transform;
+  transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1), height 380ms cubic-bezier(0.22, 1, 0.36, 1);
+}
