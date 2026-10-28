@@ -592,11 +592,12 @@ function studentSend() {
     );
   }
 }
+// The template is headings only: an example row would be imported if someone forgot to delete it.
+// The byte-order mark makes Excel open it as UTF-8, so names like Zoë survive.
 const TEMPLATE =
-  "name,email,voucher,admin_group,team,work_role\r\nAlex Chen,alex.chen@example.com,Cyber Defense FY26,Federal Division,Security Operations,SOC Analyst I\r\n";
+  "\uFEFFName,Email (required),Voucher,Admin group,Team,Work role\r\n";
 const SAMPLE =
-  TEMPLATE +
-  "Samira Khan,samira.khan@example.com,Cloud Security FY26,EMEA Operations,Cloud Platform,Cloud Security Engineer\r\nJamie Lee,jamie.lee@example.com,,Federal Division,,SOC Analyst I\r\nTaylor Morgan,taylor.invalid,Leadership FY26,,,Security Program Lead\r\nRiley Ng,riley.ng@example.com,Offensive Ops FY26,APAC Operations,Security Operations,SOC Analyst II\r\n";
+  "name,email,voucher,admin_group,team,work_role\r\nAlex Chen,alex.chen@example.com,Cyber Defense FY26,Federal Division,Security Operations,SOC Analyst I\r\nSamira Khan,samira.khan@example.com,Cloud Security FY26,EMEA Operations,Cloud Platform,Cloud Security Engineer\r\nJamie Lee,jamie.lee@example.com,,Federal Division,,SOC Analyst I\r\nTaylor Morgan,taylor.invalid,Leadership FY26,,,Security Program Lead\r\nRiley Ng,riley.ng@example.com,Offensive Ops FY26,APAC Operations,Security Operations,SOC Analyst II\r\n";
 function download(name, text, type = "text/plain") {
   const a = document.createElement("a");
   const url = URL.createObjectURL(new Blob([text], { type }));
@@ -854,7 +855,7 @@ document.addEventListener("change", async (e) => {
   if (el.id === "csv-file" && el.files[0]) {
     const f = el.files[0];
     if (f.size > 2 * 1024 * 1024) {
-      uploadForm("Use a CSV smaller than 2 MB.");
+      uploadForm("Split it into smaller files of up to 500 students and import them one at a time.", "That file is over 2 MB");
       return;
     }
     try {

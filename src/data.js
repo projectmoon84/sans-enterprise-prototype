@@ -215,7 +215,26 @@ export function seed() {
     activity: [],
   };
 }
-export function parseCSV(input) {
+// Column headings people actually use, mapped to the field they fill. Headings are
+// compared lower-case with anything in brackets and all punctuation removed, so
+// "Email (required)", "E-mail address" and "email_address" all match.
+export const CSV_COLUMNS = [
+  { field: "name", label: "Name", aliases: ["name", "fullname", "studentname", "displayname", "learner", "learnername"] },
+  { field: "email", label: "Email", aliases: ["email", "emailaddress", "workemail", "mail", "emailid", "businessemail"] },
+  { field: "voucher", label: "Voucher", aliases: ["voucher", "vouchers", "vouchername", "trainingvoucher"] },
+  { field: "group", label: "Admin group", aliases: ["admingroup", "admingroups", "group", "suborg", "suborganisation", "suborganization"] },
+  { field: "team", label: "Team", aliases: ["team", "teamname", "teams"] },
+  { field: "workRole", label: "Work role", aliases: ["workrole", "role", "jobrole", "jobtitle", "position"] },
+];
+const FIRST_NAME = ["firstname", "givenname", "forename"];
+const LAST_NAME = ["lastname", "surname", "familyname"];
+export function normaliseHeading(heading) {
+  return String(heading || "")
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+function splitCSV(input) {
   const rows = [];
   let row = [],
     cell = "",
@@ -243,34 +262,53 @@ export function parseCSV(input) {
     throw Error("A quoted field is not closed. Check the CSV and try again.");
   row.push(cell);
   if (row.some((v) => v.trim())) rows.push(row);
-  if (rows.length < 2)
-    throw Error("Add a header row and at least one student.");
-  const headers = rows.shift().map((x) =>
-    x
-      .trim()
-      .toLowerCase()
-      .replace(/[ _-]+/g, ""),
-  );
-  if (!headers.includes("email"))
-    throw Error(
-      "Your CSV needs an email column. Download the template for an example.",
-    );
-  if (rows.length > 500)
-    throw Error("This prototype supports up to 500 students per import.");
-  return rows.map((r, i) => {
-    const o = {};
-    headers.forEach((h, j) => (o[h] = (r[j] || "").trim()));
-    return {
-      id: uid(),
-      row: i + 2,
-      name: o.name || "",
-      email: o.email || "",
-      voucher: o.voucher || "",
-      group: o.admingroup || o.admingroups || o.suborg || o.group || "",
-      team: o.team || "",
-      workRole: o.workrole || "SOC Analyst I",
-    };
+  return rows;
+}
+// Reads a student CSV and reports which columns were matched and which were ignored,
+// so the upload step can tell people exactly what it understood.
+export function readStudentCSV(input) {
+  const rows = splitCSV(input);
+  if (!rows.length) throw Error("This file is empty. Add a heading row and at least one student.");
+  const raw = rows.shift().map((x) => x.trim());
+  const keys = raw.map(normaliseHeading);
+  const columnFor = {};
+  const matched = [];
+  const ignored = [];
+  keys.forEach((key, index) => {
+    const column = CSV_COLUMNS.find((c) => c.aliases.includes(key));
+    if (column && columnFor[column.field] === undefined) {
+      columnFor[column.field] = index;
+      matched.push({ field: column.field, label: column.label, heading: raw[index] });
+    } else if (FIRST_NAME.includes(key) && columnFor.first === undefined) columnFor.first = index;
+    else if (LAST_NAME.includes(key) && columnFor.last === undefined) columnFor.last = index;
+    else if (raw[index]) ignored.push(raw[index]);
   });
+  if (columnFor.name === undefined && (columnFor.first !== undefined || columnFor.last !== undefined))
+    matched.unshift({ field: "name", label: "Name", heading: [raw[columnFor.first], raw[columnFor.last]].filter(Boolean).join(" + ") });
+  if (columnFor.email === undefined)
+    throw Error(
+      `We couldn't find an email column. Add a column headed "Email" or download the template.${raw.filter(Boolean).length ? ` Columns found: ${raw.filter(Boolean).join(", ")}.` : ""}`,
+    );
+  if (!rows.length) throw Error("This file has headings but no students. Add at least one student, one per row.");
+  if (rows.length > 500)
+    throw Error(`This file has ${rows.length} students. Split it into files of up to 500 and import them one at a time.`);
+  const cell = (r, field) => (columnFor[field] === undefined ? "" : (r[columnFor[field]] || "").trim());
+  const parsed = rows.map((r, i) => ({
+    id: uid(),
+    row: i + 2,
+    name: cell(r, "name") || [cell(r, "first"), cell(r, "last")].filter(Boolean).join(" "),
+    email: cell(r, "email"),
+    voucher: cell(r, "voucher"),
+    group: cell(r, "group"),
+    team: cell(r, "team"),
+    workRole: cell(r, "workRole"),
+  }));
+  const present = new Set(matched.map((m) => m.field));
+  const missing = CSV_COLUMNS.filter((c) => !present.has(c.field)).map((c) => c.label);
+  return { rows: parsed, matched, ignored, missing };
+}
+export function parseCSV(input) {
+  return readStudentCSV(input).rows;
 }
 // The one set of rules for a student row, used by the CSV review, the add-student
 // form and the edit dialogs. Each problem is { level, code, message, field }:

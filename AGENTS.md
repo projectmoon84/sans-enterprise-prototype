@@ -4,13 +4,14 @@ This is a browser-only prototype. Source lives in `src/`; `build.mjs` embeds the
 
 ## Source map and load order
 
-The JavaScript load order is significant: `data.js` → `training.js` → `bulk-engine.js` → `alerts.js` → `store.js` → `activity.js` → `app.js` → `fidelity.js` → `people.js` → `tables.js` → `profile.js` → `activity-page.js` → `bulk-ui.js` → `import-review.js`.
+The JavaScript load order is significant: `data.js` → `training.js` → `bulk-engine.js` → `alerts.js` → `store.js` → `activity.js` → `app.js` → `fidelity.js` → `people.js` → `tables.js` → `profile.js` → `activity-page.js` → `bulk-ui.js` → `import-review.js` → `motion.js`.
 
 - `src/data.js`: v2 data schema, fictional seed records, voucher-to-admin-group mapping, CSV parsing and validation.
 - `src/training.js`: mock SANS course catalogue, GIAC certifications, seeded training histories and certification-status helpers. Pure functions with no store import; loaded before `store.js`.
 - `src/alerts.js`: `alertsFor()` works out Needs attention alerts from the data (never stored), plus `personPermissions()` for what the signed-in user may do. Pure functions.
 - `src/bulk-ui.js`: toast with Undo, cell pop-over, bulk action bar, quick-filter chips and preview dialog, plus the Students banners and "Needs voucher" flag.
 - `src/import-review.js`: the CSV review screen, saved import drafts and the Done dialogs.
+- `src/motion.js`: screen and dialog entrances. Wraps `navigate()` and `openModal()` last, so it animates only real screen changes and dialog steps, never ordinary re-renders. Respects reduced motion.
 - `src/activity-page.js`: the global Activity page (filters, batch grouping, CSV export). Reuses entry markup from `profile.js`.
 - `src/bulk-engine.js`: bulk actions on people (voucher, admin group, team, status, resend, remove, portal access, role). Pure; returns applied / unchanged / skipped / cleared lists. Reached through `store.bulk()`, which also supports `dryRun` previews and `undo()`.
 - `src/store.js`: database v3 (people with attached portal/student roles, id-based directories, session and append-only events), the v2 migration, read helpers and one command per data change. Screens change data only through these commands (via `dispatch()` in `app.js`); never mutate `db` directly. `store.view()` gives the flat per-role rows the screens read.
