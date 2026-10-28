@@ -226,6 +226,9 @@ Use these action keys. The **template** shows how each is displayed. `{actor}`, 
 | `portal.suspended` / `portal.reactivated` | Status changed | {actor} suspended / reactivated {subject}'s portal access |
 | `portal.revoked` | Portal access removed | {actor} removed {subject}'s portal access |
 | `student.invited` | Student added | {actor} added {subject} as a student on {target} |
+| `student.added_needs_voucher` | Imported without a voucher | {actor} added {subject} as a student, waiting for a voucher |
+| `student.invite_released` | Voucher assigned to a Needs voucher student | {actor} sent {subject}'s student invitation after assigning a voucher |
+| `bulk.undone` | Undo of a bulk action | {actor} undid {action} for {subject} |
 | `student.invite_resent` | Invite resent | {actor} resent {subject}'s student invitation |
 | `student.invite_accepted` | Accepted | {subject} accepted their student invitation |
 | `student.voucher_changed` | Voucher changed | {actor} moved {subject} from voucher {from} to {to} |
@@ -235,9 +238,11 @@ Use these action keys. The **template** shows how each is displayed. `{actor}`, 
 | `person.details_updated` | Name, email or work role changed | {actor} updated {subject}'s {field} from {from} to {to} |
 | `person.account_created` | SANS account set up | {subject} created their SANS account |
 | `person.archived` | Removed from organisation | {actor} removed {subject} from the organisation |
+| `person.deleted` | Permanently deleted (erasure) | {actor} permanently deleted a person and their data |
 | `training.requested` | Student requests a course | {subject} requested {target} |
 | `training.approved` / `training.declined` | Admin decision | {actor} approved / declined {subject}'s request for {target} |
 | `training.assigned` | Admin assigns a course | {actor} enrolled {subject} on {target} |
+| `training.withdrawn` | Admin withdraws a student from a current course | {actor} withdrew {subject} from {target} |
 | `training.completed` | Course completed (from SANS) | {subject} completed {target} |
 | `certification.earned` / `certification.expiring` | From SANS | {subject} earned {target} / {target} expires on {date} |
 | `team.created` / `team.renamed` | Team admin (subject is empty) | {actor} created team {target} |
@@ -506,6 +511,7 @@ Read docs/profile-and-activity-plan.md (Phase 5 and the training rows of the Eve
 
 **Scope:**
 - Add `trainingRequests` to the database, as students' requests awaiting approval. Seed a few.
+  - *Built as:* a request is a course enrolment with status `requested` (added in Phase 5), so there is no separate `trainingRequests` table. Approving sets `approved`; declining sets `withdrawn`.
 - New `src/alerts.js` with `alertsFor(person, db, viewer)`, which returns sorted alerts. Starting rules:
 
 | Rule | Severity | Action button |
@@ -534,7 +540,10 @@ Read docs/profile-and-activity-plan.md ("Key decisions" 6, Phase 6). Implement P
 
 ---
 
-### Phase 7: Global activity log and polish (later)
+### Phase 7: Global activity log and polish (built)
+
+*Built as described. Developer notes are in `docs/activity-log-developer-notes.md`. Open question 1's default is implemented for the Activity page and CSV export.*
+
 
 - An **Activity** page in the sidebar, under Admin: the whole organisation's events, filterable by person, action type, date range, admin group and voucher, and exportable as CSV.
 - Group CSV and bulk batches into one expandable entry.

@@ -21,6 +21,8 @@ No npm installation, account, internet connection, or cloud database is needed t
 - Students: save multiple draft students, edit/remove draft rows, review, confirm, and create records.
 - CSV import: download a template, use the built-in sample, or upload a real CSV; validate email, duplicates, voucher, admin group and team; correct or remove rows; add ready rows, with an explicit choice to keep reviewing or finish while excluding invalid rows.
 - Records: search, filter, edit details and assignments, change status, simulate invitation acceptance by selecting Active, and delete demo records.
+- CSV review: rows are checked as you go (Ready, Needs voucher, Error). Fix cells with a pop-over, fix many rows at once from the bulk bar, and press Done. Rows without a voucher are added as **Needs voucher** and are not invited until a voucher is assigned. An unfinished import is saved and can be resumed from Students.
+- Bulk actions on Students and Portal users: select rows to get a bulk bar (assign voucher, admin group, team, role, access; resend, suspend, remove; export). Changes with side effects show a preview, most show an **Undo** for about 10 seconds, and rows that can't be changed are skipped with a reason. Quick-filter chips sit above both tables.
 - Teams: create a team and assign students to it. Team and admin-group pages show **members** (students) separately from **portal users with access**.
 - Home: live record counts and an activity feed.
 - Demo data: export/import a JSON database snapshot, export people as CSV, and reset to the original demo data (9 portal users and 14 student records, two of which belong to portal users).

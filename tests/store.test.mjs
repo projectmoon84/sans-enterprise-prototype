@@ -168,6 +168,72 @@ test("archiving a dual-role person hides both role rows", () => {
   assert.deepEqual(left, []);
 });
 
+test("profile details update shared fields and write structured events", () => {
+  const store = createStore();
+  const person = store
+    .snapshot()
+    .people.find(
+      (candidate) => candidate.email === "marcus.okonjo@example.com",
+    );
+  const before = store.snapshot().events.length;
+  store.updatePersonDetails(person.id, {
+    name: "Marcus Okonjo-Smith",
+    email: person.email,
+    workRole: "Security Director",
+  });
+  const snapshot = store.snapshot();
+  const updated = snapshot.people.find(
+    (candidate) => candidate.id === person.id,
+  );
+  assert.equal(updated.name, "Marcus Okonjo-Smith");
+  assert.equal(updated.workRole, "Security Director");
+  assert.equal(snapshot.events.length, before + 2);
+  assert.ok(
+    snapshot.events
+      .slice(0, 2)
+      .every(
+        (event) =>
+          event.action === "person.details_updated" &&
+          event.subjectId === person.id &&
+          event.via === "profile",
+      ),
+  );
+});
+
+test("profile role removal preserves a second role and archives a roleless person", () => {
+  const store = createStore();
+  const dual = store
+    .snapshot()
+    .people.find((person) => person.portal && person.student);
+  store.removeStudent(dual.id);
+  let snapshot = store.snapshot();
+  let updated = snapshot.people.find((person) => person.id === dual.id);
+  assert.ok(updated.portal);
+  assert.equal(updated.student, undefined);
+  assert.equal(updated.archivedAt, undefined);
+  assert.equal(snapshot.events[0].action, "student.removed");
+
+  const studentOnly = snapshot.people.find(
+    (person) => person.student && !person.portal,
+  );
+  store.removeStudent(studentOnly.id);
+  snapshot = store.snapshot();
+  updated = snapshot.people.find((person) => person.id === studentOnly.id);
+  assert.equal(updated.student, undefined);
+  assert.ok(updated.archivedAt);
+  assert.ok(!store.view().users.some((row) => row.personId === studentOnly.id));
+});
+
+test("the signed-in person cannot remove their own portal access", () => {
+  const store = createStore();
+  const actorId = store.snapshot().session.actorId;
+  assert.throws(
+    () => store.removePortalAccess(actorId),
+    /another administrator/,
+  );
+  assert.ok(store.getPerson(actorId).portal);
+});
+
 test("status, bulk status, team and CSV commands persist", () => {
   const storage = memoryStorage();
   const store = createStore({ storage });

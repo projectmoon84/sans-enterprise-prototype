@@ -4,15 +4,22 @@ This is a browser-only prototype. Source lives in `src/`; `build.mjs` embeds the
 
 ## Source map and load order
 
-The JavaScript load order is significant: `data.js` → `store.js` → `activity.js` → `app.js` → `fidelity.js` → `people.js` → `tables.js`.
+The JavaScript load order is significant: `data.js` → `training.js` → `bulk-engine.js` → `alerts.js` → `store.js` → `activity.js` → `app.js` → `fidelity.js` → `people.js` → `tables.js` → `profile.js` → `activity-page.js` → `bulk-ui.js` → `import-review.js`.
 
 - `src/data.js`: v2 data schema, fictional seed records, voucher-to-admin-group mapping, CSV parsing and validation.
+- `src/training.js`: mock SANS course catalogue, GIAC certifications, seeded training histories and certification-status helpers. Pure functions with no store import; loaded before `store.js`.
+- `src/alerts.js`: `alertsFor()` works out Needs attention alerts from the data (never stored), plus `personPermissions()` for what the signed-in user may do. Pure functions.
+- `src/bulk-ui.js`: toast with Undo, cell pop-over, bulk action bar, quick-filter chips and preview dialog, plus the Students banners and "Needs voucher" flag.
+- `src/import-review.js`: the CSV review screen, saved import drafts and the Done dialogs.
+- `src/activity-page.js`: the global Activity page (filters, batch grouping, CSV export). Reuses entry markup from `profile.js`.
+- `src/bulk-engine.js`: bulk actions on people (voucher, admin group, team, status, resend, remove, portal access, role). Pure; returns applied / unchanged / skipped / cleared lists. Reached through `store.bulk()`, which also supports `dryRun` previews and `undo()`.
 - `src/store.js`: database v3 (people with attached portal/student roles, id-based directories, session and append-only events), the v2 migration, read helpers and one command per data change. Screens change data only through these commands (via `dispatch()` in `app.js`); never mutate `db` directly. `store.view()` gives the flat per-role rows the screens read.
 - `src/activity.js`: event descriptions and person activity filtering. Keep event wording keyed by the event catalogue in the profile and activity plan.
 - `src/app.js`: base views, modal flows and event handlers. `dispatch()` runs a store command, then refreshes `db` and re-renders.
 - `src/fidelity.js`: Figma-specific people tables, invitation flows, student drafts/results, CSV review and assignment pickers. It extends and overrides the base app.
 - `src/people.js`: people-model v2 behaviour, including voucher-first choices, dual roles, account invitations and team membership versus access. It extends and overrides earlier behaviour.
-- `src/tables.js`: sticky and frozen table behaviour, row menus and profile-page navigation. It loads last.
+- `src/tables.js`: sticky and frozen table behaviour, row menus and profile-page navigation.
+- `src/profile.js`: full person profile view, profile-specific edit flows and role-aware permissions.
 - `src/styles.css`: base layout and component styles.
 - `src/fidelity.css`: measured Figma refinements and styles for the later people and table layers.
 - `src/index.html`: the minimal shell used by the standalone build.
@@ -46,5 +53,7 @@ After any source change, run the syntax check, tests and build. Use `http://127.
 - A student has exactly one required voucher, at most one optional Admin Group covered by that voucher, and at most one optional team.
 - Team access and team membership are different: portal users receive access to teams; students are members of a team.
 - One person may be both a portal user and a student, matched by email, but may not have duplicate records for the same role.
+- A student imported without a voucher is saved as **Needs voucher**: no invitation is sent until a voucher is assigned, which releases it. `voucherId` is present exactly when the status is not Needs voucher. Rows are checked with `checkStudentRow()` in `data.js`, the one shared rule set.
+- Removing a person always goes through the Remove dialog (`openRemoveDialog()` in `bulk-ui.js`): remove admin access, remove as a student, remove both and archive, or permanently delete. Permanent delete anonymises the activity log rather than deleting events.
 - Missing SANS accounts do not block invitations; those people remain in the awaiting-account state until simulated acceptance.
 - SSO Admin remains future scope and is not offered in invitation flows.

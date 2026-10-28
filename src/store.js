@@ -8,6 +8,15 @@ import {
   seed,
   validateDatabase,
 } from "./data.js";
+import { runBulk } from "./bulk-engine.js";
+import { personPermissions } from "./alerts.js";
+import {
+  COURSES,
+  ENROLMENT_STATUSES,
+  CURRENT_STATUSES,
+  buildTrainingSeed,
+  courseLabel,
+} from "./training.js";
 
 // The standalone build strips imports, so aliases are plain constants.
 const legacySeed = seed;
@@ -17,6 +26,9 @@ export const STORAGE_KEY = "sans-enterprise-prototype-v3";
 export const LEGACY_STORAGE_KEY = "sans-enterprise-prototype-v2";
 
 const ROLE_STATUSES = ["Pending invite", "Active", "Suspended"];
+// A student imported without a voucher is held, not invited, until one is assigned.
+const STUDENT_STATUSES = [...ROLE_STATUSES, "Needs voucher"];
+const MAX_DRAFT_ROWS = 500;
 const PORTAL_ROLES = [...ROLES, "SSO Admin"];
 const normalEmail = (value) =>
   String(value || "")
@@ -74,6 +86,24 @@ function targetRecord(type, record) {
   return record ? { type, id: record.id, name: record.name } : undefined;
 }
 
+const SEED_BASE = Date.parse("2026-10-16T10:00:00.000Z");
+
+// Adds the mock course catalogue and training histories to data that has none,
+// so older saved databases pick them up on load.
+function ensureImportDrafts(data) {
+  if (!Array.isArray(data.importDrafts)) data.importDrafts = [];
+}
+
+function ensureTraining(data) {
+  if (Array.isArray(data.courses)) return;
+  data.courses = structuredClone(COURSES);
+  const seeded = buildTrainingSeed(data, SEED_BASE);
+  data.courseEnrolments = seeded.courseEnrolments;
+  data.certifications = seeded.certifications;
+  for (const event of seeded.events) logEvent(data, event);
+  data.events.sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
+}
+
 function seedHistory(data) {
   const actors = data.people.filter((person) => person.portal);
   const subjects = data.people.filter(
@@ -96,7 +126,10 @@ function seedHistory(data) {
       subject = data.people.find((person) => person.student) || subject;
     if (action.startsWith("portal.") && !subject.portal)
       subject = data.people.find((person) => person.portal) || subject;
-    const actor = actors[(index + 2) % actors.length];
+    // Someone never acts on themselves in the seed history, except to accept their own invitation.
+    let actor = actors[(index + 2) % actors.length];
+    if (actor.id === subject.id && !action.endsWith("invite_accepted"))
+      actor = actors[(index + 3) % actors.length];
     const team = data.teams[index % data.teams.length];
     const previousTeam = data.teams[(index + 1) % data.teams.length];
     const voucher = data.vouchers[index % data.vouchers.length];
@@ -145,10 +178,14 @@ function seedHistory(data) {
   const csvSubjects = data.people
     .filter((person) => person.student)
     .slice(0, 3);
+  // The importer is never one of the people they imported.
+  const csvActor =
+    actors.find((actor) => !csvSubjects.some((subject) => subject.id === actor.id)) ||
+    actors[0];
   csvSubjects.forEach((subject, index) =>
     logEvent(data, {
       action: "student.invited",
-      actorId: actors[0].id,
+      actorId: csvActor.id,
       subjectId: subject.id,
       target: targetRecord("voucher", data.vouchers[index]),
       batchId: csvBatch,
@@ -160,7 +197,7 @@ function seedHistory(data) {
   );
   logEvent(data, {
     action: "import.completed",
-    actorId: actors[0].id,
+    actorId: csvActor.id,
     batchId: csvBatch,
     via: "csv",
     changes: [
@@ -246,8 +283,6 @@ export function migrateV2(input) {
         : "linked",
       createdAt: timestamps[0] || isoNow(),
       updatedAt: timestamps.at(-1) || isoNow(),
-      modifiedBy: preferred.modifiedBy,
-      modifiedDetail: preferred.modifiedDetail,
       ...(portal
         ? {
             portal: {
@@ -300,6 +335,15 @@ export function migrateV2(input) {
     if (person.portal) person.portal.invitedBy = defaultActor;
     if (person.student) person.student.invitedBy = defaultActor;
   }
+  // Spread pending invitations over the last 10 days so some are overdue.
+  const INVITE_AGES = [1, 3, 6, 9, 2, 8];
+  let pending = 0;
+  for (const person of people)
+    for (const access of [person.portal, person.student])
+      if (access?.status === "Pending invite")
+        access.invitedAt = new Date(
+          SEED_BASE - INVITE_AGES[pending++ % INVITE_AGES.length] * 24 * 60 * 60 * 1000,
+        ).toISOString();
   const data = {
     version: 3,
     people,
@@ -317,12 +361,53 @@ export function migrateV2(input) {
       legacyMessage: entry.message,
     });
   }
+  ensureTraining(data);
+  ensureImportDrafts(data);
   data.events.sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
   return validateStoreDatabase(data);
 }
 
 export function seedDatabase() {
   return migrateV2(legacySeed());
+}
+
+function validateTraining(data) {
+  const fail = () => {
+    throw Error("The database contains invalid training records.");
+  };
+  if (
+    !Array.isArray(data.courses) ||
+    !Array.isArray(data.courseEnrolments) ||
+    !Array.isArray(data.certifications)
+  )
+    fail();
+  const courseIds = new Set(data.courses.map((course) => course.id));
+  if (courseIds.size !== data.courses.length) fail();
+  const people = new Set(data.people.map((person) => person.id));
+  const vouchers = new Set(data.vouchers.map((voucher) => voucher.id));
+  const seen = new Set();
+  for (const item of data.courseEnrolments) {
+    if (
+      typeof item?.id !== "string" ||
+      seen.has(item.id) ||
+      !people.has(item.personId) ||
+      !courseIds.has(item.courseId) ||
+      !vouchers.has(item.voucherId) ||
+      !ENROLMENT_STATUSES.includes(item.status) ||
+      !(item.progress >= 0 && item.progress <= 100)
+    )
+      fail();
+    seen.add(item.id);
+  }
+  for (const cert of data.certifications) {
+    if (
+      typeof cert?.id !== "string" ||
+      !people.has(cert.personId) ||
+      !Number.isFinite(Date.parse(cert.issuedAt)) ||
+      !Number.isFinite(Date.parse(cert.expiresAt))
+    )
+      fail();
+  }
 }
 
 export function validateStoreDatabase(data) {
@@ -381,7 +466,7 @@ export function validateStoreDatabase(data) {
       !["linked", "awaiting"].includes(person?.sansAccount) ||
       !Number.isFinite(Date.parse(person?.createdAt)) ||
       (person.archivedAt && !Number.isFinite(Date.parse(person.archivedAt))) ||
-      (!person.portal && !person.student)
+      (!person.portal && !person.student && !person.archivedAt)
     )
       throw Error("The database contains an invalid or duplicate person.");
     personIds.add(person.id);
@@ -418,17 +503,32 @@ export function validateStoreDatabase(data) {
       const voucher = data.vouchers.find(
         (item) => item.id === enrolment.voucherId,
       );
+      const needsVoucher = enrolment.status === "Needs voucher";
       if (
-        !ROLE_STATUSES.includes(enrolment.status) ||
-        !voucher ||
-        (enrolment.adminGroupId &&
-          (!groupIds.has(enrolment.adminGroupId) ||
-            !voucher.adminGroupIds.includes(enrolment.adminGroupId))) ||
+        !STUDENT_STATUSES.includes(enrolment.status) ||
+        // A voucher is present exactly when the student is not waiting for one.
+        needsVoucher === Boolean(enrolment.voucherId) ||
+        (enrolment.voucherId && !voucher) ||
+        (enrolment.adminGroupId && !groupIds.has(enrolment.adminGroupId)) ||
+        (voucher &&
+          enrolment.adminGroupId &&
+          !voucher.adminGroupIds.includes(enrolment.adminGroupId)) ||
         (enrolment.teamId && !teamIds.has(enrolment.teamId))
       )
         throw Error("The database contains invalid student details.");
     }
   }
+  validateTraining(data);
+  if (
+    !Array.isArray(data.importDrafts) ||
+    data.importDrafts.some(
+      (draft) =>
+        typeof draft?.id !== "string" ||
+        !Array.isArray(draft.rows) ||
+        draft.rows.length > MAX_DRAFT_ROWS,
+    )
+  )
+    throw Error("The database contains an invalid saved import.");
   if (
     data.session.actorId !== "system" &&
     !data.people.some(
@@ -483,6 +583,8 @@ export function normaliseDatabase(data) {
         });
       delete next.activity;
     }
+    ensureTraining(next);
+    ensureImportDrafts(next);
     return validateStoreDatabase(next);
   }
   return migrateV2(data);
@@ -530,7 +632,37 @@ export function peopleWithTeamAccess(data, id) {
   );
 }
 
+// "Last modified by" comes from the newest event that changed this person's
+// record. Training and certification events from SANS are not edits.
+function lastModifiedIndex(data) {
+  const latest = new Map();
+  for (const event of data.events) {
+    if (
+      !event.subjectId ||
+      event.actorId === "sans" ||
+      /^(training|certification)\./.test(event.action)
+    )
+      continue;
+    const current = latest.get(event.subjectId);
+    if (!current || Date.parse(event.at) > Date.parse(current.at))
+      latest.set(event.subjectId, event);
+  }
+  return latest;
+}
+function lastModified(person, latest, data) {
+  const event = latest.get(person.id);
+  if (!event) return { updatedAt: person.updatedAt || person.createdAt };
+  const actor = data.people.find((candidate) => candidate.id === event.actorId);
+  return {
+    updatedAt: event.at,
+    lastModifiedBy: event.actorName,
+    lastModifiedAt: event.at,
+    lastModifiedRole: actor?.portal?.role,
+  };
+}
+
 export function legacyView(data) {
+  const last = lastModifiedIndex(data);
   const users = [];
   for (const person of data.people.filter((item) => !item.archivedAt)) {
     const shared = {
@@ -539,8 +671,7 @@ export function legacyView(data) {
       workRole: person.workRole,
       accountSetup: person.sansAccount === "awaiting",
       updatedAt: person.updatedAt || person.createdAt,
-      modifiedBy: person.modifiedBy,
-      modifiedDetail: person.modifiedDetail,
+      ...lastModified(person, last, data),
       personId: person.id,
     };
     if (person.portal) {
@@ -578,6 +709,7 @@ export function legacyView(data) {
     teams: data.teams.map((item) => item.name),
     events: structuredClone(data.events),
     session: structuredClone(data.session),
+    importDrafts: structuredClone(data.importDrafts),
   };
 }
 
@@ -597,10 +729,9 @@ function updatePersonDetails(data, person, input) {
   person.name = name;
   person.email = email;
   if (input.workRole !== undefined)
-    person.workRole = String(input.workRole || "").trim() || "Student";
+    person.workRole =
+      String(input.workRole || "").trim() || (person.student ? "Student" : "");
   person.updatedAt = isoNow();
-  person.modifiedBy = "Demo administrator";
-  person.modifiedDetail = new Date().toLocaleDateString("en-GB");
 }
 
 // A person who already exists keeps their name and work role when they gain a second role.
@@ -630,29 +761,40 @@ function portalAccessFrom(data, input, existing = {}) {
 }
 
 function studentDetailsFrom(data, input, existing = {}) {
-  return {
+  const voucherName = input.voucher || input.vouchers?.[0];
+  const voucher = voucherName
+    ? findByName(data.vouchers, voucherName, "voucher")
+    : undefined;
+  // Only the CSV import, or a student who is already waiting for one, may lack a voucher.
+  if (!voucher && !input.allowNoVoucher && existing.status !== "Needs voucher")
+    throw Error("Choose a valid voucher.");
+  const waiting = existing.status === "Needs voucher";
+  let status = input.status || existing.status || "Pending invite";
+  if (!voucher) status = "Needs voucher";
+  else if (status === "Needs voucher" || waiting) {
+    // Assigning a voucher releases the held invitation, unless a status was chosen explicitly.
+    status = ["Active", "Suspended"].includes(input.status) ? input.status : "Pending invite";
+  }
+  const group =
+    input.group || input.groups?.[0]
+      ? findByName(data.adminGroups, input.group || input.groups[0], "admin group")
+      : undefined;
+  if (voucher && group && !voucher.adminGroupIds.includes(group.id))
+    throw Error("Admin group not covered by this voucher.");
+  const next = {
     ...existing,
-    status: input.status || existing.status || "Pending invite",
-    voucherId: findByName(
-      data.vouchers,
-      input.voucher || input.vouchers?.[0],
-      "voucher",
-    ).id,
-    adminGroupId:
-      input.group || input.groups?.[0]
-        ? findByName(
-            data.adminGroups,
-            input.group || input.groups[0],
-            "admin group",
-          ).id
-        : undefined,
+    status,
+    adminGroupId: group?.id,
     teamId:
       input.team || input.teams?.[0]
         ? findByName(data.teams, input.team || input.teams[0], "team").id
         : undefined,
-    invitedAt: existing.invitedAt || isoNow(),
+    invitedAt: waiting && voucher ? isoNow() : existing.invitedAt || isoNow(),
     invitedBy: existing.invitedBy || "system",
   };
+  if (voucher) next.voucherId = voucher.id;
+  else delete next.voucherId;
+  return next;
 }
 
 function statusAction(type, from, to) {
@@ -686,6 +828,7 @@ function logReferenceChanges(
   addedAction,
   removedAction,
   via = "profile",
+  batchId,
 ) {
   for (const id of afterIds.filter((value) => !beforeIds.includes(value)))
     logEvent(data, {
@@ -696,6 +839,7 @@ function logReferenceChanges(
         records.find((item) => item.id === id),
       ),
       changes: [{ field: type, from: null, to: id }],
+      ...(batchId ? { batchId } : {}),
       via,
     });
   for (const id of beforeIds.filter((value) => !afterIds.includes(value)))
@@ -707,8 +851,30 @@ function logReferenceChanges(
         records.find((item) => item.id === id),
       ),
       changes: [{ field: type, from: id, to: null }],
+      ...(batchId ? { batchId } : {}),
       via,
     });
+}
+
+// Approving moves a request to "approved"; declining closes it as withdrawn.
+function decideRequest(next, personId, enrolmentId, approve) {
+  const person = getPerson(next, personId);
+  if (!person || person.archivedAt) throw Error("Person not found.");
+  const enrolment = next.courseEnrolments.find(
+    (item) => item.id === enrolmentId && item.personId === person.id,
+  );
+  if (!enrolment || enrolment.status !== "requested")
+    throw Error("This request has already been dealt with.");
+  const course = next.courses.find((item) => item.id === enrolment.courseId);
+  enrolment.status = approve ? "approved" : "withdrawn";
+  enrolment[approve ? "approvedAt" : "declinedAt"] = isoNow();
+  logEvent(next, {
+    action: approve ? "training.approved" : "training.declined",
+    subjectId: person.id,
+    target: targetRecord("course", { id: course.id, name: courseLabel(course) }),
+    changes: [{ field: "status", from: "requested", to: enrolment.status }],
+    via: "profile",
+  });
 }
 
 export function createStore({ storage = null, initialData } = {}) {
@@ -749,6 +915,7 @@ export function createStore({ storage = null, initialData } = {}) {
     data = next;
     return result;
   };
+  const undos = new Map();
   const findPerson = (next, id) => {
     const person = getPerson(next, id);
     if (!person || person.archivedAt) throw Error("Person not found.");
@@ -757,7 +924,7 @@ export function createStore({ storage = null, initialData } = {}) {
   const addStudentRecords = (
     next,
     inputs,
-    { via = "invite", batchId } = {},
+    { via = "invite", batchId, allowNoVoucher = false } = {},
   ) => {
     const added = [];
     for (const input of inputs) {
@@ -780,15 +947,16 @@ export function createStore({ storage = null, initialData } = {}) {
         delete person.archivedAt;
       }
       updatePersonDetails(next, person, existingOr(person, input));
-      person.student = studentDetailsFrom(next, input);
+      person.student = studentDetailsFrom(next, { ...input, allowNoVoucher });
       const voucher = next.vouchers.find(
         (item) => item.id === person.student.voucherId,
       );
+      const waiting = person.student.status === "Needs voucher";
       logEvent(next, {
-        action: "student.invited",
+        action: waiting ? "student.added_needs_voucher" : "student.invited",
         subjectId: person.id,
         target: targetRecord("voucher", voucher),
-        changes: [{ field: "student", from: null, to: "Pending invite" }],
+        changes: [{ field: "student", from: null, to: person.student.status }],
         batchId,
         via,
       });
@@ -850,6 +1018,22 @@ export function createStore({ storage = null, initialData } = {}) {
           batchId: inputs.length > 1 ? uid() : undefined,
         }),
       );
+    },
+    updatePersonDetails(id, input) {
+      return transact((next) => {
+        const person = findPerson(next, id);
+        const before = structuredClone(person);
+        const eventCount = next.events.length;
+        updatePersonDetails(next, person, input);
+        logDetailChanges(next, person, before);
+        if (next.events.length === eventCount)
+          logEvent(next, {
+            action: "person.details_updated",
+            subjectId: person.id,
+            changes: [{ field: "details", from: "unchanged", to: "confirmed" }],
+            via: "profile",
+          });
+      });
     },
     editPortalAccess(id, input) {
       return transact((next) => {
@@ -998,6 +1182,19 @@ export function createStore({ storage = null, initialData } = {}) {
             via: "profile",
           });
         }
+        if (before.status === "Needs voucher" && person.student.voucherId)
+          logEvent(next, {
+            action: "student.invite_released",
+            subjectId: person.id,
+            target: targetRecord(
+              "voucher",
+              next.vouchers.find((item) => item.id === person.student.voucherId),
+            ),
+            changes: [
+              { field: "status", from: "Needs voucher", to: person.student.status },
+            ],
+            via: "profile",
+          });
         const action = statusAction(
           "student",
           before.status,
@@ -1037,6 +1234,41 @@ export function createStore({ storage = null, initialData } = {}) {
           });
       });
     },
+    removePortalAccess(id) {
+      return transact((next) => {
+        const person = findPerson(next, id);
+        if (!person.portal) throw Error("Portal access not found.");
+        if (person.id === next.session.actorId)
+          throw Error(
+            "Sign in as another administrator before removing your own portal access.",
+          );
+        const role = person.portal.role;
+        delete person.portal;
+        person.updatedAt = isoNow();
+        if (!person.student) person.archivedAt = isoNow();
+        logEvent(next, {
+          action: "portal.revoked",
+          subjectId: person.id,
+          changes: [{ field: "role", from: role, to: null }],
+          via: "profile",
+        });
+      });
+    },
+    removeStudent(id) {
+      return transact((next) => {
+        const person = findPerson(next, id);
+        if (!person.student) throw Error("Student details not found.");
+        delete person.student;
+        person.updatedAt = isoNow();
+        if (!person.portal) person.archivedAt = isoNow();
+        logEvent(next, {
+          action: "student.removed",
+          subjectId: person.id,
+          changes: [{ field: "student", from: "Student", to: null }],
+          via: "profile",
+        });
+      });
+    },
     changeStatus(id, status) {
       return transact((next) => {
         if (!ROLE_STATUSES.includes(status))
@@ -1045,6 +1277,8 @@ export function createStore({ storage = null, initialData } = {}) {
         const type = roleFromRowId(id);
         const access = type === "student" ? person.student : person.portal;
         if (!access) throw Error("Role not found.");
+        if (access.status === "Needs voucher")
+          throw Error("Assign a voucher before changing this student's status.");
         const previousStatus = access.status;
         const previousAccount = person.sansAccount;
         access.status = status;
@@ -1077,6 +1311,10 @@ export function createStore({ storage = null, initialData } = {}) {
         const person = findPerson(next, id);
         const type =
           roleFromRowId(id) || (person.portal ? "portal" : "student");
+        const access = type === "student" ? person.student : person.portal;
+        if (access.status === "Needs voucher")
+          throw Error("No invitation has been sent yet. Assign a voucher first.");
+        access.invitedAt = isoNow();
         logEvent(next, {
           action: `${type}.invite_resent`,
           subjectId: person.id,
@@ -1085,60 +1323,10 @@ export function createStore({ storage = null, initialData } = {}) {
       });
     },
     bulkStatus(ids, status) {
-      return transact((next) => {
-        const batchId = uid();
-        for (const id of ids) {
-          const person = findPerson(next, id);
-          const type =
-            roleFromRowId(id) || (person.portal ? "portal" : "student");
-          const access = type === "student" ? person.student : person.portal;
-          const previousStatus = access?.status;
-          const previousAccount = person.sansAccount;
-          if (!access) continue;
-          access.status = status;
-          person.updatedAt = isoNow();
-          if (status === "Active") person.sansAccount = "linked";
-          logEvent(next, {
-            action:
-              statusAction(type, previousStatus, status) ||
-              `${type}.${status === "Suspended" ? "suspended" : "reactivated"}`,
-            actorId:
-              previousStatus === "Pending invite" && status === "Active"
-                ? person.id
-                : undefined,
-            subjectId: person.id,
-            changes: [{ field: "status", from: previousStatus, to: status }],
-            batchId,
-            via: "bulk",
-          });
-          if (previousAccount === "awaiting" && person.sansAccount === "linked")
-            logEvent(next, {
-              action: "person.account_created",
-              actorId: person.id,
-              subjectId: person.id,
-              batchId,
-              via: "system",
-            });
-        }
-      });
+      return api.bulk("status", ids, { status });
     },
     bulkResend(ids) {
-      return transact((next) => {
-        const batchId = uid();
-        for (const id of ids) {
-          const person = findPerson(next, id);
-          const type =
-            roleFromRowId(id) || (person.portal ? "portal" : "student");
-          const access = type === "student" ? person.student : person.portal;
-          if (access?.status !== "Pending invite") continue;
-          logEvent(next, {
-            action: `${type}.invite_resent`,
-            subjectId: person.id,
-            batchId,
-            via: "bulk",
-          });
-        }
-      });
+      return api.bulk("resend", ids);
     },
     archivePerson(id) {
       return transact((next) => {
@@ -1152,18 +1340,111 @@ export function createStore({ storage = null, initialData } = {}) {
       });
     },
     archivePeople(ids) {
-      return transact((next) => {
+      return api.bulk("remove", ids);
+    },
+    // One entry point for bulk actions (see src/bulk-engine.js). `dryRun` returns
+    // the result without saving, so the UI can preview side effects first.
+    bulk(kind, ids, params = {}, { dryRun = false } = {}) {
+      const helpers = {
+        // Admins change anyone. Limited Admins change students in their scope.
+        // Viewers change no one. Removing a whole person is Admin-only.
+        canEdit: (next, person, role, action) => {
+          const actor = next.people.find((item) => item.id === next.session.actorId);
+          const allowed = personPermissions(person, actor);
+          if (action === "remove") return allowed.canEditDetails;
+          return role === "student" ? allowed.canEditStudent : allowed.canEditPortal;
+        },
+        // A Limited Admin can only put students on a voucher they manage.
+        canUseVoucher: (next, voucher) => {
+          const actor = next.people.find((item) => item.id === next.session.actorId);
+          return actor?.portal?.role !== "Limited Admin" || actor.portal.voucherIds.includes(voucher.id);
+        },
+        uid,
+        isoNow,
+        logEvent,
+        targetRecord,
+        statusAction,
+        getPerson,
+        roleFromRowId,
+        logReferenceChanges,
+      };
+      if (dryRun) {
+        const result = runBulk(structuredClone(data), kind, ids, params, helpers);
+        delete result.before;
+        return result;
+      }
+      let result;
+      transact((next) => {
+        result = runBulk(next, kind, ids, params, helpers);
+      });
+      // Resent invitations have gone and deleted data is gone, so neither can be undone.
+      if (result.applied.length && !["resend", "deletePermanently"].includes(result.kind)) {
+        const undoId = uid();
+        // Remember how each person looked straight after the action, so undo can
+        // leave alone anyone who has been changed again since.
+        const after = new Map(
+          [...result.before.keys()].map((id) => [id, JSON.stringify(data.people.find((item) => item.id === id))]),
+        );
+        undos.set(undoId, { label: result.label, before: [...result.before.values()], after });
+        result.undoId = undoId;
+        // Only the latest few actions can be undone, and only until reload.
+        for (const key of [...undos.keys()].slice(0, -5)) undos.delete(key);
+      }
+      delete result.before;
+      return result;
+    },
+    // Restores the people a bulk action changed. History is never rewritten: the
+    // original events stay, and the undo is logged as its own events.
+    undo(undoId) {
+      const entry = undos.get(undoId);
+      if (!entry) throw Error("This action can no longer be undone.");
+      const outcome = { restored: 0, skipped: [] };
+      transact((next) => {
         const batchId = uid();
-        for (const personId of [...new Set(ids.map(personIdFrom))]) {
-          const person = findPerson(next, personId);
-          person.archivedAt = isoNow();
+        for (const before of entry.before) {
+          const index = next.people.findIndex((item) => item.id === before.id);
+          if (index < 0) continue;
+          if (JSON.stringify(next.people[index]) !== entry.after.get(before.id)) {
+            outcome.skipped.push({ id: before.id, name: before.name, reason: "Changed since" });
+            continue;
+          }
+          next.people[index] = structuredClone(before);
+          outcome.restored += 1;
           logEvent(next, {
-            action: "person.archived",
-            subjectId: person.id,
+            action: "bulk.undone",
+            subjectId: before.id,
+            changes: [{ field: "action", from: entry.label, to: "undone" }],
             batchId,
             via: "bulk",
           });
         }
+      });
+      undos.delete(undoId);
+      return outcome;
+    },
+    saveImportDraft(draft) {
+      return transact((next) => {
+        if (
+          typeof draft?.id !== "string" ||
+          typeof draft.fileName !== "string" ||
+          !Array.isArray(draft.rows) ||
+          draft.rows.length > MAX_DRAFT_ROWS
+        )
+          throw Error("This import could not be saved.");
+        const saved = structuredClone({
+          uploadedAt: isoNow(),
+          uploadedBy: next.session.actorId,
+          ...draft,
+        });
+        const index = next.importDrafts.findIndex((item) => item.id === saved.id);
+        if (index < 0) next.importDrafts.push(saved);
+        else next.importDrafts[index] = saved;
+        return saved.id;
+      });
+    },
+    discardImportDraft(id) {
+      return transact((next) => {
+        next.importDrafts = next.importDrafts.filter((item) => item.id !== id);
       });
     },
     createTeam(name) {
@@ -1191,24 +1472,110 @@ export function createStore({ storage = null, initialData } = {}) {
         return team.id;
       });
     },
-    commitCsvImport(inputs) {
+    commitCsvImport(inputs, { fileName = "CSV import", excluded = 0 } = {}) {
       return transact((next) => {
         const batchId = uid();
-        const added = addStudentRecords(next, inputs, {
+        const ids = addStudentRecords(next, inputs, {
           via: "csv",
           batchId,
+          allowNoVoucher: true,
         });
+        const students = ids.map((id) => getPerson(next, id).student);
         logEvent(next, {
           action: "import.completed",
           changes: [
-            { field: "count", from: 0, to: added.length },
-            { field: "file", from: null, to: "CSV import" },
+            { field: "count", from: 0, to: ids.length },
+            { field: "file", from: null, to: fileName },
+            { field: "invited", from: 0, to: students.filter((item) => item.status !== "Needs voucher").length },
+            { field: "needsVoucher", from: 0, to: students.filter((item) => item.status === "Needs voucher").length },
+            { field: "excluded", from: 0, to: excluded },
           ],
           batchId,
           via: "csv",
         });
-        return added;
+        return {
+          ids,
+          batchId,
+          invited: students.filter((item) => item.status !== "Needs voucher").length,
+          needsVoucher: students.filter((item) => item.status === "Needs voucher").length,
+        };
       });
+    },
+    assignCourse(id, { courseId }) {
+      return transact((next) => {
+        const person = findPerson(next, id);
+        if (!person.student) throw Error("Only students can be enrolled on courses.");
+        if (person.student.status === "Suspended")
+          throw Error("Reactivate this student before assigning a course.");
+        if (person.student.status === "Needs voucher")
+          throw Error("Assign a voucher before assigning a course.");
+        const course = next.courses.find((item) => item.id === courseId);
+        if (!course) throw Error("Choose a course.");
+        if (
+          next.courseEnrolments.some(
+            (item) =>
+              item.personId === person.id &&
+              item.courseId === course.id &&
+              CURRENT_STATUSES.includes(item.status),
+          )
+        )
+          throw Error(`${person.name} is already on ${course.code}.`);
+        const now = isoNow();
+        const enrolment = {
+          id: `enrol-${person.id}-${course.code}-${uid().slice(0, 6)}`,
+          personId: person.id,
+          courseId: course.id,
+          status: "in_progress",
+          voucherId: person.student.voucherId,
+          requestedAt: now,
+          startedAt: now,
+          endsAt: new Date(Date.now() + 120 * 24 * 60 * 60 * 1000).toISOString(),
+          progress: 0,
+        };
+        next.courseEnrolments.push(enrolment);
+        logEvent(next, {
+          action: "training.assigned",
+          subjectId: person.id,
+          target: targetRecord("course", { id: course.id, name: courseLabel(course) }),
+          changes: [
+            {
+              field: "voucher",
+              from: null,
+              to: next.vouchers.find((v) => v.id === person.student.voucherId)?.name,
+            },
+          ],
+          via: "profile",
+        });
+        return enrolment.id;
+      });
+    },
+    withdrawFromCourse(id, enrolmentId) {
+      return transact((next) => {
+        const person = findPerson(next, id);
+        const enrolment = next.courseEnrolments.find(
+          (item) => item.id === enrolmentId && item.personId === person.id,
+        );
+        if (!enrolment) throw Error("Course enrolment not found.");
+        if (!CURRENT_STATUSES.includes(enrolment.status))
+          throw Error("Only current courses can be withdrawn.");
+        const course = next.courses.find((item) => item.id === enrolment.courseId);
+        const previous = enrolment.status;
+        enrolment.status = "withdrawn";
+        enrolment.withdrawnAt = isoNow();
+        logEvent(next, {
+          action: "training.withdrawn",
+          subjectId: person.id,
+          target: targetRecord("course", { id: course.id, name: courseLabel(course) }),
+          changes: [{ field: "status", from: previous, to: "withdrawn" }],
+          via: "profile",
+        });
+      });
+    },
+    approveTrainingRequest(id, enrolmentId) {
+      return transact((next) => decideRequest(next, id, enrolmentId, true));
+    },
+    declineTrainingRequest(id, enrolmentId) {
+      return transact((next) => decideRequest(next, id, enrolmentId, false));
     },
     setActor(id) {
       return transact((next) => {

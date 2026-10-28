@@ -1,7 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createStore } from "../src/store.js";
-import { describeEvent, eventsFor } from "../src/activity.js";
+import {
+  describeEvent,
+  eventsFor,
+  dayLabel,
+  groupEventsByDay,
+  batchSummary,
+  viaLabel,
+  describeChange,
+} from "../src/activity.js";
 
 const newStudent = (email = "event.student@example.com") => ({
   name: "Event Student",
@@ -65,8 +73,43 @@ test("activity descriptions use catalogue wording and profile links", () => {
   );
 });
 
+test("detail events describe first-time and cleared values naturally", () => {
+  const base = {
+    actorId: "actor",
+    actorName: "Ada Whitfield",
+    subjectId: "subject",
+    subjectName: "Marcus Okonjo",
+    action: "person.details_updated",
+  };
+  assert.match(
+    describeEvent({
+      ...base,
+      changes: [{ field: "workRole", from: "", to: "Security Director" }],
+    }),
+    /set .* work role to Security Director/,
+  );
+  assert.match(
+    describeEvent({
+      ...base,
+      changes: [{ field: "workRole", from: "Analyst", to: "" }],
+    }),
+    /cleared .* work role/,
+  );
+});
+
 test("every user-facing store command writes an event", () => {
   const cases = [
+    (store) => {
+      const person = store.snapshot().people.find((p) => p.student && p.student.status !== "Suspended");
+      const course = store.snapshot().courses.find(
+        (c) => !store.snapshot().courseEnrolments.some((e) => e.personId === person.id && e.courseId === c.id),
+      );
+      store.assignCourse(person.id, { courseId: course.id });
+    },
+    (store) => {
+      const enrolment = store.snapshot().courseEnrolments.find((e) => e.status === "in_progress");
+      store.withdrawFromCourse(enrolment.personId, enrolment.id);
+    },
     (store) =>
       store.invitePortalUser({
         name: "New Admin",
@@ -208,4 +251,94 @@ test("switching actor attributes the next command to that portal user", () => {
   const event = store.snapshot().events[0];
   assert.equal(event.actorId, actor.id);
   assert.equal(event.actorName, "Priya Raman");
+});
+
+const evt = (id, actorId, subjectId, extra = {}) => ({
+  id,
+  at: "2026-10-16T09:00:00.000Z",
+  actorId,
+  actorName: actorId,
+  subjectId,
+  subjectName: subjectId,
+  action: "person.details_updated",
+  ...extra,
+});
+
+test("eventsFor filters done-to, done-by and both, showing each event once", () => {
+  const events = [
+    evt("a", "ada", "bob"),
+    evt("b", "bob", "ada"),
+    evt("c", "ada", "ada"),
+    evt("d", "bob", "cy"),
+  ];
+  const ids = (options) => eventsFor(events, "ada", options).map((e) => e.id);
+  assert.deepEqual(ids({ to: true, by: false }), ["b", "c"]);
+  assert.deepEqual(ids({ to: false, by: true }), ["a", "c"]);
+  assert.deepEqual(ids({ to: true, by: true }), ["a", "b", "c"]);
+  assert.deepEqual(ids({ to: false, by: false }), []);
+});
+
+test("changes made on someone else's profile show under done by the signed-in actor", () => {
+  const store = createStore();
+  const snap = store.snapshot();
+  const ada = snap.people.find((p) => p.email === "ada.whitfield@example.com");
+  const other = snap.people.find((p) => p.id !== ada.id && p.student);
+  store.setActor(ada.id);
+  const before = eventsFor(store.snapshot().events, ada.id, { to: false, by: true }).length;
+  store.updatePersonDetails(other.id, { name: `${other.name} Jr`, email: other.email, workRole: other.workRole });
+  const after = eventsFor(store.snapshot().events, ada.id, { to: false, by: true });
+  assert.equal(after.length, before + 1);
+  assert.equal(eventsFor(store.snapshot().events, ada.id, { to: true, by: false }).some((e) => e.id === after[0].id), false);
+});
+
+test("day labels read Today, Yesterday, then a full date", () => {
+  const now = new Date(2026, 9, 16, 12, 0);
+  assert.equal(dayLabel(new Date(2026, 9, 16, 0, 5).toISOString(), now), "Today");
+  assert.equal(dayLabel(new Date(2026, 9, 15, 23, 55).toISOString(), now), "Yesterday");
+  assert.equal(dayLabel(new Date(2026, 9, 14, 10, 0).toISOString(), now), "14 Oct 2026");
+});
+
+test("events group by day in the order given", () => {
+  const now = new Date(2026, 9, 16, 12, 0);
+  const events = [
+    evt("a", "x", "y", { at: new Date(2026, 9, 16, 9).toISOString() }),
+    evt("b", "x", "y", { at: new Date(2026, 9, 16, 8).toISOString() }),
+    evt("c", "x", "y", { at: new Date(2026, 9, 15, 9).toISOString() }),
+  ];
+  const groups = groupEventsByDay(events, now);
+  assert.deepEqual(groups.map((g) => [g.label, g.events.length]), [["Today", 2], ["Yesterday", 1]]);
+});
+
+test("batch summary counts the people in a shared batch", () => {
+  const events = [
+    evt("a", "x", "p1", { via: "csv", batchId: "b1" }),
+    evt("b", "x", "p2", { via: "csv", batchId: "b1" }),
+    evt("c", "x", "p3", { via: "bulk" }),
+    evt("d", "x", "p4", { via: "profile" }),
+  ];
+  assert.equal(batchSummary(events, events[0]), "Part of CSV import (2 people)");
+  assert.equal(batchSummary(events, events[2]), "Part of a bulk action");
+  assert.equal(batchSummary(events, events[3]), "");
+  assert.equal(viaLabel(events[0]), "CSV import");
+  assert.equal(viaLabel(events[3]), "");
+});
+
+test("change values are escaped and empty values read Not set", () => {
+  assert.deepEqual(describeChange({ field: "team", from: null, to: "<b>R&D</b>" }), {
+    field: "Team",
+    from: "Not set",
+    to: "&lt;b&gt;R&amp;D&lt;/b&gt;",
+  });
+  assert.equal(describeChange({ field: "workRole", from: "A", to: "B" }).field, "Work role");
+});
+
+test("a portal-only person's empty work role stays empty and is not logged as a change", () => {
+  const store = createStore();
+  const person = store.snapshot().people.find((p) => p.portal && !p.student && !p.workRole);
+  assert.ok(person, "seed has a portal-only person without a work role");
+  const before = store.snapshot().events.length;
+  store.updatePersonDetails(person.id, { name: `${person.name} Jr`, email: person.email, workRole: "" });
+  const added = store.snapshot().events.slice(0, store.snapshot().events.length - before + 0).filter((e) => e.subjectId === person.id && e.at > new Date(Date.now() - 60000).toISOString());
+  assert.deepEqual(added.map((e) => e.changes[0].field), ["name"]);
+  assert.equal(store.getPerson(person.id).workRole, "");
 });

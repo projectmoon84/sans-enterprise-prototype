@@ -141,7 +141,7 @@ function initial(name) {
     .toUpperCase();
 }
 function labelStatus(s) {
-  return `<span class="badge ${s === "Pending invite" ? "pending" : s === "Suspended" ? "suspended" : ""}">${esc(s)}</span>`;
+  return `<span class="badge ${s === "Pending invite" ? "pending" : s === "Suspended" ? "suspended" : s === "Needs voucher" ? "needs-voucher" : ""}">${esc(s)}</span>`;
 }
 function navigate(view) {
   state.view = view;
@@ -681,7 +681,7 @@ function editForm(id, index = null) {
       ? "Fix the record before adding it to your mock database."
       : "Changes are saved to the mock database in this browser.",
     `<form id="edit-form"><div class="form-grid"><div class="field"><label for="edit-name">Full name <span class="required">*</span></label><input id="edit-name" name="name" required value="${esc(u.name)}"></div><div class="field"><label for="edit-email">Email address <span class="required">*</span></label><input id="edit-email" type="email" name="email" required value="${esc(u.email)}"></div>${portal ? `<div class="field"><label for="edit-role">Role</label><select id="edit-role" name="role">${opts(u.role === "SSO Admin" ? [...ROLES, "SSO Admin"] : ROLES, u.role)}</select></div>` : `<div class="field"><label for="edit-voucher">Voucher <span class="required">*</span></label><select id="edit-voucher" name="voucher" required>${opts(VOUCHERS, isImport ? u.voucher : u.vouchers[0])}</select></div><div class="field"><label for="edit-work">Work role</label><input id="edit-work" name="workRole" value="${esc(u.workRole)}"></div>`}${portal ? `<div class="field"><label>Admin Groups</label>${choices("groups", db.groups, u.groups)}</div><div class="field"><label>Teams</label>${choices("teams", db.teams, u.teams)}</div><div class="field"><label>Voucher access</label>${choices("vouchers", VOUCHERS, u.vouchers)}</div>` : `<div class="field"><label for="edit-group">Admin Group</label><select id="edit-group" name="group">${opts(db.groups, isImport ? u.group : u.groups[0], "Leave unassigned")}</select></div><div class="field"><label for="edit-team">Team</label><select id="edit-team" name="team">${opts(db.teams, isImport ? u.team : u.teams[0], "Leave unassigned")}</select></div>`}${!isImport ? `<div class="field"><label for="edit-status">Status</label><select id="edit-status" name="status">${opts(["Active", "Pending invite", "Suspended"], u.status)}</select><p class="hint">Choose Active to simulate accepting an invitation.</p></div>` : ""}</div><p class="inline-error" id="edit-error" role="alert"></p></form>`,
-    `${!isImport ? btn(icon("trash") + "Delete record", "delete-user", "danger", 'data-id="' + esc(u.id) + '"') : ""}<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="edit-form">Save changes</button></div>`,
+    `${!isImport ? btn(icon("trash") + "Remove…", "delete-user", "danger", 'data-id="' + esc(u.id) + '"') : ""}<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="edit-form">Save changes</button></div>`,
   );
 }
 function saveEdit() {

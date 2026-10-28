@@ -272,34 +272,69 @@ export function parseCSV(input) {
     };
   });
 }
+// The one set of rules for a student row, used by the CSV review, the add-student
+// form and the edit dialogs. Each problem is { level, code, message, field }:
+//   error        blocks adding the row
+//   needsVoucher the row can be added, but not invited until it has a voucher
+//   info         worth knowing, never blocks
+// `requireVoucher: true` (the forms) turns a missing voucher into an error.
+export function checkStudentRow(
+  row,
+  {
+    existing = [],
+    batch = [],
+    directory = { groups: GROUPS, teams: TEAMS },
+    requireVoucher = true,
+    accountExists = null,
+  } = {},
+) {
+  const problems = [];
+  const add = (level, code, message, field) =>
+    problems.push({ level, code, message, field });
+  const email = (row.email || "").trim().toLowerCase();
+  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if (!validEmail) add("error", "invalid_email", "Enter a valid email address", "email");
+  if (existing.some((u) => u.type !== "portal" && u.email.toLowerCase() === email))
+    add("error", "already_student", "This email is already a student", "email");
+  if (batch.some((u) => u !== row && u.email?.trim().toLowerCase() === email))
+    add("error", "duplicate_email", "Duplicate email in this import", "email");
+  if (!row.voucher)
+    requireVoucher
+      ? add("error", "missing_voucher", "Choose a valid voucher", "voucher")
+      : add("needsVoucher", "missing_voucher", "Needs a voucher before they can be invited", "voucher");
+  else if (!VOUCHERS.includes(row.voucher))
+    add("error", "unknown_voucher", "Choose a valid voucher", "voucher");
+  if (row.group && !directory.groups.includes(row.group))
+    add("error", "unknown_group", "Choose a valid admin group", "group");
+  else if (
+    row.group &&
+    VOUCHERS.includes(row.voucher) &&
+    !groupsForVouchers([row.voucher], directory.groups).includes(row.group)
+  )
+    add("error", "group_not_covered", "Admin group not covered by this voucher", "group");
+  if (row.team && !directory.teams.includes(row.team))
+    add("error", "unknown_team", "Choose a valid team", "team");
+  if (validEmail && accountExists && !accountExists(email))
+    add("info", "new_account", "New SANS account needed", "email");
+  return problems;
+}
+
+// "error", "needsVoucher" or "ready": the worst problem decides.
+export function rowStatus(problems) {
+  if (problems.some((p) => p.level === "error")) return "error";
+  if (problems.some((p) => p.level === "needsVoucher")) return "needsVoucher";
+  return "ready";
+}
+
 export function validateCandidate(
   row,
   existing = [],
   batch = [],
   directory = { groups: GROUPS, teams: TEAMS },
 ) {
-  const errors = [];
-  const email = (row.email || "").trim().toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-    errors.push("Enter a valid email address");
-  if (
-    existing.some((u) => u.type !== "portal" && u.email.toLowerCase() === email)
-  )
-    errors.push("This email is already a student");
-  if (batch.some((u) => u !== row && u.email?.trim().toLowerCase() === email))
-    errors.push("Duplicate email in this import");
-  if (!VOUCHERS.includes(row.voucher)) errors.push("Choose a valid voucher");
-  if (row.group && !directory.groups.includes(row.group))
-    errors.push("Choose a valid admin group");
-  else if (
-    row.group &&
-    VOUCHERS.includes(row.voucher) &&
-    !groupsForVouchers([row.voucher], directory.groups).includes(row.group)
-  )
-    errors.push("Admin group not covered by this voucher");
-  if (row.team && !directory.teams.includes(row.team))
-    errors.push("Choose a valid team");
-  return errors;
+  return checkStudentRow(row, { existing, batch, directory })
+    .filter((p) => p.level !== "info")
+    .map((p) => p.message);
 }
 export function validateDatabase(data) {
   if (

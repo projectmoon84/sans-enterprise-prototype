@@ -4,7 +4,7 @@
 // 3. Right-click a row to open its ⋮ menu at the pointer.
 // 4. Left-click a row to open that person's profile page (placeholder until it is specced).
 
-const TOPBAR = 60;
+const TOPBAR = 80; // 60px top bar + 20px prototype bar
 Object.assign(state, {
   profileId: null,
   profileFrom: "portal",

@@ -4,12 +4,19 @@ const fonts=await Promise.all([['regular',400],['medium',500],['semibold',600]].
 css=css.replace(/^@import[^\n]+\n/,fonts.join('\n')+'\n');
 const data=await readFile('src/data.js','utf8');
 const stripImports=source=>source.replace(/^import[\s\S]*?from ["'][^"']+["'];\n/gm,'');
+const bulkEngine=stripImports(await readFile('src/bulk-engine.js','utf8'));
+const training=stripImports(await readFile('src/training.js','utf8'));
 const store=stripImports(await readFile('src/store.js','utf8'));
+const alerts=stripImports(await readFile('src/alerts.js','utf8'));
 const activity=stripImports(await readFile('src/activity.js','utf8'));
 const app=stripImports(await readFile('src/app.js','utf8'));
 const fidelity=(await readFile('src/fidelity.js','utf8')).replace('/* SANS LOGO */',await readFile('src/assets/sans-logo.svg','utf8'));
 const people=await readFile('src/people.js','utf8');
 const tables=await readFile('src/tables.js','utf8');
+const profile=await readFile('src/profile.js','utf8');
+const activityPage=await readFile('src/activity-page.js','utf8');
+const bulkUi=await readFile('src/bulk-ui.js','utf8');
+const importReview=await readFile('src/import-review.js','utf8');
 css+='\n'+await readFile('src/fidelity.css','utf8');
 // Material Symbols: embed the trimmed icon font, then give every existing `svg` icon rule a matching `.ms` rule
 // so the font icons pick up the same sizes (glyphs drawn 25% larger, as Material icons carry built-in padding), colours and rotations the hand-drawn SVGs had.
@@ -25,5 +32,5 @@ css=css.replace(/([^{}]+)\{([^{}]*)\}/g,(rule,selector,decls)=>{
 css=msBase+css;
 const template=await readFile('src/index.html','utf8');
 await mkdir('dist',{recursive:true});
-await writeFile('dist/index.html',template.replace('/* STYLES */',()=>css).replace('/* DATA */',()=>data.replaceAll('export ','' )+'\n'+store.replaceAll('export ','')+'\n'+activity.replaceAll('export ','')).replace('/* APP */',()=>app+'\n'+fidelity+'\n'+people+'\n'+tables));
+await writeFile('dist/index.html',template.replace('/* STYLES */',()=>css).replace('/* DATA */',()=>data.replaceAll('export ','' )+'\n'+training.replaceAll('export ','')+'\n'+bulkEngine.replaceAll('export ','')+'\n'+alerts.replaceAll('export ','')+'\n'+store.replaceAll('export ','')+'\n'+activity.replaceAll('export ','')).replace('/* APP */',()=>app+'\n'+fidelity+'\n'+people+'\n'+tables+'\n'+profile+'\n'+activityPage+'\n'+bulkUi+'\n'+importReview));
 console.log('Built dist/index.html — standalone, no dependencies.');

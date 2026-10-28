@@ -225,7 +225,7 @@ editForm = function (id, index = null) {
     "Edit " + (portal ? "portal user" : "student"),
     "Changes are saved to the mock database in this browser.",
     `<form id="edit-form">${linkedEditNote(u)}<div class="form-grid"><div class="field"><label for="edit-name">Full name <span class="required">*</span></label><input id="edit-name" name="name" required value="${esc(u.name)}"></div><div class="field"><label for="edit-email">Email address <span class="required">*</span></label><input id="edit-email" type="email" name="email" required value="${esc(u.email)}"></div>${body}</div><p class="inline-error" id="edit-error" role="alert"></p></form>`,
-    `${btn(icon("trash") + "Delete record", "delete-user", "danger", 'data-id="' + esc(u.id) + '"')}<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="edit-form">Save changes</button></div>`,
+    `${btn(icon("trash") + "Remove…", "delete-user", "danger", 'data-id="' + esc(u.id) + '"')}<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="edit-form">Save changes</button></div>`,
   );
 };
 saveEdit = function () {

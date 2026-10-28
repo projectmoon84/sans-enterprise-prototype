@@ -40,9 +40,18 @@ const csvIcon = () =>
   '<svg class="csv-icon" viewBox="0 0 38 44" aria-hidden="true"><path fill="#00a63e" d="M3 0h22l13 13v28a3 3 0 0 1-3 3H3a3 3 0 0 1-3-3V3a3 3 0 0 1 3-3"/><path fill="#69d58f" d="M25 0v10a3 3 0 0 0 3 3h10"/><text x="6" y="34" fill="white" font-size="10" font-family="Arial" font-weight="700">CSV</text></svg>';
 const termLink =
   '<button type="button" class="button-link" data-action="terms">terms and conditions</button>';
+const metaDate = (iso) =>
+  new Date(iso).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+// "Last modified by" is read from the newest activity event for the person.
 const metaFor = (u) => ({
-  name: u.modifiedBy || "Ada Whitfield",
-  detail: u.modifiedDetail || "Portal Admin · Jun 3, 2026",
+  name: u.lastModifiedBy || "No changes yet",
+  detail: u.lastModifiedAt
+    ? `${u.lastModifiedRole ? `Portal ${u.lastModifiedRole} · ` : ""}${metaDate(u.lastModifiedAt)}`
+    : "",
   last:
     u.lastAccess || (u.status === "Pending invite" ? "Just invited" : "Today"),
   ...u.meta,
@@ -57,7 +66,7 @@ function checkRow(id, checked, label) {
   return `<input class="row-check" type="checkbox" data-select="${esc(id)}" aria-label="${esc(label)}" ${checked ? "checked" : ""}>`;
 }
 function rowActions(u) {
-  return `<div class="menu-anchor row-menu-anchor"><button class="icon-btn kebab" aria-label="Actions for ${esc(u.name || u.email)}" aria-expanded="${state.rowMenu === u.id}" data-action="row-menu" data-id="${esc(u.id)}">${menuIcon()}</button>${state.rowMenu === u.id ? `<div class="dropdown-menu row-dropdown">${btn("Edit details", "edit-user", "", 'data-id="' + esc(u.id) + '"')}${u.status === "Pending invite" ? btn("Resend invitation", "resend-user", "", 'data-id="' + esc(u.id) + '"') : btn(u.status === "Suspended" ? "Activate user" : "Suspend user", "set-user-status", "", 'data-id="' + esc(u.id) + '" data-status="' + (u.status === "Suspended" ? "Active" : "Suspended") + '"')}${roleShortcut(u)}${btn("Delete record", "delete-user", "danger", 'data-id="' + esc(u.id) + '"')}</div>` : ""}</div>`;
+  return `<div class="menu-anchor row-menu-anchor"><button class="icon-btn kebab" aria-label="Actions for ${esc(u.name || u.email)}" aria-expanded="${state.rowMenu === u.id}" data-action="row-menu" data-id="${esc(u.id)}">${menuIcon()}</button>${state.rowMenu === u.id ? `<div class="dropdown-menu row-dropdown">${btn("Edit details", "edit-user", "", 'data-id="' + esc(u.id) + '"')}${u.status === "Pending invite" ? btn("Resend invitation", "resend-user", "", 'data-id="' + esc(u.id) + '"') : btn(u.status === "Suspended" ? "Activate user" : "Suspend user", "set-user-status", "", 'data-id="' + esc(u.id) + '" data-status="' + (u.status === "Suspended" ? "Active" : "Suspended") + '"')}${roleShortcut(u)}${btn("Remove…", "delete-user", "danger", 'data-id="' + esc(u.id) + '"')}</div>` : ""}</div>`;
 }
 function actionsMenu(imported = false) {
   const n = state.selected.length;
@@ -131,7 +140,7 @@ render = function () {
   const focus = document.activeElement?.id,
     position = document.activeElement?.selectionStart;
   $("#app").innerHTML =
-    `<header class="topbar"><button class="icon-btn mobile-menu" data-action="mobile-menu" aria-label="Toggle navigation">${icon("menu")}</button><div class="logo" aria-label="SANS">${SANS_LOGO}</div><span class="org">Organization name</span><div class="right"><div class="menu-anchor"><button class="profile-button" data-action="profile-menu" aria-label="Open profile and demo tools" aria-expanded="${state.profileOpen}"><span class="avatar">${esc(initial(signedInPortalUser()?.name || "Portal user"))}</span>${icon("chevron")}</button>${state.profileOpen ? `<div class="dropdown-menu profile-dropdown">${profileMenuContents()}</div>` : ""}</div></div></header><aside class="sidebar" aria-label="Main navigation">${nav("Home", "home", "home")}${nav("Learning", "learning", "book")}${nav("Account & Finance", "finance", "building")}<div class="nav-divider"></div><div class="nav-section">Admin</div><button class="nav-btn nav-parent" data-action="toggle-people" aria-expanded="${!state.hidePeople}">${icon("person")}People${icon("chevron")}</button>${state.hidePeople ? "" : nav("Portal users", "portal", "", true) + nav("Students", "students", "", true)}<button class="nav-btn nav-parent groups-parent" data-action="toggle-groups" aria-expanded="${!state.hideGroups}">${icon("groups")}Groups${icon("chevron")}</button>${state.hideGroups ? "" : nav("Admin Groups", "groups", "", true) + nav("Teams", "teams", "", true)}<div class="nav-divider bottom-divider"></div>${nav("Help & Support", "help", "help")}</aside><main class="page view-${state.view}" id="main">${storageError ? `<div class="note warning">${icon("info")}${esc(storageError)}</div>` : ""}${content()}</main>`;
+    `<header class="topbar"><button class="icon-btn mobile-menu" data-action="mobile-menu" aria-label="Toggle navigation">${icon("menu")}</button><div class="logo" aria-label="SANS">${SANS_LOGO}</div><span class="org">Organization name</span><div class="right"><div class="menu-anchor"><button class="profile-button" data-action="profile-menu" aria-label="Open profile and demo tools" aria-expanded="${state.profileOpen}"><span class="avatar">${esc(initial(signedInPortalUser()?.name || "Portal user"))}</span>${icon("chevron")}</button>${state.profileOpen ? `<div class="dropdown-menu profile-dropdown">${profileMenuContents()}</div>` : ""}</div></div></header><aside class="sidebar" aria-label="Main navigation">${nav("Home", "home", "home")}${nav("Learning", "learning", "book")}${nav("Account & Finance", "finance", "building")}<div class="nav-divider"></div><div class="nav-section">Admin</div><button class="nav-btn nav-parent" data-action="toggle-people" aria-expanded="${!state.hidePeople}">${icon("person")}People${icon("chevron")}</button>${state.hidePeople ? "" : nav("Portal users", "portal", "", true) + nav("Students", "students", "", true)}<button class="nav-btn nav-parent groups-parent" data-action="toggle-groups" aria-expanded="${!state.hideGroups}">${icon("groups")}Groups${icon("chevron")}</button>${state.hideGroups ? "" : nav("Admin Groups", "groups", "", true) + nav("Teams", "teams", "", true)}${nav("Activity", "activity", "schedule")}<div class="nav-divider bottom-divider"></div>${nav("Help & Support", "help", "help")}</aside><main class="page view-${state.view}" id="main">${storageError ? `<div class="note warning">${icon("info")}${esc(storageError)}</div>` : ""}${content()}</main>`;
   if (focus && document.getElementById(focus)) {
     const el = document.getElementById(focus);
     el.focus();
@@ -156,7 +165,7 @@ peopleView = function () {
       ? users
           .map((u) => {
             const meta = metaFor(u);
-            return `<tr>${`<td class="selection-col">${checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email))}</td>`}<td><div class="person-name">${esc(u.name || u.email)}</div>${dualTag(u)}<div class="secondary person-role">${esc(portal ? u.role : u.workRole || u.email)}</div></td>${portal ? `<td class="scope">${u.accessLabel ? esc(u.accessLabel) : `${u.vouchers.length} ${u.vouchers.length === 1 ? "Voucher" : "Vouchers"} • ${u.groups.length} Admin ${u.groups.length === 1 ? "Group" : "Groups"} • ${u.teams.length} Teams`}</td>` : `<td class="scope ${u.groups.length ? "" : "unassigned"}">${esc(u.groups.join(", ") || "Unassigned")}</td><td class="scope ${u.teams.length ? "" : "unassigned"}">${esc(u.teams.join(", ") || "Unassigned")}</td>`}<td class="modifier"><span>${esc(meta.name)}</span><span class="secondary">${esc(meta.detail)}</span></td><td class="status-cell">${labelStatus(u.status)}${u.accountSetup && u.status === "Pending invite" ? `<span class="secondary account-pending">Awaiting SANS account</span>` : portal ? `<span class="secondary">${esc(meta.last)}</span>` : ""}</td><td class="menu-cell">${rowActions(u)}</td></tr>`;
+            return `<tr${rowHighlight(u)}>${`<td class="selection-col">${checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email))}</td>`}<td><div class="person-name">${esc(u.name || u.email)}</div>${dualTag(u)}<div class="secondary person-role">${esc(portal ? u.role : u.workRole || u.email)}</div></td>${portal ? `<td class="scope">${u.accessLabel ? esc(u.accessLabel) : `${u.vouchers.length} ${u.vouchers.length === 1 ? "Voucher" : "Vouchers"} • ${u.groups.length} Admin ${u.groups.length === 1 ? "Group" : "Groups"} • ${u.teams.length} Teams`}</td>` : `<td class="scope ${u.groups.length ? "" : "unassigned"}">${esc(u.groups.join(", ") || "Unassigned")}</td><td class="scope ${u.teams.length ? "" : "unassigned"}">${esc(u.teams.join(", ") || "Unassigned")}</td>`}<td class="modifier"><span>${esc(meta.name)}</span><span class="secondary">${esc(meta.detail)}</span></td><td class="status-cell">${labelStatus(u.status)}${alertBadge(u)}${voucherFlag(u)}${u.accountSetup && u.status === "Pending invite" ? `<span class="secondary account-pending">Awaiting SANS account</span>` : portal ? `<span class="secondary">${esc(meta.last)}</span>` : ""}</td><td class="menu-cell">${rowActions(u)}</td></tr>`;
           })
           .join("")
       : `<tr><td colspan="${portal ? 6 : 7}"><div class="empty">${icon("search")}<h2>No people found</h2><p>Try another name or clear your filters.</p>${btn("Clear filters", "all-filters-clear")}</div></td></tr>`
@@ -184,6 +193,7 @@ openModal = function (
     if (state.picker.kind === "group")
       $("#modal").classList.add("short-picker");
   }
+  if (kind.startsWith("profile-")) $("#modal").classList.add("profile-modal");
   if (kind === "portal-success") {
     $("#modal").classList.add("portal-success-modal");
     $("#modal .modal-header h2")?.remove();
