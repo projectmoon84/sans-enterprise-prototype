@@ -136,3 +136,11 @@ test("template headings with (required) are understood", async () => {
   assert.equal(out.matched.length, 6);
   assert.equal(out.ignored.length, 0);
 });
+
+test("Title and Division columns are not guessed as work role or admin group", async () => {
+  const { readStudentCSV } = await import("../src/data.js");
+  const out = readStudentCSV("Title,Name,Email,Division\nDr,Sam Lee,sam@example.com,Finance\n");
+  assert.equal(out.rows[0].workRole, "", "an honorific must not become a work role");
+  assert.equal(out.rows[0].group, "");
+  assert.deepEqual(out.ignored, ["Title", "Division"]);
+});

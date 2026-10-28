@@ -585,7 +585,7 @@ function csvSummary(u) {
     c.alsoPortal ? `${c.alsoPortal} already ${c.alsoPortal === 1 ? "has" : "have"} portal access` : "",
   ].filter(Boolean).join(" · ");
   const columns = `<div class="csv-columns"><p>${icon("check")}<span><strong>Columns matched:</strong> ${u.matched.map((m) => esc(m.label)).join(", ")}</span></p>${u.ignored.length ? `<p class="muted-line">${icon("info")}<span><strong>Ignored:</strong> ${u.ignored.map(esc).join(", ")}</span></p>` : ""}${u.missing.includes("Voucher") ? `<p class="warn-line">${icon("info")}<span>No voucher column, so everyone will need a voucher assigned before they're invited.</span></p>` : ""}</div>`;
-  return `<div class="csv-summary" aria-live="polite"><h3>${pluralize(c.total, "student")} found</h3><div class="csv-tiles">${tile("ready", "check_circle", c.ready, "ready to invite", readyNotes, "ready")}${tile("needs", "error", c.needsVoucher, c.needsVoucher === 1 ? "needs a voucher" : "need a voucher", "Add them now and assign a voucher on the next screen", "needsVoucher")}${tile("error", "error", c.error, c.error === 1 ? "needs fixing" : "need fixing", esc(problemText), "error")}</div>${columns}</div>`;
+  return `<div class="csv-summary"><h3 tabindex="-1">${pluralize(c.total, "student")} found</h3><div class="csv-tiles">${tile("ready", "check_circle", c.ready, "ready to invite", readyNotes, "ready")}${tile("needs", "error", c.needsVoucher, c.needsVoucher === 1 ? "needs a voucher" : "need a voucher", "Add them now and assign a voucher on the next screen", "needsVoucher")}${tile("error", "error", c.error, c.error === 1 ? "needs fixing" : "need fixing", esc(problemText), "error")}</div>${columns}</div>`;
 }
 function uploadDisplay() {
   state.modal = state.upload?.phase === "uploading" ? "uploading" : "upload";
@@ -647,17 +647,24 @@ stageCSV = function (text, name, size) {
     missing: parsed.missing,
   };
   uploadDisplay();
+  // The file input has just been replaced, so give focus somewhere useful while the check runs.
+  $("#modal [data-action='remove-upload']")?.focus();
+  // Progress updates touch only the bar, so whatever has focus keeps it.
   setTimeout(() => {
     if (token !== state.uploadToken) return;
     state.upload.progress = 70;
-    uploadDisplay();
+    const bar = $("#modal .csv-progress");
+    bar?.setAttribute("aria-valuenow", "70");
+    if (bar?.firstElementChild) bar.firstElementChild.style.width = "70%";
   }, 250);
+  // The result replaces the dialog body: move focus to its heading so screen readers read
+  // "N students found", and keyboard users continue from the result.
   setTimeout(() => {
     if (token !== state.uploadToken) return;
     state.upload.progress = 100;
     state.upload.phase = "ready";
     uploadDisplay();
-    $("#modal .csv-summary h3")?.focus?.();
+    $("#modal .csv-summary h3")?.focus();
   }, 700);
 };
 importErrors = function (row) {

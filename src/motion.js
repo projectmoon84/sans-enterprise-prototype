@@ -10,6 +10,15 @@ const ROW_STEP = 18; // ms between table rows
 const ROW_CAP = 12; // rows past this arrive together, so long tables don't drag
 const PAGE_DELAY = 90; // let the old page mostly fade before the new one rises
 
+// Snapshots of the outgoing page or dialog must stay frozen: copied entrance classes would replay
+// from opacity 0 and blank the copy instead of letting it fade.
+function freezeCopy(root) {
+  root.querySelectorAll(".motion-in, .motion-row").forEach((el) => {
+    el.classList.remove("motion-in", "motion-row");
+    el.style.removeProperty("--motion-delay");
+  });
+}
+
 // A lone wrapper (a form, a grid) would animate as one block; step inside it so its parts stagger.
 function staggerTargets(root) {
   let node = root;
@@ -51,11 +60,12 @@ function ghostOutgoingPage() {
   const copy = main.cloneNode(true);
   copy.removeAttribute("id");
   copy.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+  freezeCopy(copy);
   Object.assign(copy.style, { margin: "0", width: `${r.width}px`, minHeight: "0", transform: `translateY(${r.top - top}px)` });
   frame.append(copy);
   document.body.append(frame);
   const remove = () => frame.remove();
-  frame.addEventListener("animationend", remove, { once: true });
+  frame.addEventListener("animationend", (e) => e.target === frame && remove());
   setTimeout(remove, 400);
 }
 
@@ -128,6 +138,8 @@ function ghostClosedDialog({ html, className, rect, background, radius, shadow }
   box.className = className;
   box.innerHTML = html;
   box.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+  freezeCopy(box);
+  box.classList.remove("motion-dialog");
   Object.assign(box.style, {
     position: "fixed", top: `${rect.top}px`, left: `${rect.left}px`, width: `${rect.width}px`, height: `${rect.height}px`,
     margin: "0", display: "flex", flexDirection: "column", overflow: "hidden", boxSizing: "border-box",
@@ -139,7 +151,7 @@ function ghostClosedDialog({ html, className, rect, background, radius, shadow }
   // Siblings, not nested, so the dialog's fade isn't multiplied by the backdrop's.
   document.body.append(layer, box);
   const remove = () => (layer.remove(), box.remove());
-  layer.addEventListener("animationend", remove, { once: true });
+  layer.addEventListener("animationend", (e) => e.target === layer && remove());
   setTimeout(remove, 300);
 }
 

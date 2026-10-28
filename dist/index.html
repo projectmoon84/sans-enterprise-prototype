@@ -6141,9 +6141,9 @@ const CSV_COLUMNS = [
   { field: "name", label: "Name", aliases: ["name", "fullname", "studentname", "displayname", "learner", "learnername"] },
   { field: "email", label: "Email", aliases: ["email", "emailaddress", "workemail", "mail", "emailid", "businessemail"] },
   { field: "voucher", label: "Voucher", aliases: ["voucher", "vouchers", "vouchername", "trainingvoucher"] },
-  { field: "group", label: "Admin group", aliases: ["admingroup", "admingroups", "group", "suborg", "suborganisation", "suborganization", "division"] },
+  { field: "group", label: "Admin group", aliases: ["admingroup", "admingroups", "group", "suborg", "suborganisation", "suborganization"] },
   { field: "team", label: "Team", aliases: ["team", "teamname", "teams"] },
-  { field: "workRole", label: "Work role", aliases: ["workrole", "role", "jobrole", "jobtitle", "title", "position"] },
+  { field: "workRole", label: "Work role", aliases: ["workrole", "role", "jobrole", "jobtitle", "position"] },
 ];
 const FIRST_NAME = ["firstname", "givenname", "forename"];
 const LAST_NAME = ["lastname", "surname", "familyname"];
@@ -10876,7 +10876,7 @@ function csvSummary(u) {
     c.alsoPortal ? `${c.alsoPortal} already ${c.alsoPortal === 1 ? "has" : "have"} portal access` : "",
   ].filter(Boolean).join(" · ");
   const columns = `<div class="csv-columns"><p>${icon("check")}<span><strong>Columns matched:</strong> ${u.matched.map((m) => esc(m.label)).join(", ")}</span></p>${u.ignored.length ? `<p class="muted-line">${icon("info")}<span><strong>Ignored:</strong> ${u.ignored.map(esc).join(", ")}</span></p>` : ""}${u.missing.includes("Voucher") ? `<p class="warn-line">${icon("info")}<span>No voucher column, so everyone will need a voucher assigned before they're invited.</span></p>` : ""}</div>`;
-  return `<div class="csv-summary" aria-live="polite"><h3>${pluralize(c.total, "student")} found</h3><div class="csv-tiles">${tile("ready", "check_circle", c.ready, "ready to invite", readyNotes, "ready")}${tile("needs", "error", c.needsVoucher, c.needsVoucher === 1 ? "needs a voucher" : "need a voucher", "Add them now and assign a voucher on the next screen", "needsVoucher")}${tile("error", "error", c.error, c.error === 1 ? "needs fixing" : "need fixing", esc(problemText), "error")}</div>${columns}</div>`;
+  return `<div class="csv-summary"><h3 tabindex="-1">${pluralize(c.total, "student")} found</h3><div class="csv-tiles">${tile("ready", "check_circle", c.ready, "ready to invite", readyNotes, "ready")}${tile("needs", "error", c.needsVoucher, c.needsVoucher === 1 ? "needs a voucher" : "need a voucher", "Add them now and assign a voucher on the next screen", "needsVoucher")}${tile("error", "error", c.error, c.error === 1 ? "needs fixing" : "need fixing", esc(problemText), "error")}</div>${columns}</div>`;
 }
 function uploadDisplay() {
   state.modal = state.upload?.phase === "uploading" ? "uploading" : "upload";
@@ -10938,17 +10938,24 @@ stageCSV = function (text, name, size) {
     missing: parsed.missing,
   };
   uploadDisplay();
+  // The file input has just been replaced, so give focus somewhere useful while the check runs.
+  $("#modal [data-action='remove-upload']")?.focus();
+  // Progress updates touch only the bar, so whatever has focus keeps it.
   setTimeout(() => {
     if (token !== state.uploadToken) return;
     state.upload.progress = 70;
-    uploadDisplay();
+    const bar = $("#modal .csv-progress");
+    bar?.setAttribute("aria-valuenow", "70");
+    if (bar?.firstElementChild) bar.firstElementChild.style.width = "70%";
   }, 250);
+  // The result replaces the dialog body: move focus to its heading so screen readers read
+  // "N students found", and keyboard users continue from the result.
   setTimeout(() => {
     if (token !== state.uploadToken) return;
     state.upload.progress = 100;
     state.upload.phase = "ready";
     uploadDisplay();
-    $("#modal .csv-summary h3")?.focus?.();
+    $("#modal .csv-summary h3")?.focus();
   }, 700);
 };
 importErrors = function (row) {
@@ -14416,6 +14423,15 @@ const ROW_STEP = 18; // ms between table rows
 const ROW_CAP = 12; // rows past this arrive together, so long tables don't drag
 const PAGE_DELAY = 90; // let the old page mostly fade before the new one rises
 
+// Snapshots of the outgoing page or dialog must stay frozen: copied entrance classes would replay
+// from opacity 0 and blank the copy instead of letting it fade.
+function freezeCopy(root) {
+  root.querySelectorAll(".motion-in, .motion-row").forEach((el) => {
+    el.classList.remove("motion-in", "motion-row");
+    el.style.removeProperty("--motion-delay");
+  });
+}
+
 // A lone wrapper (a form, a grid) would animate as one block; step inside it so its parts stagger.
 function staggerTargets(root) {
   let node = root;
@@ -14457,11 +14473,12 @@ function ghostOutgoingPage() {
   const copy = main.cloneNode(true);
   copy.removeAttribute("id");
   copy.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+  freezeCopy(copy);
   Object.assign(copy.style, { margin: "0", width: `${r.width}px`, minHeight: "0", transform: `translateY(${r.top - top}px)` });
   frame.append(copy);
   document.body.append(frame);
   const remove = () => frame.remove();
-  frame.addEventListener("animationend", remove, { once: true });
+  frame.addEventListener("animationend", (e) => e.target === frame && remove());
   setTimeout(remove, 400);
 }
 
@@ -14534,6 +14551,8 @@ function ghostClosedDialog({ html, className, rect, background, radius, shadow }
   box.className = className;
   box.innerHTML = html;
   box.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+  freezeCopy(box);
+  box.classList.remove("motion-dialog");
   Object.assign(box.style, {
     position: "fixed", top: `${rect.top}px`, left: `${rect.left}px`, width: `${rect.width}px`, height: `${rect.height}px`,
     margin: "0", display: "flex", flexDirection: "column", overflow: "hidden", boxSizing: "border-box",
@@ -14545,7 +14564,7 @@ function ghostClosedDialog({ html, className, rect, background, radius, shadow }
   // Siblings, not nested, so the dialog's fade isn't multiplied by the backdrop's.
   document.body.append(layer, box);
   const remove = () => (layer.remove(), box.remove());
-  layer.addEventListener("animationend", remove, { once: true });
+  layer.addEventListener("animationend", (e) => e.target === layer && remove());
   setTimeout(remove, 300);
 }
 

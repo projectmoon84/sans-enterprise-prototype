@@ -222,9 +222,9 @@ export const CSV_COLUMNS = [
   { field: "name", label: "Name", aliases: ["name", "fullname", "studentname", "displayname", "learner", "learnername"] },
   { field: "email", label: "Email", aliases: ["email", "emailaddress", "workemail", "mail", "emailid", "businessemail"] },
   { field: "voucher", label: "Voucher", aliases: ["voucher", "vouchers", "vouchername", "trainingvoucher"] },
-  { field: "group", label: "Admin group", aliases: ["admingroup", "admingroups", "group", "suborg", "suborganisation", "suborganization", "division"] },
+  { field: "group", label: "Admin group", aliases: ["admingroup", "admingroups", "group", "suborg", "suborganisation", "suborganization"] },
   { field: "team", label: "Team", aliases: ["team", "teamname", "teams"] },
-  { field: "workRole", label: "Work role", aliases: ["workrole", "role", "jobrole", "jobtitle", "title", "position"] },
+  { field: "workRole", label: "Work role", aliases: ["workrole", "role", "jobrole", "jobtitle", "position"] },
 ];
 const FIRST_NAME = ["firstname", "givenname", "forename"];
 const LAST_NAME = ["lastname", "surname", "familyname"];
