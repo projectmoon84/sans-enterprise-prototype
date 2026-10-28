@@ -1,0 +1,21 @@
+﻿Name,Email,Voucher,Admin group,Team,Work role
+Amara Okafor,amara.okafor@northwind.example,Cyber Defense FY26,Federal Division,Security Operations,SOC Analyst I
+Ben Castellano,ben.castellano@northwind.example,Cloud Security FY26,EMEA Operations,Cloud Platform,Cloud Security Engineer
+Chloe Hartmann,chloe.hartmann@northwind.example,Offensive Ops FY26,Federal Division,Application Security,Penetration Tester
+Dev Malhotra,dev.malhotra@northwind.example,Leadership FY26,APAC Operations,GRC & Audit,Security Program Lead
+Eilidh MacLeod,eilidh.macleod@northwind.example,Cyber Defense FY26,,,SOC Analyst II
+Femi Adebayo,femi.adebayo@northwind.example,Cloud Security FY26,,Cloud Platform,
+Gabriela Souza,gabriela.souza@northwind.example,,,,
+,harry.whitcombe@northwind.example,,,,
+Isla Brennan,isla.brennan@northwind.example,,EMEA Operations,Security Operations,SOC Analyst I
+Jonas Weber,jonas.weber@northwind,Cyber Defense FY26,EMEA Operations,Security Operations,SOC Analyst II
+Kemi Oyelaran,kemi.oyelaran@northwind.example,Offensive Ops FY26,EMEA Operations,Application Security,
+Liam O'Connor,liam.oconnor@northwind.example,Cyber Defence FY26,Federal Division,Security Operations,SOC Analyst I
+Mei Lin Zhou,meilin.zhou@northwind.example,Leadership FY26,,SecOps,Security Manager
+A. Okafor,AMARA.OKAFOR@northwind.example,Cyber Defense FY26,,,
+Ken Adeyemi,ken.adeyemi@example.com,Cyber Defense FY26,Federal Division,Application Security,SOC Analyst I
+Marcus Okonjo,marcus.okonjo@example.com,Leadership FY26,Federal Division,,Security Program Lead
+Jane Doe,jane.doe@example.com,Cloud Security FY26,APAC Operations,Cloud Platform,Cloud Security Engineer
+"Fitzgerald, Noah",  noah.fitzgerald@northwind.example ,Cyber Defense FY26,EMEA Operations,Security Operations,
+Zoë Fournier,zoe.fournier@northwind.example,,,,Threat Intelligence Analyst
+Rhys Llewellyn,rhys.llewellyn@northwind.example,Offensive Ops FY26,,Application Security,Red Team Operator
