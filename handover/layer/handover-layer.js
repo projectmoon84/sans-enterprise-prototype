@@ -264,6 +264,8 @@
     ".chip .n{color:var(--muted);font-variant-numeric:tabular-nums}" +
     ".chip:hover,.chip.is-open{background:#1e1e1e;border-color:var(--blue)}" +
     ".chip:focus-visible{outline:2px solid var(--blue);outline-offset:2px}" +
+    ".chip.is-held{opacity:.6}.chip.is-held .t{font-style:italic}" +
+    ".held{display:inline-flex;align-items:center;height:18px;padding:0 6px;border-radius:4px;background:var(--bg3);color:var(--muted);font-size:11px}" +
     // Cards and the editor
     ".card{position:fixed;width:300px;max-height:min(70vh,560px);overflow:auto;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.35);padding:12px 14px 12px;pointer-events:auto;z-index:2}" +
     ".card-head{display:flex;align-items:center;gap:6px;margin-bottom:8px}" +
@@ -474,7 +476,7 @@
   function chipHtml(note, x, y) {
     var k = categoryOf(note.category);
     return (
-      '<button type="button" class="chip' + (openRef === note.ref ? " is-open" : "") + '" data-a="open" data-ref="' + note.ref + '" style="left:' + x + "px;top:" + y + 'px" aria-label="Note ' + note.ref + ": " + esc(note.title) + '">' +
+      '<button type="button" class="chip' + (openRef === note.ref ? " is-open" : "") + (note.hold ? " is-held" : "") + '" data-a="open" data-ref="' + note.ref + '" style="left:' + x + "px;top:" + y + 'px" aria-label="Note ' + note.ref + ": " + esc(note.title) + '">' +
       '<span class="dot" style="background:' + noteColour(note) + '" aria-hidden="true"></span><span class="n">' + note.ref + '</span><span class="t">' + esc(note.title) + "</span></button>"
     );
   }
@@ -601,10 +603,11 @@
       '<div class="card-head">' + tagHtml(note) + '<span class="kind">' + esc(kindOf(note.kind).label) + '</span><span class="sp"></span><span class="kind">#' + note.ref + '</span><button type="button" class="ico" data-a="close-card" aria-label="Close">✕</button></div>' +
       "<h3>" + esc(note.title) + '</h3><div class="where">' + esc(whereText(note)) + "</div>" +
       (note.body ? '<div class="body">' + md(note.body) + "</div>" : "") +
-      '<div class="meta"><span>' + esc(note.author || "Unknown") + "</span><span>" + esc(note.updatedAt || note.createdAt || "") + "</span><span>" + esc(handoverName(note.handover)) + "</span></div>" +
+      '<div class="meta"><span>' + esc(note.author || "Unknown") + "</span><span>" + esc(note.updatedAt || note.createdAt || "") + "</span><span>" + esc(note.hold && !note.handover ? "On hold" : handoverName(note.handover)) + "</span></div>" +
       '<div class="acts">' +
       (editable ? '<button type="button" class="btn" data-a="edit" data-ref="' + note.ref + '">Edit</button>' : "") +
       '<button type="button" class="btn" data-a="copy" data-ref="' + note.ref + '">Copy as ticket</button>' +
+      (editable && !note.handover ? '<button type="button" class="btn ghost" data-a="hold" data-ref="' + note.ref + '">' + (note.hold ? "Include in next handover" : "Hold back") + "</button>" : "") +
       (editable ? '<button type="button" class="btn ghost danger" data-a="delete" data-ref="' + note.ref + '">Delete</button>' : "") +
       "</div></div>";
   }
@@ -659,9 +662,11 @@
     }
     els.panel.hidden = false;
     var notes = visibleNotes();
-    var here = notes.filter(function (n) { return n.anchor && onThisView(n); });
-    var global = notes.filter(function (n) { return !n.anchor; });
-    var elsewhere = notes.filter(function (n) { return n.anchor && !onThisView(n); });
+    var held = notes.filter(function (n) { return n.hold && !n.handover; });
+    var live = notes.filter(function (n) { return !(n.hold && !n.handover); });
+    var here = live.filter(function (n) { return n.anchor && onThisView(n); });
+    var global = live.filter(function (n) { return !n.anchor; });
+    var elsewhere = live.filter(function (n) { return n.anchor && !onThisView(n); });
     var opts =
       '<option value="next"' + (filter.handover === "next" ? " selected" : "") + ">Next handover</option>" +
       data.handovers.slice().reverse().map(function (ho) { return '<option value="' + esc(ho.id) + '"' + (filter.handover === ho.id ? " selected" : "") + ">" + esc(ho.name) + "</option>"; }).join("") +
@@ -682,7 +687,7 @@
       (editable ? "" : '<p class="readonly">View only. Notes are edited when the prototype runs locally.</p>') +
       "</header>" +
       '<div class="list">' +
-      (notes.length ? group("On this page", here) + group("Everywhere", global) + group("Elsewhere", elsewhere) : '<div class="empty">No notes here yet.' + (editable ? "<br>Choose + Annotate and click a component." : "") + "</div>") +
+      (notes.length ? group("On this page", here) + group("Everywhere", global) + group("Elsewhere", elsewhere) + group("On hold", held) : '<div class="empty">No notes here yet.' + (editable ? "<br>Choose + Annotate and click a component." : "") + "</div>") +
       "</div>" +
       (editable ? '<div class="pfoot"><button type="button" class="btn" data-a="new-page">Note on this page</button><button type="button" class="btn" data-a="new-global">Global note</button><span class="sp"></span><button type="button" class="btn ghost" data-a="profile">' + esc((profile() || {}).name || "Your name") + "</button></div>" : "");
   }
@@ -870,14 +875,23 @@
         return new Promise(function (resolve) { setTimeout(resolve, needsNav ? 320 : 0); });
       })
       .then(function () {
-        if (cfg.reveal && note.anchor && !findAnchor(note.anchor))
+        // Screenshots always reveal, so menus and dialog steps show even when their trigger is on screen.
+        if (cfg.reveal && note.anchor && (captureRef != null || !findAnchor(note.anchor)))
           return Promise.resolve(cfg.reveal(note.anchor)).then(function () { return new Promise(function (r) { setTimeout(r, 320); }); });
       })
       .then(function () {
         var el = findAnchor(note.anchor);
         if (el) {
           var r = el.getBoundingClientRect();
-          if (r.top < topOffset() + 40 || r.bottom > window.innerHeight - 40) el.scrollIntoView({ block: "center", behavior: reducedMotion() ? "auto" : "smooth" });
+          var room = window.innerHeight - topOffset() - 80;
+          if (r.height > room && r.top + window.scrollY < window.innerHeight * 0.6) {
+            // Big and near the top of the page: show the page from the top, heading included.
+            window.scrollTo(0, 0);
+          } else if (r.height > room) {
+            // Taller than the screen: line its top up just under the fixed bars.
+            el.style.scrollMarginTop = topOffset() + 24 + "px";
+            el.scrollIntoView({ block: "start", behavior: reducedMotion() ? "auto" : "smooth" });
+          } else if (r.top < topOffset() + 40 || r.bottom > window.innerHeight - 40) el.scrollIntoView({ block: "center", behavior: reducedMotion() ? "auto" : "smooth" });
         }
         render();
         return el;
@@ -978,6 +992,13 @@
       picking = true;
       hint("Click the component this note should attach to · Esc to cancel");
       repickFor = keep;
+    } else if (a === "hold" && note) {
+      note.hold = !note.hold;
+      if (!note.hold) delete note.hold;
+      render();
+      persist().then(function (ok) {
+        if (ok) toast(note.hold ? "Note " + ref + " held back from the next handover" : "Note " + ref + " included in the next handover");
+      });
     } else if (a === "delete") confirmDelete(ref);
     else if (a === "delete-now") {
       data.notes = data.notes.filter(function (n) { return n.ref !== ref; });
@@ -1125,8 +1146,23 @@
         els.card.innerHTML = "";
         paint();
         if (!el) return { found: false };
+        // Include anything that pops out of the anchor, such as an open menu.
         var r = el.getBoundingClientRect();
-        return { found: true, x: r.left, y: r.top, width: r.width, height: r.height };
+        var box = { l: r.left, t: r.top, r: r.right, b: r.bottom };
+        el.querySelectorAll("*").forEach(function (child) {
+          var c = child.getBoundingClientRect();
+          if (!c.width || !c.height) return;
+          box.l = Math.min(box.l, c.left); box.t = Math.min(box.t, c.top);
+          box.r = Math.max(box.r, c.right); box.b = Math.max(box.b, c.bottom);
+        });
+        var out = { found: true, x: box.l, y: box.t, width: box.r - box.l, height: box.b - box.t };
+        // Inside a dialog: give the whole dialog as the frame, for context.
+        var dialog = el.closest("dialog[open]");
+        if (dialog) {
+          var d = dialog.getBoundingClientRect();
+          out.frame = { x: d.left, y: d.top, width: d.width, height: d.height };
+        }
+        return out;
       });
     },
     data: function () {

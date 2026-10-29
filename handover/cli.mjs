@@ -85,7 +85,8 @@ function flag(name) {
 // ---------- status ----------
 async function status() {
   const data = await loadData();
-  const waiting = data.notes.filter((n) => !n.handover);
+  const waiting = data.notes.filter((n) => !n.handover && !n.hold);
+  const held = data.notes.filter((n) => !n.handover && n.hold);
   const last = data.handovers.at(-1);
   console.log(`${data.project || config.project}`);
   console.log(last ? `Last handover: ${last.name} (${last.date}${last.tag ? `, tag ${last.tag}` : ""})` : "No handovers yet. Cut a baseline to draw the first line.");
@@ -96,6 +97,7 @@ async function status() {
     console.log(`\n  ${label}`);
     for (const n of list) console.log(`    #${n.ref}  ${n.title}  ·  ${where(n, config.viewLabels)}`);
   }
+  if (held.length) console.log(`\nOn hold (not in the next handover): ${held.map((n) => `#${n.ref}`).join(", ")}`);
   if (last?.tag && isRepo()) {
     const changed = gitOk("diff", "--name-only", last.tag, "--", ...config.watch);
     const files = changed ? changed.split("\n").filter(Boolean) : [];
@@ -134,7 +136,7 @@ async function cut() {
     console.error(`The tag ${tag} already exists. Delete it or edit handover/data.json first.`);
     process.exit(1);
   }
-  const waiting = data.notes.filter((n) => !n.handover);
+  const waiting = data.notes.filter((n) => !n.handover && !n.hold);
   waiting.forEach((n) => (n.handover = id));
   const handover = { id, name, date: today(), tag, summary: typeof flag("--summary") === "string" ? flag("--summary") : "", notes: waiting.length };
   data.handovers.push(handover);
@@ -180,11 +182,23 @@ async function screenshotNotes(entryHtml, data, notes) {
         const box = await page.evaluate((ref) => window.HandoverLayer.capture(ref), note.ref);
         await page.waitForTimeout(500);
         if (box?.found) {
-          const pad = 48;
-          const x = Math.max(0, box.x - pad);
-          const y = Math.max(0, box.y - pad);
-          const w = Math.min(width - x, box.width + pad * 2);
-          const h = Math.min(height - y, box.height + pad * 2);
+          // Crop with context: the whole dialog when there is one, otherwise at least 1000 × 560 around the element.
+          const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+          let x, y, w, h;
+          if (box.frame) {
+            const pad = 24;
+            x = box.frame.x - pad; y = box.frame.y - pad;
+            w = box.frame.width + pad * 2; h = box.frame.height + pad * 2;
+          } else if (box.height > height * 0.6) {
+            // Big areas, such as a whole table: show the full screen.
+            x = 0; y = 0; w = width; h = height;
+          } else {
+            const pad = 48;
+            w = Math.max(1000, box.width + pad * 2); h = Math.max(560, box.height + pad * 2);
+            x = box.x + box.width / 2 - w / 2; y = box.y + box.height / 2 - h / 2;
+          }
+          w = Math.min(w, width); h = Math.min(h, height);
+          x = clamp(x, 0, width - w); y = clamp(y, 0, height - h);
           shots[note.ref] = { data: (await page.screenshot({ clip: { x, y, width: Math.max(w, 1), height: Math.max(h, 1) } })).toString("base64"), found: true };
         } else {
           shots[note.ref] = { data: (await page.screenshot()).toString("base64"), found: false };
@@ -206,7 +220,7 @@ async function report(which = process.argv[3]) {
   let handover = null;
   let notes;
   if (!which || which === "next") {
-    notes = data.notes.filter((n) => !n.handover);
+    notes = data.notes.filter((n) => !n.handover && !n.hold);
     if (!notes.length && !which && data.handovers.length) handover = data.handovers.at(-1);
   } else {
     handover = data.handovers.find((h) => h.id === which || h.tag === which || slug(h.name) === slug(which));

@@ -44,6 +44,7 @@ Other things you can do:
 
 - In the notes panel, **Copy as ticket** copies a note's title, type, location, description and a link, ready to paste into Jira.
 - A link ending in `#hl=7` opens the prototype on note 7.
+- **Hold back** on a note keeps it out of the next handover, for work that isn't ready. Held notes are listed under **On hold** in the panel and by `handover:status`. Choose **Include in next handover** to release them.
 
 To include screenshots, install Playwright once:
 

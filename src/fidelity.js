@@ -69,7 +69,7 @@ function checkRow(id, checked, label) {
   return `<input class="row-check" type="checkbox" data-select="${esc(id)}" aria-label="${esc(label)}" ${checked ? "checked" : ""}>`;
 }
 function rowActions(u) {
-  return `<div class="menu-anchor row-menu-anchor"><button class="icon-btn kebab" aria-label="Actions for ${esc(u.name || u.email)}" aria-expanded="${state.rowMenu === u.id}" data-action="row-menu" data-id="${esc(u.id)}">${menuIcon()}</button>${state.rowMenu === u.id ? `<div class="dropdown-menu row-dropdown">${btn("Edit details", "edit-user", "", 'data-id="' + esc(u.id) + '"')}${u.status === "Pending invite" ? btn("Resend invitation", "resend-user", "", 'data-id="' + esc(u.id) + '"') : btn(u.status === "Suspended" ? "Activate user" : "Suspend user", "set-user-status", "", 'data-id="' + esc(u.id) + '" data-status="' + (u.status === "Suspended" ? "Active" : "Suspended") + '"')}${roleShortcut(u)}${btn("Remove…", "delete-user", "danger", 'data-id="' + esc(u.id) + '"')}</div>` : ""}</div>`;
+  return `<div class="menu-anchor row-menu-anchor" data-spec="people.row-menu" data-spec-label="Row menu"><button class="icon-btn kebab" aria-label="Actions for ${esc(u.name || u.email)}" aria-expanded="${state.rowMenu === u.id}" data-action="row-menu" data-id="${esc(u.id)}">${menuIcon()}</button>${state.rowMenu === u.id ? `<div class="dropdown-menu row-dropdown">${btn("Edit details", "edit-user", "", 'data-id="' + esc(u.id) + '"')}${u.status === "Pending invite" ? btn("Resend invitation", "resend-user", "", 'data-id="' + esc(u.id) + '"') : btn(u.status === "Suspended" ? "Activate user" : "Suspend user", "set-user-status", "", 'data-id="' + esc(u.id) + '" data-status="' + (u.status === "Suspended" ? "Active" : "Suspended") + '"')}${roleShortcut(u)}${btn("Remove…", "delete-user", "danger", 'data-id="' + esc(u.id) + '"')}</div>` : ""}</div>`;
 }
 function actionsMenu(imported = false) {
   const n = state.selected.length;
@@ -77,7 +77,7 @@ function actionsMenu(imported = false) {
 }
 function toolbar(imported = false) {
   const portal = state.view === "portal";
-  return `<div class="toolbar fidelity-toolbar">${actionsMenu(imported)}<span class="filter-label">Filter</span>${portal ? filterSelect("role", [...ROLES, "SSO Admin"], state.role, "Role") : `${filterSelect("voucher", VOUCHERS, state.voucher, "Voucher")}${filterSelect("group", db.groups, state.group, "Admin Group")}${filterSelect("team", db.teams, state.team, "Team")}`}${portal || imported ? filterSelect("status", imported ? ["Ready", "Needs attention", "Added"] : ["Active", "Pending invite", "Suspended"], state.status, "Status") : ""}<div class="search">${icon("search")}<input id="people-search" placeholder="Search name or email" aria-label="Search name or email" value="${esc(state.search)}"></div>${state.selected.length ? `<span class="selection-count">${state.selected.length} selected</span>` : ""}</div>`;
+  return `<div class="toolbar fidelity-toolbar" data-spec="people.toolbar" data-spec-label="Filters, search and Actions">${actionsMenu(imported)}<span class="filter-label">Filter</span>${portal ? filterSelect("role", [...ROLES, "SSO Admin"], state.role, "Role") : `${filterSelect("voucher", VOUCHERS, state.voucher, "Voucher")}${filterSelect("group", db.groups, state.group, "Admin Group")}${filterSelect("team", db.teams, state.team, "Team")}`}${portal || imported ? filterSelect("status", imported ? ["Ready", "Needs attention", "Added"] : ["Active", "Pending invite", "Suspended"], state.status, "Status") : ""}<div class="search">${icon("search")}<input id="people-search" placeholder="Search name or email" aria-label="Search name or email" value="${esc(state.search)}"></div>${state.selected.length ? `<span class="selection-count">${state.selected.length} selected</span>` : ""}</div>`;
 }
 function matchesFilters(u, imported = false) {
   const groups = imported ? (u.group ? [u.group] : []) : u.groups;
@@ -160,8 +160,8 @@ peopleView = function () {
   const all = db.users.filter((u) => u.type === type),
     users = ordered(all.filter((u) => matchesFilters(u)));
   const actions = portal
-    ? btn(icon("plus") + "Invite Portal user", "invite", "primary")
-    : `<div class="menu-anchor">${btn("Add students" + icon("chevron"), "student-menu", "primary", 'aria-expanded="' + state.menu + '"')}${state.menu ? `<div class="dropdown-menu"><button data-action="add-student">Individuals</button><button data-action="upload">Upload a CSV</button></div>` : ""}</div>`;
+    ? btn(icon("plus") + "Invite Portal user", "invite", "primary", 'data-spec="portal.invite-button" data-spec-label="Invite Portal user button"')
+    : `<div class="menu-anchor" data-spec="students.add-menu" data-spec-label="Add students menu">${btn("Add students" + icon("chevron"), "student-menu", "primary", 'aria-expanded="' + state.menu + '"')}${state.menu ? `<div class="dropdown-menu"><button data-action="add-student">Individuals</button><button data-action="upload">Upload a CSV</button></div>` : ""}</div>`;
   const checks = `<th class="selection-col">${checkRow("all", allSelected(users), "Select all visible people")}</th>`;
   return `${heading(portal ? "Portal Users" : "Students", portal ? `${all.length} people can access this portal.` : "Students do not have access to this portal", actions)}<section class="card people-card" aria-label="${portal ? "Portal users" : "Students"} list" data-spec="people.table" data-spec-label="People table">${toolbar()}<div class="table-wrap"><table class="people-table ${portal ? "portal-table" : "students-table"}"><colgroup>${portal ? '<col class="col-check"><col class="col-person"><col class="col-access"><col class="col-modifier"><col class="col-status"><col class="col-menu">' : '<col class="col-check"><col class="col-person"><col class="col-group"><col class="col-team"><col class="col-modifier"><col class="col-status"><col class="col-menu">'}</colgroup><thead><tr>${checks}${tableHead("Name", "name", !portal)}${portal ? tableHead("Access", "access", false) : tableHead("Admin Groups", "groups") + tableHead("Team", "teams")}${tableHead("Last modified by", "updatedAt")}${tableHead(portal ? "Status / Last access" : "Status", "status", !portal)}<th></th></tr></thead><tbody>${
     users.length
@@ -294,7 +294,7 @@ portalReview = function () {
   openModal(
     "Invite Portal User",
     "Choose what this person can access. They will be able to sign in to the portal.",
-    `<section class="portal-review-summary"><h3>Summary</h3><p>${esc(reachSentence(p))}</p><div class="review-detail"><dl class="summary-data">${[
+    `<section class="portal-review-summary" data-spec="portal.invite.review" data-spec-label="Invitation review"><h3>Summary</h3><p>${esc(reachSentence(p))}</p><div class="review-detail"><dl class="summary-data">${[
       ["Email", p.email],
       ["Role", p.role],
       ["Admin Groups", p.groups.join(", ")],
@@ -304,7 +304,7 @@ portalReview = function () {
       .map(([l, v]) => `<div><dt>${l}</dt><dd>${esc(v)}</dd></div>`)
       .join(
         "",
-      )}</dl><div class="review-permissions">${permissionLists(p.role, p.groups)}</div></div></section><label class="check consent"><input id="send-consent" type="checkbox"><span>I confirm this person may be granted portal access with the role and scope shown above under our ${termLink}.<strong>Required</strong></span></label>`,
+      )}</dl><div class="review-permissions">${permissionLists(p.role, p.groups)}</div></div></section><label class="check consent" data-spec="portal.invite.consent" data-spec-label="Consent checkbox"><input id="send-consent" type="checkbox"><span>I confirm this person may be granted portal access with the role and scope shown above under our ${termLink}.<strong>Required</strong></span></label>`,
     `<div class="actions">${btn("Back to Role and Access", "portal-back", "text")}${btn("Send Invitation", "portal-send", "primary", 'id="send-button" disabled')}</div>`,
     steps("Role and Access", "Review & Send", 2),
   );
@@ -346,7 +346,7 @@ function studentEntryValues() {
   };
 }
 function savedStudentRow(d, i) {
-  return `<div class="student-draft"><span class="row-step complete">${icon("check")}</span><div class="draft-columns">${[
+  return `<div class="student-draft" data-spec="students.add.saved" data-spec-label="Saved student row"><span class="row-step complete">${icon("check")}</span><div class="draft-columns">${[
     ["Student email", d.email],
     ["Voucher", d.voucher],
     ["Admin Group", d.group || "Unassigned"],
@@ -378,7 +378,7 @@ studentForm = function (editIndex = null) {
       .map((d) => savedStudentRow(d, state.drafts.indexOf(d)))
       .join(
         "",
-      )}${state.entryOpen ? `<form id="student-form" class="student-entry"><span class="row-step">${editIndex === null ? state.drafts.length + 1 : editIndex + 1}</span><div class="entry-fields"><div class="field"><label for="student-email">Email Address <span class="required">*</span></label><input id="student-email" name="email" type="email" required value="${esc(s.email || "")}" placeholder="Enter student’s email"></div><div class="field"><label for="student-voucher">Voucher <span class="required">*</span></label><select id="student-voucher" name="voucher" required>${opts(VOUCHERS, s.voucher)}</select><p class="hint">Pays for their training.</p></div><div class="field"><label for="student-group">Admin Group</label><select id="student-group" name="group" ${s.voucher ? "" : "disabled"}>${groupOptions(s.voucher, s.group)}</select><p class="hint" id="student-group-hint">${s.voucher ? "Optional · filtered by voucher." : "Choose a voucher first."}</p></div><div class="field"><label for="student-team">Team</label><select id="student-team" name="team">${opts(db.teams, s.team, "Leave unassigned")}</select><p class="hint">Optional · teams can mix vouchers.</p></div></div><div id="student-linked">${linkedNote(s.email, "student")}</div><div class="entry-bottom"><p id="account-status" class="account-status ${accountClass(s.email, "student")}">${accountStatus(s.email, "student")}</p><label class="check"><input type="checkbox" id="reuse-assignments" ${state.reuseAssignments ? "checked" : ""}>Use these assignments for the next student</label><button class="button primary" type="submit">Save student</button></div><p class="inline-error" id="student-error" role="alert"></p></form>` : ""}<button class="add-another" data-action="student-add-another">${icon("users")}Add Another</button>`,
+      )}${state.entryOpen ? `<form id="student-form" class="student-entry" data-spec="students.add.entry" data-spec-label="Student entry row"><span class="row-step">${editIndex === null ? state.drafts.length + 1 : editIndex + 1}</span><div class="entry-fields"><div class="field"><label for="student-email">Email Address <span class="required">*</span></label><input id="student-email" name="email" type="email" required value="${esc(s.email || "")}" placeholder="Enter student’s email"></div><div class="field"><label for="student-voucher">Voucher <span class="required">*</span></label><select id="student-voucher" name="voucher" required>${opts(VOUCHERS, s.voucher)}</select><p class="hint">Pays for their training.</p></div><div class="field"><label for="student-group">Admin Group</label><select id="student-group" name="group" ${s.voucher ? "" : "disabled"}>${groupOptions(s.voucher, s.group)}</select><p class="hint" id="student-group-hint">${s.voucher ? "Optional · filtered by voucher." : "Choose a voucher first."}</p></div><div class="field"><label for="student-team">Team</label><select id="student-team" name="team">${opts(db.teams, s.team, "Leave unassigned")}</select><p class="hint">Optional · teams can mix vouchers.</p></div></div><div id="student-linked">${linkedNote(s.email, "student")}</div><div class="entry-bottom"><p id="account-status" class="account-status ${accountClass(s.email, "student")}">${accountStatus(s.email, "student")}</p><label class="check"><input type="checkbox" id="reuse-assignments" ${state.reuseAssignments ? "checked" : ""}>Use these assignments for the next student</label><button class="button primary" type="submit">Save student</button></div><p class="inline-error" id="student-error" role="alert"></p></form>` : ""}<button class="add-another" data-action="student-add-another">${icon("users")}Add Another</button>`,
     `<span class="secondary">${state.drafts.length} ${state.drafts.length === 1 ? "student" : "students"} ready to review</span><div class="actions">${btn("Cancel", "close-modal", "text")}${btn("Save", "student-review", "primary", state.drafts.length ? "" : "disabled")}</div>`,
     steps("Add student details", "Review & Send", 1),
   );
@@ -420,7 +420,7 @@ studentReview = function () {
   openModal(
     "Add students",
     "Review the details and confirm that these people can be invited.",
-    `<p class="review-intro">Check each student’s details before sending. You can return to make changes without losing your work.</p>${studentReviewTable(state.drafts)}<label class="check consent"><input id="send-consent" type="checkbox"><span>I confirm these people are employees or contractors of our organisation and may be invited under our ${termLink}.<strong>Required</strong></span></label>`,
+    `<p class="review-intro" data-spec="students.add.review" data-spec-label="Students review step">Check each student’s details before sending. You can return to make changes without losing your work.</p>${studentReviewTable(state.drafts)}<label class="check consent"><input id="send-consent" type="checkbox"><span>I confirm these people are employees or contractors of our organisation and may be invited under our ${termLink}.<strong>Required</strong></span></label>`,
     `<span class="secondary">${state.drafts.length} ${state.drafts.length === 1 ? "student will" : "students will"} receive an invitation email</span><div class="actions">${btn("Back", "student-back", "text")}${btn("Send invitations", "student-send", "primary", 'id="send-button" disabled')}</div>`,
     steps("Add student details", "Review & Send", 2),
   );
@@ -440,7 +440,7 @@ function renderStudentResults() {
   openModal(
     "Add students",
     "Review the details and confirm that these people can be invited.",
-    `<div class="note success result-banner">${icon("check")}<div><strong>${sent} of ${rows.length} invitations sent</strong><p>${pending ? "Sending invitations. Please wait." : failed ? `Successful students have been emailed. ${failed === 1 ? "One invitation needs" : failed + " invitations need"} your attention below.` : accounts ? `Your students have been invited. ${accounts === 1 ? "One person needs" : accounts + " people need"} to create a SANS account first. They will be added automatically once it is set up.` : "Your students have been invited successfully."}</p></div></div>${studentReviewTable(rows, true)}`,
+    `<div class="note success result-banner" data-spec="students.add.results" data-spec-label="Sending results">${icon("check")}<div><strong>${sent} of ${rows.length} invitations sent</strong><p>${pending ? "Sending invitations. Please wait." : failed ? `Successful students have been emailed. ${failed === 1 ? "One invitation needs" : failed + " invitations need"} your attention below.` : accounts ? `Your students have been invited. ${accounts === 1 ? "One person needs" : accounts + " people need"} to create a SANS account first. They will be added automatically once it is set up.` : "Your students have been invited successfully."}</p></div></div>${studentReviewTable(rows, true)}`,
     `<span class="secondary">Your successful invitations are now listed on the <button class="button-link" data-action="view-invitations">Invitations</button> page.</span><div class="actions">${btn("Close", "close-modal", "text", pending ? "disabled" : "")}${pending ? btn('<span class="spinner"></span>Sending invitations', "noop", "primary", "disabled") : failed ? btn("Review failed invitations", "retry-all-students", "primary") : btn("Done", "finish-students", "primary")}</div>`,
     steps("Add student details", "Review & Send", 2),
   );

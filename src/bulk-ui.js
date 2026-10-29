@@ -214,7 +214,7 @@ matchesFilters = function (u, imported = false) {
   return !chip || chip[2](u);
 };
 function chipsHtml(chips, active, label) {
-  return `<div class="chip-bar" role="group" aria-label="${esc(label)}">${chips
+  return `<div class="chip-bar" role="group" aria-label="${esc(label)}" data-spec="${state.view === "import" ? "csv.review.chips" : "people.chips"}" data-spec-label="Quick filter chips">${chips
     .map(([key, text, count]) => `<button type="button" class="filter-chip${key === active ? " active" : ""}" data-action="chip" data-chip="${key}" aria-pressed="${key === active}">${esc(text)}<span class="chip-count">${count}</span></button>`)
     .join("")}</div>`;
 }
@@ -658,7 +658,7 @@ function rowHighlight(u) {
 function studentBanners() {
   const needs = db.users.filter((u) => u.type === "student" && u.status === "Needs voucher").length;
   const drafts = db.importDrafts || [];
-  return `${drafts.map((d) => `<div class="note import-banner" role="status">${icon("info")}<div><strong>You have an unfinished import</strong> <span>${esc(d.fileName)} · ${pluralize(d.rows.length, "row")}</span></div><div class="banner-actions">${btn("Resume", "import-resume", "small primary", `data-id="${esc(d.id)}"`)}${btn("Discard", "import-discard", "small", `data-id="${esc(d.id)}"`)}</div></div>`).join("")}${needs ? `<div class="note voucher-banner" role="status">${icon("error")}<div><strong>${pluralize(needs, "student needs", "students need")} a voucher</strong> <span>before ${needs === 1 ? "they" : "they"} can be invited.</span></div><div class="banner-actions">${btn("Review", "banner-review-needs-voucher", "small")}</div></div>` : ""}`;
+  return `${drafts.map((d) => `<div class="note import-banner" role="status" data-spec="students.import-banner" data-spec-label="Unfinished import banner">${icon("info")}<div><strong>You have an unfinished import</strong> <span>${esc(d.fileName)} · ${pluralize(d.rows.length, "row")}</span></div><div class="banner-actions">${btn("Resume", "import-resume", "small primary", `data-id="${esc(d.id)}"`)}${btn("Discard", "import-discard", "small", `data-id="${esc(d.id)}"`)}</div></div>`).join("")}${needs ? `<div class="note voucher-banner" role="status" data-spec="students.voucher-banner" data-spec-label="Needs voucher banner">${icon("error")}<div><strong>${pluralize(needs, "student needs", "students need")} a voucher</strong> <span>before ${needs === 1 ? "they" : "they"} can be invited.</span></div><div class="banner-actions">${btn("Review", "banner-review-needs-voucher", "small")}</div></div>` : ""}`;
 }
 const bulkBasePeopleView = peopleView;
 peopleView = function () {
@@ -668,6 +668,9 @@ peopleView = function () {
     .replace('<section class="card people-card"', `${state.view === "students" ? studentBanners() : ""}<section class="card people-card"`)
     .replace('<div class="table-wrap">', `${tableChipsHtml()}<div class="table-wrap">`);
 };
+// The first render happens in app.js, before this file loads, so a page opened straight onto
+// Students or Portal users would miss its chips and banners until something re-rendered.
+if (chipsFor(state.view)) render();
 
 // ---------- Keyboard: Shift-click a range, Ctrl/Cmd-A selects all visible, Esc clears ----------
 var shiftHeld = false;
@@ -737,7 +740,7 @@ function openRemoveDialog(rowIds) {
   openModal(
     `Remove ${who}?`,
     "Choose what to remove.",
-    `<form id="remove-form"><fieldset class="remove-options"><legend class="sr-only">What to remove</legend>${options
+    `<form id="remove-form" data-spec="people.remove-dialog" data-spec-label="Remove dialog"><fieldset class="remove-options"><legend class="sr-only">What to remove</legend>${options
       .map((o, i) => `<label class="remove-option${o.danger ? " danger" : ""}${o.allowed ? "" : " disabled"}"><input type="radio" name="removal" value="${o.kind}" ${o.allowed ? "" : "disabled"} ${i === 0 && o.allowed ? "" : ""}><span><strong>${esc(o.label)}</strong><small>${esc(o.allowed ? o.note : "Only Admins can do this.")}</small></span></label>`)
       .join("")}</fieldset><div class="field remove-confirm" hidden><label for="remove-confirm-text">Type DELETE to confirm</label><input id="remove-confirm-text" autocomplete="off" aria-describedby="remove-confirm-hint"><p class="hint" id="remove-confirm-hint">This permanently erases ${esc(many ? "these people" : people[0].name)}.</p></div></form>`,
     `<div class="actions">${btn("Cancel", "close-modal", "text")}${btn("Remove", "remove-confirm", "danger", "disabled id=\"remove-confirm-button\"")}</div>`,

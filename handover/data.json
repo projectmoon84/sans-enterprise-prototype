@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project": "SANS Enterprise Portal",
-  "nextRef": 13,
+  "nextRef": 48,
   "categories": [
     {
       "key": "development",
@@ -42,7 +42,8 @@
       "author": "Matt",
       "createdAt": "2026-10-29",
       "updatedAt": "2026-10-29",
-      "category": "interaction"
+      "category": "interaction",
+      "hold": true
     },
     {
       "id": "n-seed-2",
@@ -60,7 +61,8 @@
       "author": "Matt",
       "createdAt": "2026-10-29",
       "updatedAt": "2026-10-29",
-      "category": "interaction"
+      "category": "interaction",
+      "hold": true
     },
     {
       "id": "n-seed-3",
@@ -78,7 +80,8 @@
       "author": "Matt",
       "createdAt": "2026-10-29",
       "updatedAt": "2026-10-29",
-      "category": "interaction"
+      "category": "interaction",
+      "hold": true
     },
     {
       "id": "n-seed-4",
@@ -96,7 +99,8 @@
       "author": "Matt",
       "createdAt": "2026-10-29",
       "updatedAt": "2026-10-29",
-      "category": "interaction"
+      "category": "interaction",
+      "hold": true
     },
     {
       "id": "n-seed-5",
@@ -114,7 +118,8 @@
       "author": "Matt",
       "createdAt": "2026-10-29",
       "updatedAt": "2026-10-29",
-      "category": "interaction"
+      "category": "interaction",
+      "hold": true
     },
     {
       "id": "n-seed-6",
@@ -132,7 +137,8 @@
       "author": "Matt",
       "createdAt": "2026-10-29",
       "updatedAt": "2026-10-29",
-      "category": "development"
+      "category": "development",
+      "hold": true
     },
     {
       "id": "n-seed-7",
@@ -150,7 +156,8 @@
       "author": "Matt",
       "createdAt": "2026-10-29",
       "updatedAt": "2026-10-29",
-      "category": "interaction"
+      "category": "interaction",
+      "hold": true
     },
     {
       "id": "n-seed-8",
@@ -168,7 +175,8 @@
       "author": "Matt",
       "createdAt": "2026-10-29",
       "updatedAt": "2026-10-29",
-      "category": "interaction"
+      "category": "interaction",
+      "hold": true
     },
     {
       "id": "n-seed-9",
@@ -182,7 +190,8 @@
       "author": "Matt",
       "createdAt": "2026-10-29",
       "updatedAt": "2026-10-29",
-      "category": "development"
+      "category": "development",
+      "hold": true
     },
     {
       "id": "n-seed-10",
@@ -196,7 +205,8 @@
       "author": "Matt",
       "createdAt": "2026-10-29",
       "updatedAt": "2026-10-29",
-      "category": "development"
+      "category": "development",
+      "hold": true
     },
     {
       "id": "n-seed-11",
@@ -233,6 +243,600 @@
       "createdAt": "2026-10-29",
       "updatedAt": "2026-10-29",
       "category": "content"
+    },
+    {
+      "id": "n-h1-13",
+      "ref": 13,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "interaction",
+      "title": "Students table",
+      "body": "- Columns: Name, Admin Groups, Team, Last modified by, Status. The Name cell shows the work role (or the email when there isn't one) and a **Portal user** label when the person also has portal access.\n- A missing admin group or team shows \"Unassigned\" in a muted style.\n- Status badges: Active, Pending invite, Suspended and Needs voucher. People still setting up a SANS account show \"Awaiting SANS account\" under Pending invite.\n- Needs voucher rows show an amber **Assign voucher** link under the badge, which opens the voucher picker for that row.\n- Name, Admin Groups, Team, Last modified by and Status are sortable.\n- Clicking a row, or pressing Enter on it, opens the person's profile. Right-clicking opens the row menu at the pointer.",
+      "anchor": {
+        "view": "students",
+        "spec": "people.table",
+        "label": "People table"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-14",
+      "ref": 14,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "interaction",
+      "title": "Filters, search and Actions",
+      "body": "- Filter by Voucher, Admin Group and Team. Search matches name and email as you type.\n- **Actions** holds Export CSV.\n- Selecting any row swaps this toolbar for the bulk action bar.\n- **To decide:** Actions also lists Activate, Suspend, Resend and Delete selected, but they only work with a selection, and the bulk bar replaces them. We suggest removing them from Actions.",
+      "anchor": {
+        "view": "students",
+        "spec": "people.toolbar",
+        "label": "Filters, search and Actions"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-15",
+      "ref": 15,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "interaction",
+      "title": "Quick filter chips",
+      "body": "- Students: All, Needs voucher, Pending invite, Suspended, No admin group and No team, each with a live count.\n- Chips combine with the dropdown filters and search.\n- Switching chips keeps the selection. The bulk bar then says \"N selected · M hidden by filters\", so nobody acts on rows they can't see by accident.",
+      "anchor": {
+        "view": "students",
+        "spec": "people.chips",
+        "label": "Quick filter chips"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-16",
+      "ref": 16,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "development",
+      "title": "Needs voucher status holds the invitation",
+      "body": "A student can exist without a voucher, for example after a CSV import with gaps.\n\n- They're saved with the status **Needs voucher**, and **no invitation is sent**, because nothing pays for their training yet.\n- Assigning a voucher, from the row's Assign voucher link or the bulk bar, releases the invitation. The status becomes Pending invite.\n- While any exist, a banner on Students reads \"N students need a voucher before they can be invited\", with **Review**, which applies the Needs voucher filter.\n- They can't be enrolled on training until they have a voucher.\n- Rule: a voucher is present exactly when the status isn't Needs voucher. `checkStudentRow()` in `data.js` is the one shared rule set for the form, the CSV review and the edit dialogs.",
+      "anchor": {
+        "view": "students",
+        "spec": "people.chips",
+        "label": "Quick filter chips"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-17",
+      "ref": 17,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "interaction",
+      "title": "Add students menu",
+      "body": "The primary button opens two routes:\n\n- **Individuals** opens the two-step Add students dialog, for a few people at a time.\n- **Upload a CSV** opens the import, for many people at once.",
+      "anchor": {
+        "view": "students",
+        "spec": "students.add-menu",
+        "label": "Add students menu"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-18",
+      "ref": 18,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "interaction",
+      "title": "Add individual students: entry row",
+      "body": "Step 1 of 2. One row per student.\n\n- **Email address** (required). It's checked as you type:\n  - Linked to an existing SANS account\n  - No SANS account found. We'll invite them to create one, then add them automatically.\n  - Already a student. Edit their existing record instead.\n  - Enter a valid email address\n- **Voucher** (required). \"Pays for their training.\"\n- **Admin Group** (optional). It's disabled until a voucher is chosen, then offers only the groups that voucher covers.\n- **Team** (optional). Teams can mix vouchers.\n- If the email belongs to a portal user, a note explains that adding them as a student gives them a training record and doesn't change their portal access.\n- **Use these assignments for the next student** carries the voucher, admin group and team into the next row.\n- **Save student** checks the row: a valid email, not already a student, not repeated in this batch, a voucher, and an admin group covered by the voucher.\n- **To confirm:** this form has no name or work role fields. The prototype takes the name from the email and uses a placeholder work role.",
+      "anchor": {
+        "view": "students",
+        "spec": "students.add.entry",
+        "label": "Student entry row"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-19",
+      "ref": 19,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "interaction",
+      "title": "Saved students and Add another",
+      "body": "- Saved students collapse into numbered rows with a tick, showing email, voucher, admin group and team, with **Edit** and **Delete**.\n- **Add Another** opens a fresh entry row.\n- The footer counts \"N students ready to review\". **Save** goes to the review step and is disabled until at least one student is saved.\n- If an email is typed but not saved, Save says \"Save this student before continuing to review.\"\n- Closing with unsaved work asks \"Discard this draft?\", with **Keep editing** and **Discard draft**.",
+      "anchor": {
+        "view": "students",
+        "spec": "students.add.saved",
+        "label": "Saved student row"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-20",
+      "ref": 20,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "interaction",
+      "title": "Add individual students: review and send",
+      "body": "Step 2 of 2.\n\n- A table of everyone about to be invited, with Edit and Delete per row. Rows are flagged \"No SANS account · invited to create one\" or \"Also a portal user\" where relevant.\n- A required consent checkbox (\"I confirm these people are employees or contractors…\") links to the terms. The terms are a placeholder in the prototype.\n- **Send invitations** stays disabled until the box is ticked. **Back** returns to step 1 without losing anything.\n- The footer says \"N students will receive an invitation email\".",
+      "anchor": {
+        "view": "students",
+        "spec": "students.add.review",
+        "label": "Students review step"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-21",
+      "ref": 21,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "interaction",
+      "title": "Sending results",
+      "body": "- Rows tick off one at a time as invitations go out. The prototype simulates this at about 0.45 seconds each.\n- The banner reads \"X of N invitations sent\", then explains the outcome: all invited; some need to create a SANS account first and will be added automatically; or some failed.\n- Failed rows can be corrected and retried with **Review failed invitations**.\n- **Close** is disabled while sending. **Done** finishes. The \"Invitations\" link opens Students filtered to Pending invite.\n- New students appear in the table as Pending invite.",
+      "anchor": {
+        "view": "students",
+        "spec": "students.add.results",
+        "label": "Sending results"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-22",
+      "ref": 22,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "interaction",
+      "title": "Upload a CSV: template, column guide and drop zone",
+      "body": "- **Download the CSV template** gives a headings-only file (Name, Email (required), Voucher, Admin group, Team, Work role). It's saved as UTF-8 with a byte-order mark, so Excel opens names like Zoë correctly. There's no example row, so nothing gets imported by mistake.\n- **What goes in each column** expands to list the voucher, admin group and team names that are valid for this organisation.\n- Click or drag and drop. CSV only, up to 500 students and 2 MB.\n- Headings are forgiving: \"E-mail address\", \"Email (required)\", or separate First name and Surname columns all work. Extra columns are ignored.\n- Clear errors for an Excel file (with how to save as CSV), a file over 2 MB, a missing email column, and an unclosed quote.",
+      "anchor": {
+        "view": "students",
+        "spec": "csv.dropzone",
+        "label": "Upload drop zone"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-23",
+      "ref": 23,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "interaction",
+      "title": "Upload check summary",
+      "body": "Every row is checked before anything is saved.\n\n- \"N students found\", with up to three tiles:\n  - **ready to invite**, noting anyone who needs a SANS account or already has portal access\n  - **need a voucher**\n  - **need fixing**, with the reasons counted, for example \"2 duplicates in this file · 1 invalid email\"\n- Each tile opens the review already filtered to those rows.\n- Below the tiles: \"Columns matched\", \"Ignored\", and a warning when there's no voucher column.\n- The button reads \"Review N students\". When the check finishes, focus moves to the \"N students found\" heading, so screen readers announce it.",
+      "anchor": {
+        "view": "students",
+        "spec": "csv.summary",
+        "label": "Upload summary"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-24",
+      "ref": 24,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "interaction",
+      "title": "CSV review screen",
+      "body": "- The header shows the file name, upload time and row count, with **Discard import** and **Done**.\n- Chips: All, Errors, Needs voucher, No admin group, No team, Ready.\n- Row status:\n  - **Ready** (tick)\n  - **Needs voucher** (amber)\n  - **Error** (red, with the message under the email and the problem cell outlined)\n- Empty cells show \"+ Add voucher\", \"+ Add admin group\", \"+ Add to team\" or \"+ Add work role\". Each opens the pop-over picker.\n- Clicking a name edits the whole row: name, email and work role.\n- The bulk bar offers Assign voucher, Assign admin group, Add to team, Set work role and Remove from import. More holds Remove from team and Export.\n- Admin groups are limited to those covered by the row's voucher. Changing a voucher clears an admin group it doesn't cover, with a preview first.\n- The import saves itself as a draft. Leaving shows \"You have an unfinished import\" on Students, with **Resume** and **Discard**.",
+      "anchor": {
+        "view": "import",
+        "spec": "csv.review.table",
+        "label": "Review table"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-25",
+      "ref": 25,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "interaction",
+      "title": "Done, and landing back on Students",
+      "body": "- **All rows ready:** students are added straight away.\n- **Some need a voucher:** a dialog says \"N students don't have a voucher. They will be added to Students, but will not be invited until a voucher is assigned.\" The buttons are **Keep reviewing** and **Add students anyway**.\n- **Some rows have errors:** the buttons are **Keep reviewing**, **Download errors CSV** and **Continue without them**. If both cases apply, one dialog shows both sections.\n- Afterwards you land on Students. New rows flash amber for 6 seconds, and a toast says \"N students added. X invited. Y need a voucher before they can be invited.\" with **Show them**, which applies the Needs voucher filter. That toast stays for 15 seconds.\n- **To decide:** \"Continue without them\" is the primary button, and it leaves error rows out. We may swap it to make **Keep reviewing** primary.",
+      "anchor": {
+        "view": "import",
+        "spec": "csv.done-dialog",
+        "label": "Done dialog"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-26",
+      "ref": 26,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "interaction",
+      "title": "Student bulk actions",
+      "body": "Ticking rows swaps the toolbar for the bulk bar.\n\n- Main actions: **Assign voucher**, **Assign admin group** and **Add to team**.\n- **More:** Remove from team, Resend invitation, Suspend, Reactivate, Export selected and Remove….\n- Changes apply straight away with Undo. A short preview appears first only when a change clears an admin group, sends invitations to several people, or is destructive (suspend or remove).\n- Assigning a voucher to Needs voucher students releases their invitations, and the preview says how many will be sent.\n- **Assign admin group** only offers groups shared by every selected student's voucher. Students without a voucher are skipped, with a note.\n- Rows that can't change are skipped with a reason, for example outside your scope or already set.\n- After selecting everything visible, a link offers \"Select all N students\".",
+      "anchor": {
+        "view": "students",
+        "spec": "bulk-bar",
+        "label": "Bulk action bar"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-27",
+      "ref": 27,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "interaction",
+      "title": "Row menu",
+      "body": "⋮ on each row, or a right-click anywhere on the row:\n\n- **Edit details**\n- **Resend invitation** for Pending invite, otherwise **Suspend user** or **Activate user**\n- **Invite as portal user**, when the student isn't one already. On Portal users, the same slot offers **Add as student**.\n- **Remove…**",
+      "anchor": {
+        "view": "students",
+        "spec": "people.row-menu",
+        "label": "Row menu"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-28",
+      "ref": 28,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "development",
+      "title": "Remove dialog",
+      "body": "One dialog for removing people, from the row menu, the bulk bar, edit dialogs and the profile. Only the options that apply to the person are shown:\n\n- **Remove admin access.** Their student record stays.\n- **Remove as a student.** Any admin access stays.\n- **Remove both and archive.** They're hidden from every list, and their history is kept.\n- **Permanently delete all data.** This is Admin-only, and you have to type DELETE to confirm. It deletes the person and their training records, and replaces their name in the activity log with \"Deleted user\". It can't be undone.",
+      "anchor": {
+        "view": "students",
+        "spec": "people.remove-dialog",
+        "label": "Remove dialog"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-29",
+      "ref": 29,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "interaction",
+      "title": "Portal users table",
+      "body": "- The header count reads \"N people can access this portal.\"\n- Columns: Name (with the role, and a **Student** label when the person is also a student), Access, Last modified by, and Status / Last access.\n- Access is summarised, for example \"4 Vouchers • 2 Admin Groups • 12 Teams\" or \"All Vouchers • All Admin Groups • All Teams\".\n- Pending invites show how long they've waited, for example \"6 days pending\", and \"Awaiting SANS account\" where relevant.\n- SSO Admin appears in the data but isn't offered when inviting. It's future scope.\n- Clicking a row opens the profile. Right-clicking opens the row menu.",
+      "anchor": {
+        "view": "portal",
+        "spec": "people.table",
+        "label": "People table"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-30",
+      "ref": 30,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "interaction",
+      "title": "Portal users filters and chips",
+      "body": "- Dropdown filters for Role and Status, plus search.\n- Chips: All, Pending invite, Suspended, Admin, Limited Admin and Viewer, with live counts.\n- They behave like the Students chips: they combine with the filters, and the selection is kept.",
+      "anchor": {
+        "view": "portal",
+        "spec": "people.chips",
+        "label": "Quick filter chips"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-31",
+      "ref": 31,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "interaction",
+      "title": "Invite: email and account check",
+      "body": "Step 1 of 2: Role and Access.\n\n- **Email Address** (required) is checked as you type: linked to a SANS account, no SANS account (\"We'll invite them to create one, then add them automatically\"), already a portal user (blocked), or invalid.\n- If the email belongs to a student, a note explains: \"Their student record stays as it is. This invitation adds portal access.\" Their name is taken from the student record.",
+      "anchor": {
+        "view": "portal",
+        "spec": "portal.invite.email",
+        "label": "Email and account check"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-32",
+      "ref": 32,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "interaction",
+      "title": "Invite: role picker",
+      "body": "- **Admin:** \"Approves training · manages vouchers, teams and portal users\"\n- **Limited Admin:** \"Approves training for one voucher, across one or more admin groups\"\n- **Viewer:** \"Read-only reporting and activity\"\n- Choosing Limited Admin switches the voucher choice to a single selection.\n- SSO Admin isn't offered. It's future scope.",
+      "anchor": {
+        "view": "portal",
+        "spec": "portal.invite.role",
+        "label": "Role picker"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-33",
+      "ref": 33,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "development",
+      "title": "Invite: voucher, admin group and team access",
+      "body": "Vouchers come first, and admin groups follow from them.\n\n- **Voucher access** (required): searchable, and each voucher shows how many admin groups it covers. Limited Admins pick exactly one.\n- **Admin Groups** (required): only the groups covered by the chosen vouchers, with \"Showing X of Y admin groups, covered by …\". A master checkbox selects all of them, and shows a mixed state when only some are selected. Before any voucher is chosen, it reads \"Choose a voucher to see the admin groups it covers.\"\n- Changing vouchers drops any admin groups they no longer cover.\n- **Team access** (required): searchable, with Select all and member counts. \"Access doesn't make this person a team member.\" Teams aren't filtered by voucher, because one team can mix vouchers.\n- **Review Invitation** checks the form and lists every problem at once, for example \"Choose at least one voucher.\"\n- The voucher-to-admin-group mapping is mock data (`VOUCHER_GROUPS` in `data.js`), waiting for SANS to confirm it.",
+      "anchor": {
+        "view": "portal",
+        "spec": "portal.invite.access",
+        "label": "Voucher, admin group and team access"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-34",
+      "ref": 34,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "content",
+      "title": "Invite: live permission summary",
+      "body": "The panel beside the form updates as you choose:\n\n- A one-line summary, for example \"This person can approve training and manage students for Cyber Defense FY26, within Federal Division, with access to 1 team.\"\n- The chosen vouchers, admin groups and teams.\n- **They can** and **They cannot** lists for the chosen role.\n- **To confirm:** these are proposed permissions, not SANS's agreed permission matrix.",
+      "anchor": {
+        "view": "portal",
+        "spec": "portal.invite.summary",
+        "label": "Live permission summary"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-35",
+      "ref": 35,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "interaction",
+      "title": "Invite: review and send",
+      "body": "Step 2 of 2: Review & Send.\n\n- The summary sentence, every detail (email, role, admin groups, vouchers, teams), and the permission lists.\n- A required consent checkbox: \"I confirm this person may be granted portal access with the role and scope shown above…\". **Send Invitation** stays disabled until it's ticked.\n- **Back to Role and Access** returns with every choice kept.\n- The success screen says \"Invite sent. They will appear in Portal users as Pending invite until they accept and sign in.\" No email is sent in the prototype.",
+      "anchor": {
+        "view": "portal",
+        "spec": "portal.invite.review",
+        "label": "Invitation review"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-36",
+      "ref": 36,
+      "type": "annotation",
+      "kind": "feature",
+      "category": "development",
+      "title": "Portal user bulk actions",
+      "body": "- **Voucher access**, **Admin group access** and **Team access** each ask whether to **Add**, **Remove** or **Replace with**, because portal users hold several of each.\n- **Change role:** Admin, Limited Admin or Viewer.\n- **More:** Resend invitation, Suspend, Reactivate, Export selected and Remove….\n- Rules, checked for each person:\n  - Limited Admins can only have one voucher, so adding a second is skipped and reported.\n  - Admin groups are only applied within each person's vouchers.\n  - You can't suspend, demote or remove yourself.\n  - The organisation always keeps at least one active Admin.",
+      "anchor": {
+        "view": "portal",
+        "spec": "bulk-bar",
+        "label": "Bulk action bar"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-37",
+      "ref": 37,
+      "type": "annotation",
+      "kind": "global",
+      "category": "interaction",
+      "title": "Screen transitions",
+      "body": "Run only on a real screen change, never on ordinary re-renders like typing, filtering or selecting.\n\n- The outgoing page fades out over 140ms.\n- After a 90ms delay, the new page's sections rise in one after another: 10px upwards, 360ms each, 45ms apart, easing `cubic-bezier(0.16, 1, 0.3, 1)`.\n- Table rows arrive one by one: 6px, 320ms, 18ms apart. Rows after the 12th arrive together, so long tables don't drag.\n- The sidebar's active bar slides from the old tab to the new one.\n- With reduced motion switched on, none of this runs.",
+      "anchor": null,
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-38",
+      "ref": 38,
+      "type": "annotation",
+      "kind": "global",
+      "category": "interaction",
+      "title": "Dialog transitions",
+      "body": "- **Opening:** the backdrop fades in over 200ms, and the dialog rises 16px and scales from 98.5% over 240ms, easing `cubic-bezier(0.22, 1, 0.36, 1)`. The header, body sections and footer then stagger in: 6px, 260ms each, 30ms apart, all arriving within 150ms.\n- **A new step** (a title change, such as Role and Access to Review & Send) re-staggers the content only. Progress updates that keep the title, like sending results, stay still.\n- **Closing:** the dialog sinks 8px and fades over 140ms, and the backdrop fades over 180ms.\n- **Moving from one dialog straight to another** never flickers the backdrop.\n- With reduced motion switched on, none of this runs.",
+      "anchor": null,
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-39",
+      "ref": 39,
+      "type": "annotation",
+      "kind": "global",
+      "category": "interaction",
+      "title": "Hover states and menus",
+      "body": "- **Every hover state fades in and out over 400ms (ease).** Only colour-type properties are affected (colour, background, border, shadow, opacity), so movement such as rotating chevrons keeps its own timing.\n- **Every dropdown opens a menu styled like Actions:** white, 8px radius, a soft shadow, and 40px rows with a tick on the chosen option. This uses the browser's customisable select (Chrome and Edge 135 onwards). Other browsers show their native list.",
+      "anchor": null,
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-40",
+      "ref": 40,
+      "type": "annotation",
+      "kind": "global",
+      "category": "interaction",
+      "title": "Tables: sticky header, frozen columns, row interactions",
+      "body": "These apply to the Students, Portal users and CSV review tables.\n\n- The checkbox and Name columns stay put while the rest scrolls sideways. The ⋮ column is pinned on the right. A soft shadow shows when there's more to scroll.\n- The header row sticks just under the top bar, and stays in step with sideways scrolling.\n- Clicking a row, or pressing Enter on a focused row, opens the profile. Checkboxes, links, tags and menus keep their own behaviour.\n- Right-clicking a row opens its ⋮ menu at the pointer.",
+      "anchor": {
+        "view": "students",
+        "spec": "people.table",
+        "label": "People table"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-41",
+      "ref": 41,
+      "type": "annotation",
+      "kind": "global",
+      "category": "interaction",
+      "title": "Selection shortcuts and change feedback",
+      "body": "- **Shift-click** selects a range of rows.\n- **Ctrl+A** (or **Cmd+A**) selects every visible row while focus is in the table or the bulk bar. **Esc** clears the selection.\n- On phones, the bulk bar docks to the bottom of the screen.\n- Rows changed by a bulk action flash amber for about 6 seconds, so you can see what changed. This respects reduced motion.",
+      "anchor": null,
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-42",
+      "ref": 42,
+      "type": "annotation",
+      "kind": "global",
+      "category": "development",
+      "title": "Toasts and Undo",
+      "body": "- Every change reports in a toast at the bottom of the screen, for example \"Assigned 5 students to Cyber Defense FY26 · 2 skipped\".\n- **Undo** is available while the toast shows, about 10 seconds. It restores the people the action changed, and leaves alone anyone changed again since (\"changed since\"). It covers the last five actions in the current session.\n- Resent invitations can't be undone.\n- **Details** lists anyone skipped or cleared, with the reason.\n- An Undo writes its own events, so the activity log never loses history.",
+      "anchor": null,
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-43",
+      "ref": 43,
+      "type": "annotation",
+      "kind": "global",
+      "category": "interaction",
+      "title": "Pop-over picker",
+      "body": "The small picker used for cell links (\"+ Add voucher\") and bulk actions.\n\n- It's anchored to the link or button that opened it, with search at the top.\n- **Keyboard:** arrow keys move, Enter picks, and Esc closes and returns focus to where you were.\n- Multi-select mode (portal access) adds **Add**, **Remove** and **Replace with**, and an apply button.\n- It can include a footer action, such as \"Create a new team\", and a note when choices are limited, such as \"Showing admin groups shared by all 3 vouchers in your selection.\"",
+      "anchor": null,
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-44",
+      "ref": 44,
+      "type": "annotation",
+      "kind": "global",
+      "category": "development",
+      "title": "Roles and permissions on both pages",
+      "body": "- **Admins** (and SSO Admins) can change anyone.\n- **Limited Admins** can change only the students in their voucher scope, and only onto vouchers they manage.\n- **Viewers** see everything read-only. Bulk actions and edit controls are disabled for them.\n- These rules are checked for every row in the data layer (`store.bulk()`), not just in the interface. Rows that fail are skipped with a reason.\n- To test, use **Sign in as…** in the profile menu. It's a prototype tool.",
+      "anchor": null,
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-45",
+      "ref": 45,
+      "type": "annotation",
+      "kind": "global",
+      "category": "development",
+      "title": "Activity events",
+      "body": "Every change writes structured events, shown on each person's profile and on the Activity page.\n\n- Adding students: `student.invited`, or `student.added_needs_voucher` for people with no voucher. Assigning a voucher later writes `student.voucher_changed` and `student.invite_released`.\n- A CSV import writes one event per person, plus `import.completed` with the file name and counts.\n- Inviting: `portal.invited`.\n- Bulk actions write one event per person, sharing a `batchId`, with `via: \"bulk\"`. Undo writes `bulk.undone`.\n- The event catalogue is in `docs/profile-and-activity-plan.md`.",
+      "anchor": null,
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-46",
+      "ref": 46,
+      "type": "annotation",
+      "kind": "global",
+      "category": "development",
+      "title": "Prototype-only tools: don't build",
+      "body": "These exist only to demonstrate and test the prototype:\n\n- the yellow prototype bar, and the handover notes controls in it\n- **Demo data**: export, import and reset\n- **Use sample CSV**\n- **Sign in as…**\n- simulated email sending and timings\n- mocked SANS account lookups (fixtures such as samira.khan@example.com have no account)\n- browser storage (`localStorage`) as the database",
+      "anchor": null,
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-h1-47",
+      "ref": 47,
+      "type": "annotation",
+      "kind": "fix",
+      "category": "development",
+      "title": "Chips and banners missing when a page first opens on Students or Portal users",
+      "body": "Opening the prototype straight onto Students or Portal users (for example after a refresh) left out the quick filter chips and the Students banners until something else re-rendered the page. They now show from the first load.\n\nFor build: make sure these parts render on the first paint, not only after an interaction.",
+      "anchor": {
+        "view": "portal",
+        "spec": "people.chips",
+        "label": "Quick filter chips"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
     }
   ]
 }

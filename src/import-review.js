@@ -229,7 +229,7 @@ importView = function () {
     ? `${esc(state.importMeta.fileName)} · uploaded ${new Date(state.importMeta.uploadedAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} · ${pluralize(state.staged.length, "row")}`
     : "";
   const allChecked = rows.length > 0 && rows.every((r) => state.selected.includes(r.id));
-  return `<button class="back" data-action="import-cancel">${icon("back")}Back to Students</button>${heading("Review import", meta, `${btn("Discard import", "import-discard-confirm", "text")}${btn("Done", "fidelity-import-done", "primary")}`)}<section class="card import-card" aria-label="Rows in this import">${state.selected.length ? bulkBarHtml(ctx) : importToolbarHtml()}${chips}<div class="table-wrap"><table class="csv-review-table"><colgroup><col class="col-check"><col style="width:21%"><col style="width:15%"><col style="width:17%"><col style="width:16%"><col style="width:15%"><col style="width:10%"><col class="col-menu"></colgroup><thead><tr><th class="selection-col">${checkRow("all", allChecked, "Select all visible import rows")}</th>${tableHead("Name / email", "name")}${tableHead("Work role", "workRole", false)}${tableHead("Voucher", "voucher", false)}${tableHead("Admin group", "group", false)}${tableHead("Team", "team", false)}${tableHead("Status", "status", false)}<th></th></tr></thead><tbody>${
+  return `<button class="back" data-action="import-cancel">${icon("back")}Back to Students</button>${heading("Review import", meta, `${btn("Discard import", "import-discard-confirm", "text")}${btn("Done", "fidelity-import-done", "primary")}`)}<section class="card import-card" aria-label="Rows in this import">${state.selected.length ? bulkBarHtml(ctx) : importToolbarHtml()}${chips}<div class="table-wrap" data-spec="csv.review.table" data-spec-label="Review table"><table class="csv-review-table"><colgroup><col class="col-check"><col style="width:21%"><col style="width:15%"><col style="width:17%"><col style="width:16%"><col style="width:15%"><col style="width:10%"><col class="col-menu"></colgroup><thead><tr><th class="selection-col">${checkRow("all", allChecked, "Select all visible import rows")}</th>${tableHead("Name / email", "name")}${tableHead("Work role", "workRole", false)}${tableHead("Voucher", "voucher", false)}${tableHead("Admin group", "group", false)}${tableHead("Team", "team", false)}${tableHead("Status", "status", false)}<th></th></tr></thead><tbody>${
     rows
       .map((row) => {
         const index = state.staged.indexOf(row);
@@ -311,7 +311,7 @@ function importDone() {
   openModal(
     only ? `${pluralize(counts.needsVoucher, "student doesn't", "students don't")} have a voucher` : counts.error && !counts.needsVoucher ? `${pluralize(counts.error, "row has", "rows have")} errors and can't be added` : "Some rows need attention",
     "",
-    only ? sections[0].replace(/<h3>.*?<\/h3>/, "") : sections.join(""),
+    `<div data-spec="csv.done-dialog" data-spec-label="Done dialog">${only ? sections[0].replace(/<h3>.*?<\/h3>/, "") : sections.join("")}</div>`,
     `<div class="actions">${btn("Keep reviewing", "close-modal", "text")}${counts.error ? btn("Download errors CSV", "import-download-errors") : ""}${btn(counts.error ? "Continue without them" : "Add students anyway", "import-confirm-done", "primary")}</div>`,
     "",
     true,
