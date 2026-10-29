@@ -258,7 +258,8 @@ async function report(which = process.argv[3]) {
   const card = (n) => {
     const k = KINDS.find(([key]) => key === n.kind) || KINDS[0];
     const shot = shots[n.ref];
-    return `<article class="note" id="note-${n.ref}"><header><span class="ref">#${n.ref}</span><span class="kind" style="--c:${k[2]}">${esc(k[1].replace(/s$/, ""))}</span></header><h3>${esc(n.title)}</h3><p class="where">${esc(where(n, labels))}${n.anchor?.spec ? ` · <code>${esc(n.anchor.spec)}</code>` : ""}</p><div class="body">${md(n.body) || "<p class='muted'>No description.</p>"}</div>${shot ? `<figure><img alt="Screenshot for note ${n.ref}" src="data:image/png;base64,${shot.data}">${shot.found ? "" : `<figcaption>The component wasn't visible on this screen when captured. It may need an action to open.</figcaption>`}</figure>` : ""}<footer>${esc(n.author || "")}${n.updatedAt ? ` · ${esc(n.updatedAt)}` : ""}</footer></article>`;
+    const cat = (data.categories || []).find((c) => c.key === n.category);
+    return `<article class="note" id="note-${n.ref}"><header><span class="ref">#${n.ref}</span><span class="kind" style="--c:${k[2]}">${esc(k[1].replace(/s$/, ""))}</span>${cat ? `<span class="cat" style="--c:${esc(cat.colour)}">${esc(cat.label)}</span>` : ""}</header><h3>${esc(n.title)}</h3><p class="where">${esc(where(n, labels))}${n.anchor?.spec ? ` · <code>${esc(n.anchor.spec)}</code>` : ""}</p><div class="body">${md(n.body) || "<p class='muted'>No description.</p>"}</div>${shot ? `<figure><img alt="Screenshot for note ${n.ref}" src="data:image/png;base64,${shot.data}">${shot.found ? "" : `<figcaption>The component wasn't visible on this screen when captured. It may need an action to open.</figcaption>`}</figure>` : ""}<footer>${esc(n.author || "")}${n.updatedAt ? ` · ${esc(n.updatedAt)}` : ""}</footer></article>`;
   };
   const sections = KINDS.map(([key, label]) => {
     const list = notes.filter((n) => n.kind === key).sort((a, b) => a.ref - b.ref);
@@ -276,6 +277,7 @@ h1{font-size:34px;line-height:1.2;margin:6px 0 8px}h2{font-size:22px;margin:48px
 .note{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:0 0 16px;break-inside:avoid}
 .note header{display:flex;gap:8px;align-items:center}.ref{font:600 13px ui-monospace,Menlo,monospace;color:var(--muted)}
 .kind{font-size:12px;font-weight:500;padding:2px 9px;border-radius:999px;color:var(--c);background:color-mix(in srgb,var(--c) 12%,#fff)}
+.cat{font-size:12px;font-weight:600;padding:2px 8px;border-radius:5px;color:#111;background:var(--c)}
 .note h3{font-size:18px;margin:8px 0 2px}.where{margin:0;color:var(--muted);font-size:13.5px}
 .body{margin-top:10px;max-width:72ch}.body p{margin:0 0 8px}.body ul{margin:0 0 8px;padding-left:20px}code{font:13px ui-monospace,Menlo,monospace;background:#f1f5f9;padding:1px 5px;border-radius:4px}
 figure{margin:14px 0 0}figure img{display:block;max-width:100%;max-height:620px;width:auto;height:auto;border:1px solid var(--line);border-radius:10px}figcaption{font-size:13px;color:var(--muted);margin-top:6px}

@@ -6,7 +6,8 @@ It has no dependencies. Playwright is optional and is only used for screenshots.
 
 ## How it works
 
-- **Notes** attach to components, pages, or the whole prototype. There are four types: New feature, Change, Global change and Fix.
+- **Notes** attach to components, pages, or the whole prototype. Each has a **type** for the handover document (New feature, Change, Global change, Fix) and a **category** for who it's for (Development, Interaction, Accessibility and Content by default; edit the list from a note's category menu).
+- **They look like Figma annotations:** small dark chips, dashed blue outlines and leader lines, in their own typeface. That keeps them clearly separate from the product UI.
 - **Components** are named with `data-spec` attributes, so notes follow them when the layout changes.
 - **Handovers** are lines in the sand. Cutting one assigns every waiting note to it, commits, and tags git (`handover-1`, `handover-2` and so on).
 - **The handover document** lists the notes, grouped by type, each with a screenshot of its component marked up. It also lists the commits and files changed since the previous handover.
@@ -14,7 +15,7 @@ It has no dependencies. Playwright is optional and is only used for screenshots.
 
 ## Using it day to day
 
-1. Run the prototype locally (`python3 serve.py`) and press **Alt+H**, or click **Handover layer** in the bottom-left corner.
+1. Run the prototype locally (`python3 serve.py`) and press **Alt+H**, or click **Notes** in the prototype bar at the top.
 2. Choose **+ Annotate** (or press **Alt+N**), then click a component. The first time, it asks for your name.
 3. Write the note. Notes save straight to `handover/data.json`, so commit them with your design work.
 4. Check what's waiting:
@@ -66,6 +67,8 @@ npm install --save-dev playwright && npx playwright install chromium
    HandoverLayer.init({
      project: "My prototype",
      data: window.__HANDOVER_DATA__,
+     toolbar: "#handover-tools",                       // optional: a slot in your own top bar for the controls
+                                                       // (mark the bar with data-handover-bar so panels sit below it)
      endpoint: location.protocol.startsWith("http") ? "/__handover/data" : null,
      getView: () => location.hash || "home",         // a short key for the current screen
      viewLabel: (view) => view,                        // a readable name for it
@@ -74,7 +77,7 @@ npm install --save-dev playwright && npx playwright install chromium
    });
    ```
 
-4. **Name the components** you'll annotate: `data-spec="area.component" data-spec-label="Readable name"`. Without one, a note attaches to a CSS selector or the page.
+4. **Name the components** you'll annotate: `data-spec="area.component" data-spec-label="Readable name"`. Without one, a note attaches to a CSS selector or the page. Modal dialogs work too: while one is open, the layer moves inside it so it stays usable.
 5. **Save locally.** Add the save endpoint to your local server: `GET` and `POST /__handover/data`, reading and writing `handover/data.json`. `serve.py` in this project shows how, in about 20 lines.
 6. **Set up the config.** Set `project`, `build`, `entry` and `viewLabels` in `handover/config.json`.
 
@@ -87,10 +90,12 @@ npm install --save-dev playwright && npx playwright install chromium
   "version": 1,
   "project": "SANS Enterprise Portal",
   "nextRef": 11,
+  "categories": [{ "key": "content", "label": "Content", "colour": "#e07b10" }],
   "handovers": [{ "id": "h1", "name": "Handover 1", "date": "2026-10-30", "tag": "handover-1", "summary": "", "notes": 10 }],
   "notes": [{
     "id": "n-…", "ref": 1, "type": "annotation", "kind": "feature",
     "title": "…", "body": "Markdown-lite text",
+    "category": "interaction",
     "anchor": { "view": "teams", "spec": "teams.card", "label": "Team card" },
     "handover": null, "author": "Matt", "createdAt": "2026-10-29", "updatedAt": "2026-10-29"
   }]

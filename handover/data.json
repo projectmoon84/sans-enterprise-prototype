@@ -2,6 +2,28 @@
   "version": 1,
   "project": "SANS Enterprise Portal",
   "nextRef": 13,
+  "categories": [
+    {
+      "key": "development",
+      "label": "Development",
+      "colour": "#2f9e5b"
+    },
+    {
+      "key": "interaction",
+      "label": "Interaction",
+      "colour": "#3b82f6"
+    },
+    {
+      "key": "accessibility",
+      "label": "Accessibility",
+      "colour": "#e040a8"
+    },
+    {
+      "key": "content",
+      "label": "Content",
+      "colour": "#e07b10"
+    }
+  ],
   "handovers": [],
   "notes": [
     {
@@ -19,7 +41,8 @@
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "interaction"
     },
     {
       "id": "n-seed-2",
@@ -36,7 +59,8 @@
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "interaction"
     },
     {
       "id": "n-seed-3",
@@ -53,7 +77,8 @@
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "interaction"
     },
     {
       "id": "n-seed-4",
@@ -70,7 +95,8 @@
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "interaction"
     },
     {
       "id": "n-seed-5",
@@ -87,7 +113,8 @@
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "interaction"
     },
     {
       "id": "n-seed-6",
@@ -104,7 +131,8 @@
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "development"
     },
     {
       "id": "n-seed-7",
@@ -121,7 +149,8 @@
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "interaction"
     },
     {
       "id": "n-seed-8",
@@ -138,7 +167,8 @@
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "interaction"
     },
     {
       "id": "n-seed-9",
@@ -151,7 +181,8 @@
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "development"
     },
     {
       "id": "n-seed-10",
@@ -164,7 +195,8 @@
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "development"
     },
     {
       "id": "n-seed-11",
@@ -181,7 +213,8 @@
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "content"
     },
     {
       "id": "n-seed-12",
@@ -198,7 +231,8 @@
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "content"
     }
   ]
 }

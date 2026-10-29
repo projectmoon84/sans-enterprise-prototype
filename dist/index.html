@@ -5638,30 +5638,43 @@ html::-webkit-scrollbar {
 }
 
 /* ---------- Prototype context bar ---------- */
+/* Prototype chrome, not product UI: the handover tools sit on its right. */
 :root {
-  --proto-bar: 20px;
+  --proto-bar: 32px;
 }
 .proto-bar {
   position: fixed;
   inset: 0 0 auto;
-  z-index: 30;
+  z-index: 72;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  gap: 12px;
   height: var(--proto-bar);
-  padding: 0 12px;
+  padding: 0 max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left));
   background: #fde68a;
   color: #3b2f00;
   font-size: 11px;
   line-height: 1;
   white-space: nowrap;
+}
+.proto-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  min-width: 0;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 .proto-bar strong {
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+.proto-tools {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
 }
 /* Everything below the bar moves down by its height. */
 .topbar,
@@ -6116,8 +6129,11 @@ body.drawer-open { overflow: hidden; }
 
 .choice input[type="radio"] { appearance: auto; width: 16px; height: 16px; min-height: 0; margin: 0; padding: 0; border: 0; box-shadow: none; accent-color: #009fbd; flex: none; }
 .teams-table .table-wrap, .teams-card .table-wrap { overflow-x: auto; }
+
+/* Side panels open below the prototype bar, so the handover tools stay reachable. */
+.drawer-backdrop, .side-drawer { top: var(--proto-bar); }
 </style></head>
-<body><div class="proto-bar" role="note"><strong>Prototype</strong><span>Fictional demo data. Changes stay in this browser.</span></div><div id="app"></div><dialog id="modal" aria-labelledby="modal-title"></dialog><div id="toast" role="status" aria-live="polite"></div><script type="module">const GROUPS = [
+<body><div class="proto-bar" data-handover-bar><p class="proto-note"><strong>Prototype</strong><span>Fictional demo data. Changes stay in this browser.</span></p><div class="proto-tools" id="handover-tools"></div></div><div id="app"></div><dialog id="modal" aria-labelledby="modal-title"></dialog><div id="toast" role="status" aria-live="polite"></div><script type="module">const GROUPS = [
   "Federal Division",
   "EMEA Operations",
   "APAC Operations",
@@ -16045,6 +16061,28 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
   "version": 1,
   "project": "SANS Enterprise Portal",
   "nextRef": 13,
+  "categories": [
+    {
+      "key": "development",
+      "label": "Development",
+      "colour": "#2f9e5b"
+    },
+    {
+      "key": "interaction",
+      "label": "Interaction",
+      "colour": "#3b82f6"
+    },
+    {
+      "key": "accessibility",
+      "label": "Accessibility",
+      "colour": "#e040a8"
+    },
+    {
+      "key": "content",
+      "label": "Content",
+      "colour": "#e07b10"
+    }
+  ],
   "handovers": [],
   "notes": [
     {
@@ -16062,7 +16100,8 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "interaction"
     },
     {
       "id": "n-seed-2",
@@ -16079,7 +16118,8 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "interaction"
     },
     {
       "id": "n-seed-3",
@@ -16096,7 +16136,8 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "interaction"
     },
     {
       "id": "n-seed-4",
@@ -16113,7 +16154,8 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "interaction"
     },
     {
       "id": "n-seed-5",
@@ -16130,7 +16172,8 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "interaction"
     },
     {
       "id": "n-seed-6",
@@ -16147,7 +16190,8 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "development"
     },
     {
       "id": "n-seed-7",
@@ -16164,7 +16208,8 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "interaction"
     },
     {
       "id": "n-seed-8",
@@ -16181,7 +16226,8 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "interaction"
     },
     {
       "id": "n-seed-9",
@@ -16194,7 +16240,8 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "development"
     },
     {
       "id": "n-seed-10",
@@ -16207,7 +16254,8 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "development"
     },
     {
       "id": "n-seed-11",
@@ -16224,7 +16272,8 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "content"
     },
     {
       "id": "n-seed-12",
@@ -16241,7 +16290,8 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
-      "updatedAt": "2026-10-29"
+      "updatedAt": "2026-10-29",
+      "category": "content"
     }
   ]
 };
@@ -16249,6 +16299,9 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
  * Handover layer
  * A switchable overlay for annotating a working prototype, ready for developer handover.
  * No dependencies. Drop it into any prototype and call HandoverLayer.init({...}).
+ *
+ * The look is deliberately unlike the product: small, dark, Figma-style annotations
+ * with dashed outlines and leader lines, so nobody mistakes a note for the UI.
  *
  * Notes attach to components marked with data-spec="area.component" (and an optional
  * data-spec-label), so they follow the component when the layout changes. Elements
@@ -16261,25 +16314,37 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
   "use strict";
   if (window.HandoverLayer) return;
 
+  // What changed, for the handover document's sections.
   var KINDS = [
-    { key: "feature", label: "New feature", hue: "#0e7490" },
-    { key: "change", label: "Change", hue: "#7c3aed" },
-    { key: "global", label: "Global change", hue: "#b45309" },
-    { key: "fix", label: "Fix", hue: "#15803d" },
+    { key: "feature", label: "New feature", help: "Something new to build" },
+    { key: "change", label: "Change", help: "Changes something already handed over" },
+    { key: "global", label: "Global change", help: "Affects many screens, like motion or hover states" },
+    { key: "fix", label: "Fix", help: "Corrects a mistake" },
   ];
+  // Who it's for. Editable per project, stored with the notes.
+  var DEFAULT_CATEGORIES = [
+    { key: "development", label: "Development", colour: "#2f9e5b" },
+    { key: "interaction", label: "Interaction", colour: "#3b82f6" },
+    { key: "accessibility", label: "Accessibility", colour: "#e040a8" },
+    { key: "content", label: "Content", colour: "#e07b10" },
+  ];
+  var PALETTE = ["#2f9e5b", "#3b82f6", "#e040a8", "#e07b10", "#8b5cf6", "#ef4444", "#14b8a6", "#a3a3a3"];
   var PROFILE_KEY = "handover-layer-profile";
   var BACKUP_KEY = "handover-layer-backup";
+  var BLUE = "#0d99ff";
 
   var cfg = {};
-  var data = { version: 1, project: "", nextRef: 1, handovers: [], notes: [] };
+  var data = { version: 1, project: "", nextRef: 1, categories: DEFAULT_CATEGORIES.slice(), handovers: [], notes: [] };
   var editable = false;
   var on = false;
   var picking = false;
   var panelOpen = false;
-  var filter = { handover: "next", kind: "all" };
-  var focusRef = null;
+  var openRef = null; // the note whose card is open
+  var editor = null; // { note, anchor, draft } while writing or editing
+  var menu = null; // which dropdown is open in the editor: "category" | "kind" | "more"
+  var filter = { handover: "next", category: "all" };
   var captureRef = null;
-  var root, shadow, els = {};
+  var root, shadow, toolsHost, toolsShadow, els = {};
   var hoverEl = null;
   var raf = 0;
 
@@ -16297,8 +16362,9 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
   }
   // A small, safe subset of Markdown: paragraphs, "- " bullets, **bold**, `code`.
   function md(text) {
-    var blocks = String(text || "").trim().split(/\n{2,}/);
-    return blocks
+    return String(text || "")
+      .trim()
+      .split(/\n{2,}/)
       .map(function (block) {
         var lines = block.split("\n");
         var inline = function (s) {
@@ -16312,6 +16378,13 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
   }
   function kindOf(key) {
     return KINDS.find(function (k) { return k.key === key; }) || KINDS[0];
+  }
+  function categoryOf(key) {
+    return (data.categories || []).find(function (c) { return c.key === key; }) || null;
+  }
+  function noteColour(note) {
+    var c = categoryOf(note.category);
+    return c ? c.colour : "#a3a3a3";
   }
   function today() {
     return new Date().toISOString().slice(0, 10);
@@ -16352,6 +16425,12 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
     var ho = data.handovers.find(function (x) { return x.id === id; });
     return ho ? ho.name : id;
   }
+  function findNote(ref) {
+    return data.notes.find(function (n) { return n.ref === ref; }) || null;
+  }
+  function reducedMotion() {
+    return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
 
   // ---------- Anchors ----------
   function selectorFor(el) {
@@ -16390,14 +16469,14 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
         el = document.querySelector(anchor.selector);
       } catch (e) {}
     }
-    if (!el || root.contains(el)) return null;
+    if (!el || root.contains(el) || (toolsHost && toolsHost.contains(el))) return null;
     var r = el.getBoundingClientRect();
     if (!r.width && !r.height) return null;
     return el;
   }
   function onThisView(note) {
-    if (!note.anchor || !note.anchor.view) return note.kind === "global" && !note.anchor;
-    return note.anchor.view === currentView();
+    if (!note.anchor) return false;
+    return !note.anchor.view || note.anchor.view === currentView();
   }
   function whereText(note) {
     if (!note.anchor) return "Applies everywhere";
@@ -16410,7 +16489,7 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
       .filter(function (n) {
         if (filter.handover === "next" && n.handover) return false;
         if (filter.handover !== "next" && filter.handover !== "all" && n.handover !== filter.handover) return false;
-        if (filter.kind !== "all" && n.kind !== filter.kind) return false;
+        if (filter.category !== "all" && (n.category || "none") !== filter.category) return false;
         return true;
       })
       .sort(function (a, b) { return a.ref - b.ref; });
@@ -16452,6 +16531,7 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
       version: 1,
       project: d.project || cfg.project || "",
       nextRef: d.nextRef || 1,
+      categories: Array.isArray(d.categories) && d.categories.length ? d.categories : DEFAULT_CATEGORIES.slice(),
       handovers: Array.isArray(d.handovers) ? d.handovers : [],
       notes: Array.isArray(d.notes) ? d.notes : [],
     };
@@ -16461,142 +16541,289 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
     return out;
   }
 
-  // ---------- Rendering ----------
+  // ---------- Styles ----------
+  // Figma-like: Inter (or the system face), 12–13px, dark cards, blue dashed guides.
   var CSS_TEXT =
     ":host{all:initial}*{box-sizing:border-box}[hidden]{display:none!important}" +
-    ".hl{font:14px/1.45 'Fira Sans',system-ui,-apple-system,'Segoe UI',sans-serif;color:#0f172b}" +
-    ".overlay{position:fixed;inset:0;pointer-events:none;z-index:2147483000}" +
-    ".box{position:fixed;border:2px solid var(--c,#0e7490);border-radius:8px;background:color-mix(in srgb,var(--c,#0e7490) 7%,transparent);pointer-events:none;transition:all .08s}" +
-    ".box-label{position:absolute;left:18px;top:-24px;background:var(--c,#0e7490);color:#fff;font-size:12px;font-weight:500;padding:2px 8px;border-radius:6px 6px 6px 0;white-space:nowrap}" +
-    ".pin{position:fixed;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50% 50% 50% 4px;background:var(--c);color:#fff;font-size:12px;font-weight:600;display:grid;place-items:center;pointer-events:auto;cursor:pointer;border:2px solid #fff;box-shadow:0 2px 8px rgba(15,23,43,.3);transition:transform .12s}" +
-    ".pin:hover,.pin.is-focus{transform:scale(1.15)}.pin:focus-visible{outline:2px solid #0f172b;outline-offset:2px}" +
-    ".bar{position:fixed;left:16px;bottom:16px;z-index:2147483001;display:flex;align-items:center;gap:4px;padding:4px;border-radius:999px;background:#0f172b;color:#fff;box-shadow:0 8px 24px rgba(15,23,43,.3);pointer-events:auto}" +
-    ".bar button{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;font:500 13px/1 'Fira Sans',system-ui,sans-serif;color:#e2e8f0;white-space:nowrap}" +
-    ".bar button:hover{background:#1e293b}.bar button:focus-visible{outline:2px solid #67e8f9;outline-offset:1px}" +
-    ".bar button[aria-pressed=true]{background:#e0f2fe;color:#0f172b}" +
-    ".bar .count{background:#334155;color:#fff;border-radius:999px;padding:2px 7px;font-size:11px}" +
-    ".bar button[aria-pressed=true] .count{background:#0e7490}" +
-    ".bar .sep{width:1px;height:20px;background:#334155;margin:0 2px}" +
-    ".hint{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:2147483001;background:#0f172b;color:#fff;padding:9px 14px;border-radius:10px;font-size:13px;box-shadow:0 8px 24px rgba(15,23,43,.3);pointer-events:none}" +
-    ".panel{position:fixed;top:0;right:0;bottom:0;width:min(400px,100vw);z-index:2147483001;background:#fff;box-shadow:-12px 0 32px rgba(15,23,43,.18);display:flex;flex-direction:column;pointer-events:auto}" +
-    ".panel header{padding:18px 20px 12px;border-bottom:1px solid #e2e8f0}" +
-    ".panel h2{margin:0;font-size:18px;font-weight:600}.panel .sub{margin:2px 0 0;color:#64748b;font-size:13px}" +
-    ".row{display:flex;align-items:center;gap:8px}.sp{flex:1}" +
-    ".x{all:unset;cursor:pointer;width:32px;height:32px;display:grid;place-items:center;border-radius:8px;color:#475569;font-size:18px}.x:hover{background:#f1f5f9}.x:focus-visible{outline:2px solid #0e7490}" +
-    ".filters{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}" +
-    "select,input,textarea{font:inherit;color:inherit}" +
-    ".filters select{border:1px solid #cbd5e1;border-radius:8px;padding:5px 8px;font-size:13px;background:#fff}" +
-    ".chip{all:unset;cursor:pointer;font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid #cbd5e1;color:#334155}" +
-    ".chip[aria-pressed=true]{border-color:#0e7490;background:#ecfeff;color:#0e7490;font-weight:500}.chip:focus-visible{outline:2px solid #0e7490}" +
-    ".list{flex:1;overflow-y:auto;padding:8px 12px 24px}" +
-    ".group{margin:14px 8px 6px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#64748b}" +
-    ".note{display:block;width:100%;text-align:left;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin:0 0 8px;background:#fff;cursor:pointer;font:inherit;color:inherit}" +
-    ".note:hover{border-color:#94a3b8}.note.is-focus{border-color:#0e7490;box-shadow:0 0 0 1px #0e7490}.note:focus-visible{outline:2px solid #0e7490}" +
-    ".note .top{display:flex;align-items:center;gap:8px}" +
-    ".ref{font:600 12px/1 ui-monospace,Menlo,monospace;color:#475569}" +
-    ".kind{font-size:11px;font-weight:500;padding:2px 8px;border-radius:999px;color:var(--c);background:color-mix(in srgb,var(--c) 12%,#fff)}" +
-    ".note h3{margin:6px 0 2px;font-size:14.5px;font-weight:600}" +
-    ".where{font-size:12px;color:#64748b}" +
-    ".body{font-size:13.5px;color:#334155;margin-top:6px}.body p{margin:0 0 6px}.body ul{margin:0 0 6px;padding-left:18px}.body code{font:12px ui-monospace,Menlo,monospace;background:#f1f5f9;padding:1px 4px;border-radius:4px}" +
-    ".note:not(.is-focus) .body{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}" +
-    ".meta{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:8px;font-size:12px;color:#64748b}" +
-    ".actions{display:flex;gap:6px;margin-top:10px}" +
-    ".btn{all:unset;cursor:pointer;font:500 13px/1 'Fira Sans',system-ui,sans-serif;padding:8px 12px;border-radius:999px;border:1px solid #cbd5e1;color:#0f172b;background:#fff;display:inline-flex;align-items:center;gap:6px}" +
-    ".btn:hover{background:#f8fafc}.btn:focus-visible{outline:2px solid #0e7490;outline-offset:1px}" +
-    ".btn.pri{background:#0e7490;border-color:#0e7490;color:#fff}.btn.pri:hover{background:#155e75}" +
-    ".btn.danger{color:#b91c1c;border-color:#fecaca}.btn.small{padding:6px 10px;font-size:12px}" +
-    ".btn[disabled]{opacity:.5;pointer-events:none}" +
-    ".empty{padding:32px 16px;text-align:center;color:#64748b;font-size:13.5px}" +
-    ".readonly{margin:10px 0 0;padding:8px 10px;border-radius:8px;background:#f8fafc;color:#475569;font-size:12.5px}" +
-    ".foot{padding:12px 20px;border-top:1px solid #e2e8f0;display:flex;gap:8px;flex-wrap:wrap}" +
-    ".scrim{position:fixed;inset:0;background:rgba(15,23,43,.35);z-index:2147483002;display:grid;place-items:center;pointer-events:auto;padding:16px}" +
-    ".dialog{width:min(520px,100%);max-height:calc(100vh - 32px);overflow:auto;background:#fff;border-radius:16px;box-shadow:0 24px 48px rgba(15,23,43,.25);padding:22px 24px}" +
-    ".dialog h2{margin:0 0 4px;font-size:19px;font-weight:600}" +
-    ".field{display:grid;gap:6px;margin-top:14px}.field label{font-size:13px;font-weight:500}.field .help{font-size:12px;color:#64748b}" +
-    ".field input:not([type=radio]),.field textarea,.field select{border:1px solid #cbd5e1;border-radius:10px;padding:9px 11px;font-size:14px;background:#fff;width:100%}" +
-    ".field textarea{min-height:120px;resize:vertical}" +
-    ".field input:focus,.field textarea:focus,.field select:focus{outline:2px solid #0e7490;outline-offset:0;border-color:#0e7490}" +
-    ".kinds{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}" +
-    ".kinds input{margin:3px 0 0;accent-color:var(--c);flex:none}" +
-    ".kinds label{display:flex;gap:8px;align-items:flex-start;border:1px solid #e2e8f0;border-radius:10px;padding:9px 10px;cursor:pointer;font-weight:400}" +
-    ".kinds label:has(input:checked){border-color:var(--c);background:color-mix(in srgb,var(--c) 7%,#fff)}" +
-    ".kinds strong{display:block;font-weight:500;font-size:13px}.kinds span{font-size:12px;color:#64748b}" +
-    ".anchor{display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:10px;background:#f8fafc;font-size:13px}" +
-    ".err{color:#b91c1c;font-size:13px;min-height:18px;margin-top:8px}" +
-    ".dlg-actions{display:flex;gap:8px;margin-top:18px;align-items:center}" +
-    ".toast{position:fixed;left:50%;bottom:72px;transform:translateX(-50%);z-index:2147483003;background:#0f172b;color:#fff;padding:10px 14px;border-radius:10px;font-size:13px;box-shadow:0 8px 24px rgba(15,23,43,.3);pointer-events:none}" +
-    "@media (prefers-reduced-motion:reduce){.box,.pin{transition:none}}";
+    ".hl{--bg:#2c2c2c;--bg2:#383838;--bg3:#444;--line:#4a4a4a;--text:#f5f5f5;--muted:#b3b3b3;--blue:" + BLUE + ";font:12.5px/1.45 Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;color:var(--text);-webkit-font-smoothing:antialiased}" +
+    "button{font:inherit;color:inherit}" +
+    // Guides on the page
+    ".overlay{position:fixed;inset:0;pointer-events:none;z-index:0}" +
+    ".outline{position:fixed;border:1px dashed var(--blue);border-radius:6px;pointer-events:none}" +
+    ".outline.is-strong{border-width:1.5px;background:rgba(13,153,255,.05)}" +
+    ".pick{position:fixed;border:1.5px solid var(--blue);border-radius:6px;background:rgba(13,153,255,.06);pointer-events:none}" +
+    ".pick-label{position:absolute;left:-1px;top:-22px;background:var(--blue);color:#fff;font-weight:500;font-size:11.5px;padding:2px 7px;border-radius:4px;white-space:nowrap}" +
+    "svg.leader{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;overflow:visible}" +
+    // Chips sitting on components
+    ".chip{position:fixed;display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px 0 6px;border-radius:6px;background:var(--bg);color:var(--text);border:1px solid var(--line);box-shadow:0 2px 6px rgba(0,0,0,.25);font-size:11.5px;font-weight:500;white-space:nowrap;cursor:pointer;pointer-events:auto;transform:translateY(-100%);max-width:220px;z-index:1}" +
+    ".chip .dot{width:8px;height:8px;border-radius:50%;flex:none}" +
+    ".chip .t{overflow:hidden;text-overflow:ellipsis}" +
+    ".chip .n{color:var(--muted);font-variant-numeric:tabular-nums}" +
+    ".chip:hover,.chip.is-open{background:#1e1e1e;border-color:var(--blue)}" +
+    ".chip:focus-visible{outline:2px solid var(--blue);outline-offset:2px}" +
+    // Cards and the editor
+    ".card{position:fixed;width:300px;max-height:min(70vh,560px);overflow:auto;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.35);padding:12px 14px 12px;pointer-events:auto;z-index:2}" +
+    ".card-head{display:flex;align-items:center;gap:6px;margin-bottom:8px}" +
+    ".tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:5px;font-weight:600;font-size:12px;color:#111;background:var(--c)}" +
+    ".tag.none{background:var(--bg3);color:var(--muted);font-weight:500}" +
+    ".kind{color:var(--muted);font-size:11.5px}" +
+    ".sp{flex:1}" +
+    ".ico{all:unset;cursor:pointer;width:26px;height:26px;display:grid;place-items:center;border-radius:6px;color:var(--muted);font-size:15px;line-height:1}" +
+    ".ico:hover{background:var(--bg2);color:var(--text)}.ico:focus-visible{outline:2px solid var(--blue)}" +
+    ".card h3{margin:2px 0 4px;font-size:13.5px;font-weight:600;line-height:1.35}" +
+    ".where{color:var(--muted);font-size:11.5px}" +
+    ".body{margin-top:8px;color:#e6e6e6;font-size:12.5px}.body p{margin:0 0 6px}.body ul{margin:0 0 6px;padding-left:16px}.body li{margin:2px 0}" +
+    ".body code,code{font:11.5px ui-monospace,Menlo,monospace;background:var(--bg3);padding:1px 4px;border-radius:4px;color:#fff}" +
+    ".meta{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:10px;padding-top:8px;border-top:1px solid var(--line);color:var(--muted);font-size:11.5px}" +
+    ".acts{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}" +
+    ".btn{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:6px;font-size:12px;font-weight:500;color:var(--text);background:var(--bg2)}" +
+    ".btn:hover{background:var(--bg3)}.btn:focus-visible{outline:2px solid var(--blue);outline-offset:1px}" +
+    ".btn.pri{background:var(--blue);color:#fff}.btn.pri:hover{background:#0a84dc}" +
+    ".btn.ghost{background:transparent}.btn.ghost:hover{background:var(--bg2)}" +
+    ".btn.danger{color:#ff8a80}" +
+    ".btn[disabled]{opacity:.45;pointer-events:none}" +
+    ".editor .title-in{all:unset;display:block;width:100%;font-size:14px;font-weight:600;color:var(--text);padding:4px 0}" +
+    ".editor .title-in::placeholder,.editor .body-in::placeholder{color:#8a8a8a}" +
+    ".editor .body-in{all:unset;display:block;width:100%;min-height:96px;font-size:12.5px;line-height:1.5;color:#e6e6e6;white-space:pre-wrap;padding:4px 0}" +
+    ".editor .hint-line{color:#8a8a8a;font-size:11px;margin-top:4px}" +
+    ".editor .foot{display:flex;align-items:center;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}" +
+    ".sel{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 8px;border-radius:5px;background:var(--bg2);color:var(--text);font-size:12px;white-space:nowrap}" +
+    ".sel:hover{background:var(--bg3)}.sel:focus-visible{outline:2px solid var(--blue)}" +
+    ".sel .caret{font-size:9px;color:var(--muted)}" +
+    ".sel.tagsel{color:#111;font-weight:600;background:var(--c)}.sel.tagsel .caret{color:#111}" +
+    ".sel.tagsel.none{background:var(--bg2);color:var(--muted);font-weight:500}" +
+    ".err{color:#ff8a80;font-size:12px;min-height:0;margin-top:6px}" +
+    // Dropdown menus
+    ".menu-wrap{position:relative;display:inline-block}" +
+    ".menu{position:absolute;left:0;top:calc(100% + 6px);min-width:200px;background:#1e1e1e;border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.4);padding:6px;z-index:5}" +
+    ".menu.right{left:auto;right:0}" +
+    ".menu button{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box;padding:7px 10px 7px 8px;border-radius:6px;font-size:12.5px;color:var(--text)}" +
+    ".menu button:hover,.menu button:focus-visible{background:var(--blue);color:#fff}" +
+    ".menu .tick{width:14px;text-align:center;flex:none}" +
+    ".menu .sw{width:12px;height:12px;border-radius:50%;flex:none}" +
+    ".menu hr{border:0;border-top:1px solid var(--line);margin:6px 2px}" +
+    ".menu .sub{color:var(--muted);font-size:11px;display:block}" +
+    // Panel
+    ".panel{position:fixed;top:var(--top,0px);right:0;bottom:0;width:min(340px,100vw);background:var(--bg);color:var(--text);border-left:1px solid var(--line);box-shadow:-10px 0 30px rgba(0,0,0,.3);display:flex;flex-direction:column;pointer-events:auto;z-index:3}" +
+    ".panel header{padding:12px 14px 10px;border-bottom:1px solid var(--line)}" +
+    ".panel h2{margin:0;font-size:13px;font-weight:600}.panel .sub{margin:2px 0 0;color:var(--muted);font-size:11.5px}" +
+    ".row{display:flex;align-items:center;gap:6px}" +
+    ".filters{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}" +
+    ".pf{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:999px;border:1px solid var(--line);font-size:11.5px;color:var(--muted)}" +
+    ".pf .sw{width:8px;height:8px;border-radius:50%}" +
+    ".pf[aria-pressed=true]{border-color:var(--blue);color:var(--text);background:rgba(13,153,255,.15)}.pf:focus-visible{outline:2px solid var(--blue)}" +
+    "select.hsel{background:var(--bg2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:3px 6px;font:inherit;font-size:12px}" +
+    ".list{flex:1;overflow-y:auto;padding:6px 8px 20px}" +
+    ".group{margin:12px 6px 4px;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#8a8a8a}" +
+    ".item{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;padding:8px 8px;border-radius:8px}" +
+    ".item:hover{background:var(--bg2)}.item.is-open{background:rgba(13,153,255,.16)}.item:focus-visible{outline:2px solid var(--blue)}" +
+    ".item .top{display:flex;align-items:center;gap:6px}" +
+    ".item .dot{width:8px;height:8px;border-radius:50%;flex:none}" +
+    ".item .n{color:var(--muted);font-size:11.5px;font-variant-numeric:tabular-nums}" +
+    ".item .ti{font-weight:500;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}" +
+    ".item .where{display:block;margin:2px 0 0 14px}" +
+    ".empty{padding:28px 12px;text-align:center;color:var(--muted)}" +
+    ".readonly{margin:8px 0 0;padding:6px 8px;border-radius:6px;background:var(--bg2);color:var(--muted);font-size:11.5px}" +
+    ".pfoot{padding:10px 12px;border-top:1px solid var(--line);display:flex;gap:6px;flex-wrap:wrap}" +
+    // Small dialogs: profile, categories, delete
+    ".scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);display:grid;place-items:center;pointer-events:auto;padding:16px;z-index:6}" +
+    ".dialog{width:min(360px,100%);background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 40px rgba(0,0,0,.45);padding:16px}" +
+    ".dialog h2{margin:0 0 4px;font-size:14px;font-weight:600}.dialog p{margin:0;color:var(--muted)}" +
+    ".field{display:grid;gap:4px;margin-top:12px}.field label{font-size:11.5px;color:var(--muted)}" +
+    ".field input{all:unset;box-sizing:border-box;width:100%;height:30px;padding:0 9px;border-radius:6px;background:var(--bg2);border:1px solid var(--line);font-size:12.5px;color:var(--text)}" +
+    ".field input:focus{border-color:var(--blue)}" +
+    ".cat-row{display:flex;align-items:center;gap:6px;margin-top:6px}" +
+    ".cat-row input{all:unset;box-sizing:border-box;flex:1;height:28px;padding:0 8px;border-radius:6px;background:var(--bg2);border:1px solid var(--line);font-size:12.5px}" +
+    ".cat-row input:focus{border-color:var(--blue)}" +
+    ".swatch{all:unset;cursor:pointer;width:22px;height:22px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 2px rgba(255,255,255,.15)}" +
+    ".swatch:focus-visible{outline:2px solid var(--blue);outline-offset:2px}" +
+    ".dlg-acts{display:flex;gap:6px;margin-top:14px;align-items:center}" +
+    ".hint{position:fixed;left:50%;top:calc(var(--top,0px) + 10px);transform:translateX(-50%);background:var(--bg);color:var(--text);border:1px solid var(--line);padding:7px 12px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.3);pointer-events:none;z-index:4}" +
+    ".toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--bg);color:var(--text);border:1px solid var(--line);padding:8px 12px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.3);pointer-events:none;z-index:7}" +
+    // Controls (in the host's context bar, or floating)
+    ".tools{display:inline-flex;align-items:center;gap:2px;padding:2px;border-radius:7px;background:var(--bg);border:1px solid #1a1a1a;box-shadow:0 1px 2px rgba(0,0,0,.2);pointer-events:auto}" +
+    ".tools.floating{position:fixed;left:12px;bottom:12px;z-index:2147483001;padding:3px;border-radius:9px;box-shadow:0 8px 24px rgba(0,0,0,.3)}" +
+    ".tools button{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 8px;border-radius:5px;font-size:11.5px;font-weight:500;color:#e6e6e6;white-space:nowrap}" +
+    ".tools.floating button{height:26px;padding:0 10px}" +
+    ".tools button:hover{background:var(--bg2)}.tools button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}" +
+    ".tools button[aria-pressed=true]{background:var(--blue);color:#fff}" +
+    ".tools .count{font-variant-numeric:tabular-nums;color:var(--muted)}.tools button[aria-pressed=true] .count{color:#dbeeff}" +
+    ".tools .sep{width:1px;height:14px;background:var(--line);margin:0 2px}" +
+    ".tools .kbd{color:#8a8a8a;font-size:10.5px}" +
+    "@media (prefers-reduced-motion:reduce){*{transition:none!important}}";
 
+  // ---------- Mounting ----------
   function mount() {
+    // The root is a manual popover so it can sit in the browser's top layer, above modal dialogs.
     root = h("div", { id: "handover-layer-root" });
+    root.style.cssText = "position:fixed;inset:0;width:100vw;height:100vh;max-width:none;max-height:none;margin:0;padding:0;border:0;background:transparent;overflow:visible;pointer-events:none;color:inherit;z-index:2147483000";
+    if (typeof root.showPopover === "function") root.setAttribute("popover", "manual");
     document.body.appendChild(root);
+    raiseRoot();
     shadow = root.attachShadow({ mode: "open" });
     shadow.appendChild(h("style", null, CSS_TEXT));
     var wrap = h("div", { class: "hl" });
     els.overlay = h("div", { class: "overlay", "aria-hidden": "true" });
-    els.pins = h("div");
-    els.box = h("div", { class: "box", hidden: "" });
-    els.overlay.appendChild(els.box);
-    els.bar = h("div", { class: "bar", role: "toolbar", "aria-label": "Handover layer" });
-    els.panel = h("aside", { class: "panel", role: "complementary", "aria-label": "Handover notes", hidden: "" });
-    els.dialog = h("div");
+    els.outlines = h("div");
+    els.pick = h("div", { class: "pick", hidden: "" });
+    els.leader = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    els.leader.setAttribute("class", "leader");
+    els.overlay.append(els.outlines, els.leader, els.pick);
+    els.chips = h("div", { style: "position:relative;z-index:1" });
+    els.card = h("div", { style: "position:relative;z-index:2" });
+    els.panel = h("aside", { style: "z-index:3", class: "panel", role: "complementary", "aria-label": "Handover notes", hidden: "" });
+    els.dialog = h("div", { style: "position:relative;z-index:6" });
     els.toast = h("div", { class: "toast", role: "status", hidden: "" });
     els.hint = h("div", { class: "hint", hidden: "" });
-    wrap.append(els.overlay, els.pins, els.bar, els.panel, els.dialog, els.toast, els.hint);
+    wrap.append(els.overlay, els.chips, els.card, els.panel, els.dialog, els.toast, els.hint);
     shadow.appendChild(wrap);
-    shadow.addEventListener("click", onShadowClick);
-    shadow.addEventListener("change", onShadowChange);
-    renderBar();
+    shadow.addEventListener("click", onClick);
+    shadow.addEventListener("change", onChange);
+    shadow.addEventListener("input", onInput);
+
+    // Controls go into the host's context bar when it offers a slot, otherwise they float.
+    var slot = cfg.toolbar && (typeof cfg.toolbar === "string" ? document.querySelector(cfg.toolbar) : cfg.toolbar);
+    if (slot) {
+      toolsHost = slot;
+      toolsShadow = slot.shadowRoot || slot.attachShadow({ mode: "open" });
+      toolsShadow.innerHTML = "";
+      toolsShadow.appendChild(h("style", null, CSS_TEXT));
+      els.tools = h("div", { class: "hl tools", role: "toolbar", "aria-label": "Handover notes" });
+      toolsShadow.appendChild(els.tools);
+      toolsShadow.addEventListener("click", onClick);
+    } else {
+      els.tools = h("div", { class: "tools floating", role: "toolbar", "aria-label": "Handover notes" });
+      wrap.appendChild(els.tools);
+    }
+    // While a modal dialog is open the host bar can't be clicked, so a floating copy of the controls appears.
+    els.floatTools = h("div", { class: "tools floating", role: "toolbar", "aria-label": "Handover notes", hidden: "" });
+    if (toolsHost) wrap.appendChild(els.floatTools);
   }
-  function renderBar() {
+  function modalOpen() {
+    try {
+      return Boolean(document.querySelector("dialog:modal"));
+    } catch (e) {
+      return Boolean(document.querySelector("dialog[open]"));
+    }
+  }
+  // Re-show the popover so it stays above anything the prototype opened since.
+  // A dialog that opens (or re-opens) goes to the top of the top layer, so lift the layer again after it.
+  function raiseRoot(force) {
+    if (!root || typeof root.showPopover !== "function") return;
+    try {
+      if (root.matches(":popover-open")) {
+        if (!force) return;
+        root.hidePopover();
+      }
+      root.showPopover();
+    } catch (e) {}
+  }
+  // A modal dialog makes everything outside it inert, even layers drawn above it. So while one is open,
+  // the layer lives inside that dialog (and returns to <body> afterwards). The prototype may also rewrite
+  // a dialog's contents, so put the layer back whenever it's been removed.
+  function topModal() {
+    var list = [];
+    try {
+      list = [].slice.call(document.querySelectorAll("dialog:modal"));
+    } catch (e) {
+      list = [].slice.call(document.querySelectorAll("dialog[open]"));
+    }
+    return list[list.length - 1] || null;
+  }
+  var homing = false;
+  function ensureHome() {
+    if (!root || homing) return;
+    var home = topModal() || document.body;
+    if (root.parentNode === home && root.isConnected) return;
+    homing = true;
+    home.appendChild(root);
+    raiseRoot(true);
+    homing = false;
+    schedule();
+  }
+  new MutationObserver(function (records) {
+    if (homing) return;
+    if (
+      records.some(function (r) {
+        return (r.type === "attributes" && r.target.tagName === "DIALOG") || (r.type === "childList" && root && !root.isConnected);
+      })
+    )
+      setTimeout(ensureHome, 0);
+  }).observe(document.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ["open"] });
+  function topOffset() {
+    var bar = toolsHost && toolsHost.closest("[data-handover-bar]");
+    return bar ? bar.getBoundingClientRect().bottom : 0;
+  }
+
+  // ---------- Rendering ----------
+  function renderTools() {
     var count = visibleNotes().length;
-    els.bar.innerHTML =
-      '<button type="button" data-a="toggle" aria-pressed="' + on + '" title="Show or hide the handover layer (Alt+H)">' +
-      (on ? "Handover layer on" : "Handover layer") +
-      ' <span class="count">' + count + "</span></button>" +
+    var html =
+      '<button type="button" data-a="toggle" aria-pressed="' + on + '" title="Show or hide notes (Alt+H)"><span aria-hidden="true">◎</span> Notes <span class="count">' + count + "</span></button>" +
       (on
-        ? '<span class="sep"></span>' +
+        ? '<span class="sep" aria-hidden="true"></span>' +
           (editable ? '<button type="button" data-a="pick" aria-pressed="' + picking + '" title="Annotate a component (Alt+N)">+ Annotate</button>' : "") +
-          '<button type="button" data-a="panel" aria-pressed="' + panelOpen + '">Notes</button>'
+          '<button type="button" data-a="panel" aria-pressed="' + panelOpen + '" title="List all notes">List</button>'
         : "");
+    els.tools.innerHTML = html;
+    if (els.floatTools) els.floatTools.innerHTML = html;
   }
-  function pinColour(note) {
-    return kindOf(note.kind).hue;
+  function chipHtml(note, x, y) {
+    var k = categoryOf(note.category);
+    return (
+      '<button type="button" class="chip' + (openRef === note.ref ? " is-open" : "") + '" data-a="open" data-ref="' + note.ref + '" style="left:' + x + "px;top:" + y + 'px" aria-label="Note ' + note.ref + ": " + esc(note.title) + '">' +
+      '<span class="dot" style="background:' + noteColour(note) + '" aria-hidden="true"></span><span class="n">' + note.ref + '</span><span class="t">' + esc(note.title) + "</span></button>"
+    );
   }
   function paint() {
     raf = 0;
+    if (!root) return;
+    ensureHome();
+    if (els.floatTools && toolsHost) els.floatTools.hidden = !modalOpen();
+    var topBar = modalOpen() ? 0 : topOffset();
+    els.panel.style.setProperty("--top", topBar + "px");
+    els.hint.style.setProperty("--top", topBar + "px");
     if (!on) {
-      els.pins.innerHTML = "";
-      els.box.hidden = true;
+      els.outlines.innerHTML = "";
+      els.chips.innerHTML = "";
+      els.leader.innerHTML = "";
+      els.pick.hidden = true;
       return;
     }
-    var notes = captureRef != null ? data.notes.filter(function (n) { return n.ref === captureRef; }) : visibleNotes();
-    var html = "";
-    var stack = {};
+    var notes = captureRef != null ? [findNote(captureRef)].filter(Boolean) : visibleNotes();
+    var outlines = "";
+    var chips = "";
+    var placed = [];
+    var rightLimit = window.innerWidth - (panelOpen ? 344 : 8);
     notes.forEach(function (note) {
-      if (!onThisView(note) || !note.anchor) return;
+      if (!onThisView(note)) return;
       var el = findAnchor(note.anchor);
       if (!el) return;
       var r = el.getBoundingClientRect();
-      // Pins sit on the component's top-left corner, where side panels rarely cover them.
-      var key = Math.round(r.left) + ":" + Math.round(r.top);
-      var offset = (stack[key] = (stack[key] || 0) + 1) - 1;
-      var x = Math.min(window.innerWidth - 16, Math.max(16, r.left + offset * 30));
-      var y = Math.min(window.innerHeight - 16, Math.max(16, r.top));
-      html +=
-        '<button type="button" class="pin' + (focusRef === note.ref ? " is-focus" : "") + '" data-a="open-note" data-ref="' + note.ref + '" style="--c:' + pinColour(note) + ";left:" + x + "px;top:" + y + 'px" aria-label="Note ' + note.ref + ": " + esc(note.title) + '">' + note.ref + "</button>";
+      if (r.bottom < topBar || r.top > window.innerHeight) return;
+      var strong = openRef === note.ref || captureRef === note.ref;
+      outlines += '<div class="outline' + (strong ? " is-strong" : "") + '" style="left:' + (r.left - 3) + "px;top:" + (r.top - 3) + "px;width:" + (r.width + 6) + "px;height:" + (r.height + 6) + 'px"></div>';
+      // Chips sit just above the component's top-left corner. Several on one component line up side by side.
+      var x = Math.max(8, r.left - 3);
+      var y = Math.max(topBar + 26, r.top - 6);
+      placed.forEach(function (p) {
+        if (Math.abs(p.y - y) < 24 && x < p.x + p.w + 6 && x + 120 > p.x) x = p.x + p.w + 6;
+      });
+      var w = Math.min(220, 40 + note.title.length * 6.2);
+      x = Math.min(x, rightLimit - w);
+      placed.push({ x: x, y: y, w: w });
+      chips += chipHtml(note, x, y);
     });
-    els.pins.innerHTML = html;
-    var target = picking ? hoverEl : focusRef != null || captureRef != null ? findAnchor((data.notes.find(function (n) { return n.ref === (captureRef != null ? captureRef : focusRef); }) || {}).anchor) : null;
-    if (target) {
-      var r = target.getBoundingClientRect();
-      var note = data.notes.find(function (n) { return n.ref === (captureRef != null ? captureRef : focusRef); });
-      var c = picking ? "#0e7490" : note ? pinColour(note) : "#0e7490";
-      els.box.hidden = false;
-      els.box.style.cssText = "--c:" + c + ";left:" + (r.left - 4) + "px;top:" + (r.top - 4) + "px;width:" + (r.width + 8) + "px;height:" + (r.height + 8) + "px";
-      var label = picking ? anchorFrom(target).label : note && note.anchor ? note.anchor.label : "";
-      els.box.innerHTML = label ? '<span class="box-label">' + esc(label) + "</span>" : "";
-    } else els.box.hidden = true;
+    els.outlines.innerHTML = outlines;
+    els.chips.innerHTML = chips;
+    // Annotate mode: solid blue box and a label on whatever is under the pointer.
+    if (picking && hoverEl) {
+      var hr = hoverEl.getBoundingClientRect();
+      els.pick.hidden = false;
+      els.pick.style.cssText = "left:" + (hr.left - 3) + "px;top:" + (hr.top - 3) + "px;width:" + (hr.width + 6) + "px;height:" + (hr.height + 6) + "px";
+      els.pick.innerHTML = '<span class="pick-label">' + esc(anchorFrom(hoverEl).label) + "</span>";
+    } else els.pick.hidden = true;
+    placeCard();
   }
   function schedule() {
     if (!raf) raf = requestAnimationFrame(paint);
@@ -16609,24 +16836,118 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
     }, 120);
   }
 
-  function noteCard(note) {
-    var k = kindOf(note.kind);
-    var mine = editable;
-    return (
-      '<div class="note' + (focusRef === note.ref ? " is-focus" : "") + '" role="button" tabindex="0" data-a="focus-note" data-ref="' + note.ref + '">' +
-      '<div class="top"><span class="ref">#' + note.ref + '</span><span class="kind" style="--c:' + k.hue + '">' + k.label + '</span><span class="sp"></span><span class="where">' + esc(handoverName(note.handover)) + "</span></div>" +
+  // The open card (or editor) sits beside its component, joined by a dashed leader line.
+  function placeCard() {
+    var card = els.card.firstElementChild;
+    if (!card) {
+      els.leader.innerHTML = "";
+      return;
+    }
+    var note = editor ? editor.note : findNote(openRef);
+    var anchor = editor ? editor.anchor : note && note.anchor;
+    var el = anchor && onThisView({ anchor: anchor }) ? findAnchor(anchor) : null;
+    var cw = card.offsetWidth;
+    var ch = card.offsetHeight;
+    var vw = window.innerWidth - (panelOpen ? 344 : 0);
+    var vh = window.innerHeight;
+    var top = topOffset() + 8;
+    var x, y, line = null;
+    if (el) {
+      var r = el.getBoundingClientRect();
+      var gap = 36;
+      if (r.right + gap + cw < vw - 8) {
+        x = r.right + gap;
+        y = Math.min(Math.max(top, r.top), vh - ch - 8);
+        line = [r.right + 3, y + 20, x, y + 20];
+      } else if (r.left - gap - cw > 8) {
+        x = r.left - gap - cw;
+        y = Math.min(Math.max(top, r.top), vh - ch - 8);
+        line = [r.left - 3, y + 20, x + cw, y + 20];
+      } else {
+        x = Math.min(Math.max(8, r.left), vw - cw - 8);
+        y = r.bottom + gap + ch < vh ? r.bottom + gap : Math.max(top, r.top - gap - ch);
+        var below = y > r.bottom;
+        line = [x + 24, below ? r.bottom + 3 : r.top - 3, x + 24, below ? y : y + ch];
+      }
+      // Keep the leader attached to the component when the card is clamped away from it.
+      if (line && line[1] !== line[3] && line[0] !== line[2]) line[1] = Math.min(Math.max(line[1], r.top + 8), r.bottom - 8);
+    } else {
+      x = Math.max(8, vw - cw - 16);
+      y = top + 8;
+    }
+    card.style.left = x + "px";
+    card.style.top = Math.max(top, y) + "px";
+    els.leader.innerHTML = line
+      ? '<line x1="' + line[0] + '" y1="' + line[1] + '" x2="' + line[2] + '" y2="' + line[3] + '" stroke="' + BLUE + '" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="' + line[0] + '" cy="' + line[1] + '" r="3" fill="' + BLUE + '"/>'
+      : "";
+  }
+
+  function tagHtml(note) {
+    var c = categoryOf(note.category);
+    return c ? '<span class="tag" style="--c:' + c.colour + '">' + esc(c.label) + "</span>" : '<span class="tag none">No category</span>';
+  }
+  function renderCard() {
+    if (editor) return renderEditor();
+    var note = findNote(openRef);
+    if (!note) {
+      els.card.innerHTML = "";
+      return;
+    }
+    els.card.innerHTML =
+      '<div class="card" role="dialog" aria-label="Note ' + note.ref + '">' +
+      '<div class="card-head">' + tagHtml(note) + '<span class="kind">' + esc(kindOf(note.kind).label) + '</span><span class="sp"></span><span class="kind">#' + note.ref + '</span><button type="button" class="ico" data-a="close-card" aria-label="Close">✕</button></div>' +
       "<h3>" + esc(note.title) + '</h3><div class="where">' + esc(whereText(note)) + "</div>" +
-      '<div class="body">' + md(note.body) + "</div>" +
-      (focusRef === note.ref
-        ? '<div class="meta"><span>' + esc(note.author || "Unknown") + "</span><span>" + esc(note.updatedAt || note.createdAt || "") + "</span></div>" +
-          '<div class="actions">' +
-          (mine ? '<button type="button" class="btn small" data-a="edit" data-ref="' + note.ref + '">Edit</button>' : "") +
-          '<button type="button" class="btn small" data-a="copy" data-ref="' + note.ref + '">Copy as ticket</button>' +
-          (mine ? '<button type="button" class="btn small danger" data-a="delete" data-ref="' + note.ref + '">Delete</button>' : "") +
-          "</div>"
-        : "") +
-      "</div>"
-    );
+      (note.body ? '<div class="body">' + md(note.body) + "</div>" : "") +
+      '<div class="meta"><span>' + esc(note.author || "Unknown") + "</span><span>" + esc(note.updatedAt || note.createdAt || "") + "</span><span>" + esc(handoverName(note.handover)) + "</span></div>" +
+      '<div class="acts">' +
+      (editable ? '<button type="button" class="btn" data-a="edit" data-ref="' + note.ref + '">Edit</button>' : "") +
+      '<button type="button" class="btn" data-a="copy" data-ref="' + note.ref + '">Copy as ticket</button>' +
+      (editable ? '<button type="button" class="btn ghost danger" data-a="delete" data-ref="' + note.ref + '">Delete</button>' : "") +
+      "</div></div>";
+  }
+  function renderEditor() {
+    var d = editor.draft;
+    var c = categoryOf(d.category);
+    var editing = Boolean(editor.note);
+    var handovers =
+      '<option value="">Next handover</option>' +
+      data.handovers.slice().reverse().map(function (ho) { return '<option value="' + esc(ho.id) + '"' + (d.handover === ho.id ? " selected" : "") + ">" + esc(ho.name) + "</option>"; }).join("");
+    var catMenu =
+      menu === "category"
+        ? '<div class="menu" role="menu"><button type="button" role="menuitemradio" aria-checked="' + !d.category + '" data-a="set-cat" data-key=""><span class="tick">' + (!d.category ? "✓" : "") + "</span>No category</button><hr>" +
+          data.categories.map(function (cat) { return '<button type="button" role="menuitemradio" aria-checked="' + (d.category === cat.key) + '" data-a="set-cat" data-key="' + esc(cat.key) + '"><span class="tick">' + (d.category === cat.key ? "✓" : "") + '</span><span class="sw" style="background:' + cat.colour + '"></span>' + esc(cat.label) + "</button>"; }).join("") +
+          '<hr><button type="button" role="menuitem" data-a="edit-cats"><span class="tick"></span>Edit categories…</button></div>'
+        : "";
+    var kindMenu =
+      menu === "kind"
+        ? '<div class="menu" role="menu">' + KINDS.map(function (k) { return '<button type="button" role="menuitemradio" aria-checked="' + (d.kind === k.key) + '" data-a="set-kind" data-key="' + k.key + '"><span class="tick">' + (d.kind === k.key ? "✓" : "") + "</span><span>" + k.label + '<span class="sub">' + k.help + "</span></span></button>"; }).join("") + "</div>"
+        : "";
+    var moreMenu =
+      menu === "more"
+        ? '<div class="menu right" role="menu">' + (editing ? '<button type="button" role="menuitem" data-a="delete" data-ref="' + editor.note.ref + '"><span class="tick"></span>Delete note</button>' : "") + '<button type="button" role="menuitem" data-a="repick"><span class="tick"></span>Attach to another component</button></div>'
+        : "";
+    els.card.innerHTML =
+      '<form class="card editor" role="dialog" aria-label="' + (editing ? "Edit note " + editor.note.ref : "New note") + '" data-form="note">' +
+      '<div class="card-head">' +
+      '<span class="menu-wrap"><button type="button" class="sel tagsel' + (c ? "" : " none") + '" style="--c:' + (c ? c.colour : "transparent") + '" data-a="menu" data-menu="category" aria-haspopup="menu" aria-expanded="' + (menu === "category") + '">' + esc(c ? c.label : "No category") + ' <span class="caret">▼</span></button>' + catMenu + "</span>" +
+      '<span class="menu-wrap"><button type="button" class="sel" data-a="menu" data-menu="kind" aria-haspopup="menu" aria-expanded="' + (menu === "kind") + '">' + esc(kindOf(d.kind).label) + ' <span class="caret">▼</span></button>' + kindMenu + "</span>" +
+      '<span class="sp"></span><span class="menu-wrap"><button type="button" class="ico" data-a="menu" data-menu="more" aria-label="More" aria-haspopup="menu" aria-expanded="' + (menu === "more") + '">•••</button>' + moreMenu + "</span>" +
+      '<button type="button" class="ico" data-a="close-card" aria-label="Cancel">✕</button></div>' +
+      '<div class="where">' + esc(editor.anchor ? whereText({ anchor: editor.anchor }) : "Applies everywhere") + "</div>" +
+      '<input class="title-in" id="hl-title" name="title" maxlength="120" placeholder="Title" value="' + esc(d.title) + '" aria-label="Title" autocomplete="off">' +
+      '<textarea class="body-in" id="hl-body" name="body" placeholder="Describe what it does, how it behaves and anything developers should know" aria-label="Description">' + esc(d.body) + "</textarea>" +
+      '<div class="hint-line">Blank line for a new paragraph · "- " for bullets · **bold** · `code`</div>' +
+      '<p class="err" role="alert"></p>' +
+      '<div class="foot"><select class="hsel" name="handover" data-f="draft-handover" aria-label="Handover">' + handovers + '</select><span class="sp"></span><button type="button" class="btn ghost" data-a="close-card">Cancel</button><button type="submit" class="btn pri">' + (editing ? "Save" : "Add note") + "</button></div>" +
+      "</form>";
+    var form = els.card.querySelector("form");
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      saveEditor();
+    });
+    form.querySelector("#hl-body").addEventListener("keydown", function (e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") saveEditor();
+    });
   }
   function renderPanel() {
     if (!panelOpen) {
@@ -16640,30 +16961,32 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
     var elsewhere = notes.filter(function (n) { return n.anchor && !onThisView(n); });
     var opts =
       '<option value="next"' + (filter.handover === "next" ? " selected" : "") + ">Next handover</option>" +
-      data.handovers
-        .slice()
-        .reverse()
-        .map(function (ho) { return '<option value="' + esc(ho.id) + '"' + (filter.handover === ho.id ? " selected" : "") + ">" + esc(ho.name) + "</option>"; })
-        .join("") +
+      data.handovers.slice().reverse().map(function (ho) { return '<option value="' + esc(ho.id) + '"' + (filter.handover === ho.id ? " selected" : "") + ">" + esc(ho.name) + "</option>"; }).join("") +
       '<option value="all"' + (filter.handover === "all" ? " selected" : "") + ">All notes</option>";
-    var group = function (title, list) {
-      return list.length ? '<p class="group">' + title + " · " + list.length + "</p>" + list.map(noteCard).join("") : "";
+    var item = function (n) {
+      return '<button type="button" class="item' + (openRef === n.ref ? " is-open" : "") + '" data-a="open" data-ref="' + n.ref + '"><span class="top"><span class="dot" style="background:' + noteColour(n) + '"></span><span class="n">' + n.ref + '</span><span class="ti">' + esc(n.title) + '</span></span><span class="where">' + esc(kindOf(n.kind).label) + " · " + esc(whereText(n)) + "</span></button>";
     };
+    var group = function (title, list) {
+      return list.length ? '<p class="group">' + title + " · " + list.length + "</p>" + list.map(item).join("") : "";
+    };
+    var chipsF =
+      '<button type="button" class="pf" data-a="cat-filter" data-key="all" aria-pressed="' + (filter.category === "all") + '">All</button>' +
+      data.categories.map(function (c) { return '<button type="button" class="pf" data-a="cat-filter" data-key="' + esc(c.key) + '" aria-pressed="' + (filter.category === c.key) + '"><span class="sw" style="background:' + c.colour + '"></span>' + esc(c.label) + "</button>"; }).join("") +
+      '<button type="button" class="pf" data-a="cat-filter" data-key="none" aria-pressed="' + (filter.category === "none") + '">No category</button>';
     els.panel.innerHTML =
-      '<header><div class="row"><div class="sp"><h2>Handover notes</h2><p class="sub">' + esc(viewLabel(currentView())) + '</p></div><button type="button" class="x" data-a="panel" aria-label="Close notes">×</button></div>' +
-      '<div class="filters"><select data-f="handover" aria-label="Handover">' + opts + "</select>" +
-      [{ key: "all", label: "All" }].concat(KINDS).map(function (k) { return '<button type="button" class="chip" data-a="kind" data-kind="' + k.key + '" aria-pressed="' + (filter.kind === k.key) + '">' + k.label + "</button>"; }).join("") +
-      "</div>" +
+      '<header><div class="row"><div class="sp"><h2>Notes</h2><p class="sub">' + esc(viewLabel(currentView())) + '</p></div><select class="hsel" data-f="handover" aria-label="Handover">' + opts + '</select><button type="button" class="ico" data-a="panel" aria-label="Close list">✕</button></div>' +
+      '<div class="filters">' + chipsF + "</div>" +
       (editable ? "" : '<p class="readonly">View only. Notes are edited when the prototype runs locally.</p>') +
       "</header>" +
       '<div class="list">' +
-      (notes.length ? group("On this page", here) + group("Everywhere", global) + group("Elsewhere", elsewhere) : '<div class="empty">No notes here yet.' + (editable ? " Choose <strong>+ Annotate</strong> and click a component." : "") + "</div>") +
+      (notes.length ? group("On this page", here) + group("Everywhere", global) + group("Elsewhere", elsewhere) : '<div class="empty">No notes here yet.' + (editable ? "<br>Choose + Annotate and click a component." : "") + "</div>") +
       "</div>" +
-      (editable ? '<div class="foot"><button type="button" class="btn small" data-a="new-page">Note on this page</button><button type="button" class="btn small" data-a="new-global">Global note</button><span class="sp"></span><button type="button" class="btn small" data-a="profile">' + esc((profile() || {}).name || "Your name") + "</button></div>" : "");
+      (editable ? '<div class="pfoot"><button type="button" class="btn" data-a="new-page">Note on this page</button><button type="button" class="btn" data-a="new-global">Global note</button><span class="sp"></span><button type="button" class="btn ghost" data-a="profile">' + esc((profile() || {}).name || "Your name") + "</button></div>" : "");
   }
   function render() {
-    renderBar();
+    renderTools();
     renderPanel();
+    renderCard();
     schedule();
   }
   function toast(message) {
@@ -16672,77 +16995,78 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
     clearTimeout(toast.t);
     toast.t = setTimeout(function () {
       els.toast.hidden = true;
-    }, 3200);
+    }, 3000);
   }
   function hint(message) {
     els.hint.textContent = message || "";
     els.hint.hidden = !message;
   }
 
-  // ---------- Editor ----------
+  // ---------- Writing notes ----------
   function openEditor(note, anchor) {
-    var p = profile();
-    if (!p) return openProfile(function () { openEditor(note, anchor); });
-    var editing = Boolean(note);
-    var n = note || { kind: anchor ? "feature" : "global", title: "", body: "", anchor: anchor, handover: null };
-    var current = n.anchor;
-    var handovers =
-      '<option value="">Next handover</option>' +
-      data.handovers.slice().reverse().map(function (ho) { return '<option value="' + esc(ho.id) + '"' + (n.handover === ho.id ? " selected" : "") + ">" + esc(ho.name) + "</option>"; }).join("");
-    els.dialog.innerHTML =
-      '<div class="scrim" data-a="scrim"><form class="dialog" role="dialog" aria-modal="true" aria-labelledby="hl-ed-title" data-form="note">' +
-      '<h2 id="hl-ed-title">' + (editing ? "Edit note #" + n.ref : "New handover note") + "</h2>" +
-      '<div class="anchor">' + (current ? "Attached to <strong>" + esc(whereText({ anchor: current })) + "</strong>" : "Applies everywhere in the prototype") + "</div>" +
-      '<div class="field"><label>Type</label><div class="kinds">' +
-      KINDS.map(function (k) {
-        var helpText = { feature: "Something new to build", change: "Changes something already handed over", global: "Affects many screens, like motion or hover states", fix: "Corrects a mistake" }[k.key];
-        return '<label style="--c:' + k.hue + '"><input type="radio" name="kind" value="' + k.key + '"' + (n.kind === k.key ? " checked" : "") + "><span><strong>" + k.label + "</strong><span>" + helpText + "</span></span></label>";
-      }).join("") +
-      "</div></div>" +
-      '<div class="field"><label for="hl-title">Title</label><input id="hl-title" name="title" required maxlength="120" value="' + esc(n.title) + '" placeholder="For example, Team cards show health at a glance"></div>' +
-      '<div class="field"><label for="hl-body">Description</label><textarea id="hl-body" name="body" placeholder="What it does, how it behaves, edge cases and anything developers should know.">' + esc(n.body) + '</textarea><span class="help">Use a blank line between paragraphs, "- " for bullets, **bold** and `code`.</span></div>' +
-      '<div class="field"><label for="hl-handover">Handover</label><select id="hl-handover" name="handover">' + handovers + "</select></div>" +
-      '<p class="err" role="alert"></p>' +
-      '<div class="dlg-actions">' + (editing ? '<button type="button" class="btn danger" data-a="delete" data-ref="' + n.ref + '">Delete</button>' : "") + '<span class="sp"></span><button type="button" class="btn" data-a="close-dialog">Cancel</button><button type="submit" class="btn pri">' + (editing ? "Save changes" : "Add note") + "</button></div>" +
-      "</form></div>";
-    var form = els.dialog.querySelector("form");
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var fd = new FormData(form);
-      var title = String(fd.get("title") || "").trim();
-      if (!title) {
-        form.querySelector(".err").textContent = "Add a title so the note can be found later.";
-        return;
-      }
-      var now = today();
-      var target = editing ? note : { id: "n-" + Date.now().toString(36), ref: data.nextRef++, type: "annotation", anchor: current, author: p.name, createdAt: now };
-      target.kind = String(fd.get("kind") || "feature");
-      target.title = title;
-      target.body = String(fd.get("body") || "").trim();
-      target.handover = String(fd.get("handover") || "") || null;
-      target.updatedAt = now;
-      if (editing) target.editedBy = p.name;
-      else data.notes.push(target);
-      closeDialog();
-      focusRef = target.ref;
-      panelOpen = true;
-      render();
-      persist().then(function (ok) {
-        if (ok) toast(editing ? "Note #" + target.ref + " saved" : "Note #" + target.ref + " added");
-      });
-    });
+    if (!profile()) return openProfile(function () { openEditor(note, anchor); });
+    openRef = null;
+    menu = null;
+    editor = {
+      note: note,
+      anchor: note ? note.anchor : anchor,
+      draft: note
+        ? { title: note.title, body: note.body || "", kind: note.kind, category: note.category || "", handover: note.handover || "" }
+        : { title: "", body: "", kind: anchor ? "feature" : "global", category: "", handover: "" },
+    };
+    render();
     setTimeout(function () {
-      form.querySelector("#hl-title").focus();
+      var t = els.card.querySelector("#hl-title");
+      if (t) t.focus();
     }, 20);
+  }
+  function saveEditor() {
+    var form = els.card.querySelector("form");
+    if (!form || !editor) return;
+    var d = editor.draft;
+    d.title = form.querySelector("#hl-title").value.trim();
+    d.body = form.querySelector("#hl-body").value.trim();
+    if (!d.title) {
+      form.querySelector(".err").textContent = "Add a title so the note can be found later.";
+      form.querySelector("#hl-title").focus();
+      return;
+    }
+    var p = profile() || {};
+    var now = today();
+    var target = editor.note || { id: "n-" + Date.now().toString(36), ref: data.nextRef++, type: "annotation", anchor: editor.anchor, author: p.name, createdAt: now };
+    target.title = d.title;
+    target.body = d.body;
+    target.kind = d.kind;
+    target.category = d.category || null;
+    target.handover = d.handover || null;
+    target.anchor = editor.anchor;
+    target.updatedAt = now;
+    if (editor.note) target.editedBy = p.name;
+    else data.notes.push(target);
+    var wasEditing = Boolean(editor.note);
+    editor = null;
+    menu = null;
+    openRef = target.ref;
+    render();
+    persist().then(function (ok) {
+      if (ok) toast(wasEditing ? "Note " + target.ref + " saved" : "Note " + target.ref + " added");
+    });
+  }
+  function syncDraft() {
+    if (!editor) return;
+    var t = els.card.querySelector("#hl-title");
+    var b = els.card.querySelector("#hl-body");
+    if (t) editor.draft.title = t.value;
+    if (b) editor.draft.body = b.value;
   }
   function openProfile(next) {
     var p = profile() || { name: "", role: "" };
     els.dialog.innerHTML =
-      '<div class="scrim" data-a="scrim"><form class="dialog" role="dialog" aria-modal="true" aria-labelledby="hl-pr-title" data-form="profile">' +
-      '<h2 id="hl-pr-title">Who\'s writing these notes?</h2><p class="sub" style="margin:0;color:#64748b;font-size:13.5px">Your name goes on each note you write. It\'s saved in this browser only.</p>' +
+      '<div class="scrim" data-a="scrim"><form class="dialog" role="dialog" aria-modal="true" aria-labelledby="hl-pr-title">' +
+      '<h2 id="hl-pr-title">Who\'s writing these notes?</h2><p>Your name goes on each note. It\'s saved in this browser only.</p>' +
       '<div class="field"><label for="hl-name">Name</label><input id="hl-name" name="name" required value="' + esc(p.name) + '" autocomplete="name"></div>' +
-      '<div class="field"><label for="hl-role">Role <span class="help">Optional</span></label><input id="hl-role" name="role" value="' + esc(p.role) + '" placeholder="For example, Product designer"></div>' +
-      '<div class="dlg-actions"><span class="sp"></span><button type="button" class="btn" data-a="close-dialog">Cancel</button><button type="submit" class="btn pri">Save</button></div></form></div>';
+      '<div class="field"><label for="hl-role">Role (optional)</label><input id="hl-role" name="role" value="' + esc(p.role) + '" placeholder="For example, Product designer"></div>' +
+      '<div class="dlg-acts"><span class="sp"></span><button type="button" class="btn ghost" data-a="close-dialog">Cancel</button><button type="submit" class="btn pri">Save</button></div></form></div>';
     var form = els.dialog.querySelector("form");
     form.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -16758,20 +17082,84 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
       form.querySelector("#hl-name").focus();
     }, 20);
   }
+  function openCategories() {
+    syncDraft();
+    menu = null;
+    var draft = data.categories.map(function (c) { return { key: c.key, label: c.label, colour: c.colour }; });
+    var paint = function () {
+      els.dialog.innerHTML =
+        '<div class="scrim" data-a="scrim"><form class="dialog" role="dialog" aria-modal="true" aria-labelledby="hl-cat-title">' +
+        '<h2 id="hl-cat-title">Categories</h2><p>Shared by everyone writing notes on this prototype.</p>' +
+        draft.map(function (c, i) {
+          return '<div class="cat-row"><button type="button" class="swatch" data-a="cat-colour" data-i="' + i + '" style="background:' + c.colour + '" aria-label="Change colour for ' + esc(c.label || "category") + '"></button><input data-i="' + i + '" value="' + esc(c.label) + '" aria-label="Category name" placeholder="Name"><button type="button" class="ico" data-a="cat-remove" data-i="' + i + '" aria-label="Remove ' + esc(c.label) + '">✕</button></div>';
+        }).join("") +
+        '<div class="dlg-acts"><button type="button" class="btn ghost" data-a="cat-add">+ Add category</button><span class="sp"></span><button type="button" class="btn ghost" data-a="close-dialog">Cancel</button><button type="submit" class="btn pri">Save</button></div></form></div>';
+      var form = els.dialog.querySelector("form");
+      form.querySelectorAll("input[data-i]").forEach(function (input) {
+        input.addEventListener("input", function () {
+          draft[Number(input.getAttribute("data-i"))].label = input.value;
+        });
+      });
+      form.addEventListener("click", function (e) {
+        var t = e.target.closest("[data-a]");
+        if (!t) return;
+        var i = Number(t.getAttribute("data-i"));
+        var a = t.getAttribute("data-a");
+        if (a === "cat-colour") {
+          draft[i].colour = PALETTE[(PALETTE.indexOf(draft[i].colour) + 1) % PALETTE.length];
+          paint();
+          form = els.dialog.querySelector("form");
+          form.querySelector('[data-a="cat-colour"][data-i="' + i + '"]').focus();
+        } else if (a === "cat-remove") {
+          draft.splice(i, 1);
+          paint();
+        } else if (a === "cat-add") {
+          draft.push({ key: "", label: "", colour: PALETTE[draft.length % PALETTE.length] });
+          paint();
+          var inputs = els.dialog.querySelectorAll("input[data-i]");
+          inputs[inputs.length - 1].focus();
+        }
+      });
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var used = {};
+        data.categories = draft
+          .filter(function (c) { return c.label.trim(); })
+          .map(function (c) {
+            var key = c.key || c.label.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-");
+            while (used[key]) key += "-2";
+            used[key] = true;
+            return { key: key, label: c.label.trim(), colour: c.colour };
+          });
+        data.notes.forEach(function (n) {
+          if (n.category && !categoryOf(n.category)) n.category = null;
+        });
+        if (editor && editor.draft.category && !categoryOf(editor.draft.category)) editor.draft.category = "";
+        closeDialog();
+        render();
+        persist().then(function (ok) {
+          if (ok) toast("Categories saved");
+        });
+      });
+    };
+    paint();
+  }
   function closeDialog() {
     els.dialog.innerHTML = "";
   }
   function confirmDelete(ref) {
-    var note = data.notes.find(function (n) { return n.ref === ref; });
+    var note = findNote(ref);
     if (!note) return;
+    menu = null;
     els.dialog.innerHTML =
-      '<div class="scrim" data-a="scrim"><div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="hl-del"><h2 id="hl-del">Delete note #' + ref + "?</h2><p>" + esc(note.title) + '</p><div class="dlg-actions"><span class="sp"></span><button type="button" class="btn" data-a="close-dialog">Cancel</button><button type="button" class="btn danger" data-a="delete-now" data-ref="' + ref + '">Delete note</button></div></div></div>';
+      '<div class="scrim" data-a="scrim"><div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="hl-del"><h2 id="hl-del">Delete note ' + ref + "?</h2><p>" + esc(note.title) + '</p><div class="dlg-acts"><span class="sp"></span><button type="button" class="btn ghost" data-a="close-dialog">Cancel</button><button type="button" class="btn pri" style="background:#d93025" data-a="delete-now" data-ref="' + ref + '">Delete</button></div></div></div>';
     els.dialog.querySelector('[data-a="delete-now"]').focus();
   }
 
-  // ---------- Navigation between notes ----------
+  // ---------- Moving between notes ----------
   function goToNote(note) {
-    focusRef = note.ref;
+    openRef = note.ref;
+    editor = null;
     var needsNav = note.anchor && note.anchor.view && note.anchor.view !== currentView();
     var nav = needsNav && cfg.goTo ? Promise.resolve(cfg.goTo(note.anchor.view)) : Promise.resolve();
     return nav
@@ -16779,27 +17167,34 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
         return new Promise(function (resolve) { setTimeout(resolve, needsNav ? 320 : 0); });
       })
       .then(function () {
-        if (cfg.reveal && note.anchor && !findAnchor(note.anchor)) return Promise.resolve(cfg.reveal(note.anchor)).then(function () { return new Promise(function (r) { setTimeout(r, 320); }); });
+        if (cfg.reveal && note.anchor && !findAnchor(note.anchor))
+          return Promise.resolve(cfg.reveal(note.anchor)).then(function () { return new Promise(function (r) { setTimeout(r, 320); }); });
       })
       .then(function () {
         var el = findAnchor(note.anchor);
-        if (el) el.scrollIntoView({ block: "center", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+        if (el) {
+          var r = el.getBoundingClientRect();
+          if (r.top < topOffset() + 40 || r.bottom > window.innerHeight - 40) el.scrollIntoView({ block: "center", behavior: reducedMotion() ? "auto" : "smooth" });
+        }
         render();
         return el;
       });
   }
   function ticketText(note) {
     var url = location.origin + location.pathname + "#hl=" + note.ref;
-    return "[#" + note.ref + "] " + note.title + "\n\nType: " + kindOf(note.kind).label + " · " + handoverName(note.handover) + "\nWhere: " + whereText(note) + (note.anchor && note.anchor.spec ? " (" + note.anchor.spec + ")" : "") + "\n\n" + (note.body || "") + "\n\nPrototype: " + url;
+    var c = categoryOf(note.category);
+    return "[#" + note.ref + "] " + note.title + "\n\nType: " + kindOf(note.kind).label + (c ? " · " + c.label : "") + " · " + handoverName(note.handover) + "\nWhere: " + whereText(note) + (note.anchor && note.anchor.spec ? " (" + note.anchor.spec + ")" : "") + "\n\n" + (note.body || "") + "\n\nPrototype: " + url;
   }
 
   // ---------- Events ----------
   function setOn(value) {
     on = value;
     if (!on) {
-      stopPicking();
+      stopPicking(true);
       panelOpen = false;
-      focusRef = null;
+      openRef = null;
+      editor = null;
+      menu = null;
     }
     render();
     if (on) loop();
@@ -16807,64 +17202,114 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
   function startPicking() {
     if (!profile()) return openProfile(startPicking);
     picking = true;
-    hint("Click a component to annotate it. Press Esc to cancel.");
+    editor = null;
+    openRef = null;
+    hint("Click a component to annotate it · Esc to cancel");
     render();
   }
-  function stopPicking() {
+  function stopPicking(quiet) {
     picking = false;
     hoverEl = null;
     hint("");
-    render();
+    if (!quiet) render();
   }
-  function onShadowClick(e) {
+  function onClick(e) {
     var t = e.target.closest("[data-a]");
+    if (menu && (!t || !/^(menu|set-cat|set-kind|edit-cats|repick|delete)$/.test(t.getAttribute("data-a")))) {
+      menu = null;
+      syncDraft();
+      renderCard();
+      schedule();
+    }
     if (!t) return;
     var a = t.getAttribute("data-a");
     var ref = Number(t.getAttribute("data-ref"));
-    var note = data.notes.find(function (n) { return n.ref === ref; });
+    var note = findNote(ref);
     if (a === "scrim" && e.target !== t) return;
     if (a === "toggle") setOn(!on);
     else if (a === "pick") picking ? stopPicking() : startPicking();
     else if (a === "panel") {
       panelOpen = !panelOpen;
       render();
-    } else if (a === "kind") {
-      filter.kind = t.getAttribute("data-kind");
+    } else if (a === "cat-filter") {
+      filter.category = t.getAttribute("data-key");
       render();
-    } else if (a === "open-note" || a === "focus-note") {
-      if (a === "focus-note" && focusRef === ref && e.target.closest(".actions")) return;
-      panelOpen = true;
-      if (note) goToNote(note);
+    } else if (a === "open" && note) {
+      if (openRef === ref && !editor && e.target.closest(".chip")) {
+        openRef = null;
+        render();
+      } else goToNote(note);
+    } else if (a === "close-card") {
+      editor = null;
+      openRef = null;
+      menu = null;
+      render();
     } else if (a === "edit" && note) openEditor(note);
-    else if (a === "delete") confirmDelete(ref);
+    else if (a === "menu") {
+      syncDraft();
+      var which = t.getAttribute("data-menu");
+      menu = menu === which ? null : which;
+      renderCard();
+      schedule();
+      var first = els.card.querySelector(".menu button");
+      if (first) first.focus();
+    } else if (a === "set-cat") {
+      syncDraft();
+      editor.draft.category = t.getAttribute("data-key");
+      menu = null;
+      renderCard();
+      schedule();
+    } else if (a === "set-kind") {
+      syncDraft();
+      editor.draft.kind = t.getAttribute("data-key");
+      menu = null;
+      renderCard();
+      schedule();
+    } else if (a === "edit-cats") openCategories();
+    else if (a === "repick") {
+      syncDraft();
+      var keep = editor;
+      menu = null;
+      editor = null;
+      render();
+      picking = true;
+      hint("Click the component this note should attach to · Esc to cancel");
+      repickFor = keep;
+    } else if (a === "delete") confirmDelete(ref);
     else if (a === "delete-now") {
       data.notes = data.notes.filter(function (n) { return n.ref !== ref; });
-      if (focusRef === ref) focusRef = null;
+      if (openRef === ref) openRef = null;
+      editor = null;
       closeDialog();
       render();
       persist().then(function (ok) {
-        if (ok) toast("Note #" + ref + " deleted");
+        if (ok) toast("Note " + ref + " deleted");
       });
     } else if (a === "copy" && note) {
       var text = ticketText(note);
       (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
-        .then(function () { toast("Copied #" + ref + ", ready to paste into a ticket"); })
+        .then(function () { toast("Copied, ready to paste into a ticket"); })
         .catch(function () { window.prompt("Copy this text", text); });
     } else if (a === "close-dialog" || a === "scrim") closeDialog();
     else if (a === "new-page") openEditor(null, { view: currentView(), label: "Page" });
     else if (a === "new-global") openEditor(null, null);
     else if (a === "profile") openProfile();
   }
-  function onShadowChange(e) {
-    if (e.target.getAttribute("data-f") === "handover") {
+  var repickFor = null;
+  function onChange(e) {
+    var f = e.target.getAttribute("data-f");
+    if (f === "handover") {
       filter.handover = e.target.value;
-      focusRef = null;
+      openRef = null;
       render();
-    }
+    } else if (f === "draft-handover" && editor) editor.draft.handover = e.target.value;
+  }
+  function onInput() {
+    if (editor) syncDraft();
   }
   function pathTarget(e) {
     var path = e.composedPath ? e.composedPath() : [e.target];
-    if (path.indexOf(root) !== -1) return null;
+    if (path.indexOf(root) !== -1 || (toolsHost && path.indexOf(toolsHost) !== -1)) return null;
     return path.find(function (n) { return n.nodeType === 1; }) || null;
   }
   document.addEventListener(
@@ -16888,11 +17333,15 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
-        if (type === "click") {
-          var anchor = anchorFrom(t.closest("[data-spec]") || t);
-          stopPicking();
-          openEditor(null, anchor);
-        }
+        if (type !== "click") return;
+        var anchor = anchorFrom(t.closest("[data-spec]") || t);
+        stopPicking(true);
+        if (repickFor) {
+          editor = repickFor;
+          editor.anchor = anchor;
+          repickFor = null;
+          render();
+        } else openEditor(null, anchor);
       },
       true,
     );
@@ -16900,20 +17349,35 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
   window.addEventListener(
     "keydown",
     function (e) {
-      var typing = /^(input|textarea|select)$/i.test((e.composedPath()[0] || {}).tagName || "") || (e.composedPath()[0] || {}).isContentEditable;
+      var origin = (e.composedPath && e.composedPath()[0]) || e.target;
+      var typing = /^(input|textarea|select)$/i.test(origin.tagName || "") || origin.isContentEditable;
       if (e.altKey && e.code === "KeyH" && !typing) {
         e.preventDefault();
         setOn(!on);
       } else if (on && e.altKey && e.code === "KeyN" && editable && !typing) {
         e.preventDefault();
         startPicking();
-      } else if (e.key === "Escape" && (picking || els.dialog.innerHTML)) {
+      } else if (e.key === "Escape" && (picking || els.dialog.innerHTML || menu || editor || openRef != null)) {
         e.preventDefault();
         e.stopImmediatePropagation();
         if (els.dialog.innerHTML) closeDialog();
-        else stopPicking();
-      } else if (e.key === "Enter" && e.composedPath()[0] && e.composedPath()[0].getAttribute && e.composedPath()[0].getAttribute("data-a") === "focus-note") {
-        e.composedPath()[0].click();
+        else if (menu) {
+          menu = null;
+          syncDraft();
+          renderCard();
+          schedule();
+        } else if (picking) {
+          stopPicking();
+          if (repickFor) {
+            editor = repickFor;
+            repickFor = null;
+            render();
+          }
+        } else {
+          editor = null;
+          openRef = null;
+          render();
+        }
       }
     },
     true,
@@ -16924,11 +17388,10 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
   function fromHash() {
     var m = /(?:^|[#&])hl=(\d+)/.exec(location.hash);
     if (!m) return;
-    var note = data.notes.find(function (n) { return n.ref === Number(m[1]); });
+    var note = findNote(Number(m[1]));
     if (!note) return;
     filter.handover = note.handover || "next";
     if (!on) setOn(true);
-    panelOpen = true;
     goToNote(note);
   }
 
@@ -16948,13 +17411,15 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
     },
     // Used by the report tool: show one note in isolation and return where it is.
     capture: function (ref) {
-      var note = data.notes.find(function (n) { return n.ref === ref; });
+      var note = findNote(ref);
       if (!note) return Promise.resolve(null);
       captureRef = ref;
       on = true;
       panelOpen = false;
-      els.bar.style.display = "none";
+      els.tools.style.visibility = "hidden";
       return goToNote(note).then(function (el) {
+        openRef = null;
+        els.card.innerHTML = "";
         paint();
         if (!el) return { found: false };
         var r = el.getBoundingClientRect();
@@ -17002,6 +17467,8 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
 
   HandoverLayer.init({
     project: "SANS Enterprise Portal",
+    // The notes controls live in the yellow prototype bar at the top.
+    toolbar: "#handover-tools",
     data: window.__HANDOVER_DATA__ || null,
     // The local server (serve.py) saves notes. Static hosting has no endpoint, so it is read-only.
     endpoint: location.protocol.startsWith("http") ? "/__handover/data" : null,

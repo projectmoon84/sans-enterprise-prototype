@@ -30,6 +30,8 @@
 
   HandoverLayer.init({
     project: "SANS Enterprise Portal",
+    // The notes controls live in the yellow prototype bar at the top.
+    toolbar: "#handover-tools",
     data: window.__HANDOVER_DATA__ || null,
     // The local server (serve.py) saves notes. Static hosting has no endpoint, so it is read-only.
     endpoint: location.protocol.startsWith("http") ? "/__handover/data" : null,

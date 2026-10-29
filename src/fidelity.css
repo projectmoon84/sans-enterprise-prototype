@@ -4121,30 +4121,43 @@ html::-webkit-scrollbar {
 }
 
 /* ---------- Prototype context bar ---------- */
+/* Prototype chrome, not product UI: the handover tools sit on its right. */
 :root {
-  --proto-bar: 20px;
+  --proto-bar: 32px;
 }
 .proto-bar {
   position: fixed;
   inset: 0 0 auto;
-  z-index: 30;
+  z-index: 72;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  gap: 12px;
   height: var(--proto-bar);
-  padding: 0 12px;
+  padding: 0 max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left));
   background: #fde68a;
   color: #3b2f00;
   font-size: 11px;
   line-height: 1;
   white-space: nowrap;
+}
+.proto-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  min-width: 0;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 .proto-bar strong {
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+.proto-tools {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
 }
 /* Everything below the bar moves down by its height. */
 .topbar,
@@ -4598,3 +4611,6 @@ body.drawer-open { overflow: hidden; }
 
 .choice input[type="radio"] { appearance: auto; width: 16px; height: 16px; min-height: 0; margin: 0; padding: 0; border: 0; box-shadow: none; accent-color: #009fbd; flex: none; }
 .teams-table .table-wrap, .teams-card .table-wrap { overflow-x: auto; }
+
+/* Side panels open below the prototype bar, so the handover tools stay reachable. */
+.drawer-backdrop, .side-drawer { top: var(--proto-bar); }
