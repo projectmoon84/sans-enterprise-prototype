@@ -138,6 +138,10 @@ export function describeEvent(event) {
       return `${actor} created team ${target(event)}`;
     case "team.renamed":
       return `${actor} renamed team ${from} to ${to}`;
+    case "team.description_changed":
+      return `${actor} changed the description of team ${target(event)}`;
+    case "team.deleted":
+      return `${actor} deleted team ${target(event)}`;
     case "import.completed":
       return `${actor} imported ${escapeHtml(value(event, "count", "to") || 0)} students from ${escapeHtml(value(event, "file", "to") || "CSV")}`;
     case "legacy.note":

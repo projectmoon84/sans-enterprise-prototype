@@ -309,3 +309,35 @@ test("storage failures surface as a storage error and leave data intact", () => 
 test("seed database validates", () => {
   assert.equal(seedDatabase().version, 3);
 });
+
+test("updateTeam renames and describes a team, logging each change", () => {
+  const store = createStore();
+  const team = store.snapshot().teams.find((t) => t.name === "Cloud Platform");
+  store.updateTeam(team.id, { name: "Cloud Engineering", description: "Builds the cloud" });
+  const after = store.snapshot().teams.find((t) => t.id === team.id);
+  assert.equal(after.name, "Cloud Engineering");
+  assert.equal(after.description, "Builds the cloud");
+  const actions = store.snapshot().events.slice(0, 2).map((e) => e.action);
+  assert.deepEqual(actions.sort(), ["team.description_changed", "team.renamed"]);
+  assert.throws(() => store.updateTeam(team.id, { name: "Security Operations" }), /already has that name/);
+});
+
+test("deleteTeam needs an empty team and removes portal access to it", () => {
+  const store = createStore();
+  const team = store.snapshot().teams.find((t) => t.name === "Security Operations");
+  assert.ok(store.peopleInTeam(team.id).length > 0);
+  assert.throws(() => store.deleteTeam(team.id), /Move this team's members/);
+  const members = store.view().users.filter((u) => u.type === "student" && u.teams.includes(team.name));
+  store.bulk("team", members.map((u) => u.id), { team: "" });
+  const lost = store.deleteTeam(team.id);
+  assert.ok(lost > 0);
+  assert.ok(!store.snapshot().teams.some((t) => t.id === team.id));
+  assert.ok(store.snapshot().people.every((p) => !p.portal?.teamIds?.includes(team.id)));
+  assert.equal(store.snapshot().events[0].action, "team.deleted");
+});
+
+test("createTeam keeps a description", () => {
+  const store = createStore();
+  const id = store.createTeam("Red Team", "Offensive exercises");
+  assert.equal(store.snapshot().teams.find((t) => t.id === id).description, "Offensive exercises");
+});

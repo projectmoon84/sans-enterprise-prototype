@@ -4061,34 +4061,46 @@ html::-webkit-scrollbar {
   }
 }
 /* People model v2: dual roles, account invites, voucher-first scoping */
+.person-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 16px;
+  min-width: 0;
+}
+.person-meta > .secondary {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .role-tag {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin: 3px 0 2px;
-  padding: 2px 8px 2px 6px;
-  border: 1px solid #c5d4e8;
+  /* Padding for the hover pill, cancelled by margin so the label sits where the design puts it. */
+  margin: 0 -6px;
+  padding: 1px 6px;
+  border: 0;
   border-radius: 999px;
-  background: #f2f7fc;
-  color: #20718a;
+  background: transparent;
+  color: #62748e;
   font: inherit;
-  font-size: 11px;
-  line-height: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
   cursor: pointer;
   white-space: nowrap;
 }
 .role-tag:hover {
-  background: #e3f1f8;
-  border-color: #9cc6dc;
+  background: #f1f5f9;
 }
 .role-tag svg {
-  width: 12px;
-  height: 12px;
+  flex: none;
+  color: #90a1b9;
 }
 .role-tag .ms {
-  width: 12px;
-  height: 12px;
-;font-size:15px}
+  flex: none;
+  color: #90a1b9;
+}
 .account-status.new-account {
   color: #20718a;
 }
@@ -5916,6 +5928,194 @@ tbody td {
   will-change: transform;
   transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1), height 380ms cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+/* ---------- Teams: health strip, cards or rows, team page, add students panel ---------- */
+.health-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+.health-tile { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid #e1e7ef; border-radius: 14px; background: #fff; text-align: left; color: #0f172b; cursor: pointer; transition: border-color .15s, box-shadow .15s; min-width: 0; }
+.health-tile:hover { border-color: #9fd9e6; box-shadow: 0 2px 10px rgba(15, 23, 43, .06); }
+.health-tile:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.health-dot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: #90a1b9; }
+.health-tile.warn .health-dot { background: #f59e0b; box-shadow: 0 0 0 4px #fef3c7; }
+.health-tile.ok .health-dot { background: #16a34a; box-shadow: 0 0 0 4px #dcfce7; }
+.health-tile.neutral .health-dot { background: #64748b; box-shadow: 0 0 0 4px #f1f5f9; }
+.health-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.health-text strong { font-weight: 500; font-size: 15px; }
+.health-text span { font-size: 13px; color: #45556c; }
+.health-tile > .ms { color: #90a1b9; font-size: 18px; }
+.health-tile:hover > .ms { color: #007f9c; }
+
+.teams-card { padding: 24px; border: 0; }
+.teams-toolbar, .team-members-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 12px; padding-bottom: 16px; }
+.teams-toolbar .search, .team-members-toolbar .search { flex: 0 1 280px; }
+.teams-toolbar .search input, .team-members-toolbar .search input, .drawer-search input { width: 100%; height: 40px; border-radius: 24px; border: 1px solid #c5d4e8; padding: 8px 14px 8px 37px; font-size: 14px; }
+.teams-toolbar .chip-bar { padding: 0; }
+.teams-toolbar-spacer { flex: 1; }
+.teams-sort { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: #45556c; }
+.teams-sort select { appearance: none; border: 1px solid #c5d4e8; border-radius: 24px; min-height: 36px; padding: 6px 30px 6px 14px; font-size: 13px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='m3 4 3 4 3-4' fill='%238ba4c4'/%3E%3C/svg%3E") no-repeat right 12px center; }
+.view-toggle { display: inline-flex; padding: 3px; border: 1px solid #c5d4e8; border-radius: 24px; background: #fff; }
+.view-toggle button { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 13px; color: #45556c; }
+.view-toggle button .ms { font-size: 17px; }
+.view-toggle button[aria-pressed="true"] { background: #eaf8fb; color: #0b3b4b; font-weight: 500; }
+.view-toggle button:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+
+.team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.team-card { position: relative; display: flex; flex-direction: column; gap: 16px; min-width: 0; padding: 20px; border: 1px solid #e1e7ef; border-radius: 16px; background: #fff; transition: border-color .15s, box-shadow .15s, transform .15s; }
+.team-card:hover, .team-card:focus-within { border-color: #9fd9e6; box-shadow: 0 6px 18px rgba(15, 23, 43, .07); }
+.team-card.is-selected { border-color: #009fbd; background: #f5fcfd; box-shadow: 0 0 0 1px #009fbd; }
+.team-card.is-empty { border-style: dashed; border-color: #c5d4e8; }
+.team-card-top { display: flex; align-items: center; gap: 12px; }
+.team-card-title { flex: 1; min-width: 0; }
+.team-card-title h2 { margin: 0; font-size: 16px; line-height: 22px; font-weight: 600; }
+.team-card-title p { margin: 4px 0 0; font-size: 13px; line-height: 18px; color: #45556c; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.team-card-title p.is-missing, .teams-table .is-missing { color: #90a1b9; font-style: italic; }
+.team-card-link { all: unset; cursor: pointer; color: #0f172b; }
+.team-card-link::after { content: ""; position: absolute; inset: 0; border-radius: 16px; }
+.team-card-link:focus-visible { outline: none; }
+.team-card-link:focus-visible::after { outline: 2px solid var(--focus); outline-offset: 2px; }
+.team-card .team-check, .team-card .menu-anchor, .team-card-foot button, .team-card-foot a { position: relative; z-index: 1; }
+.team-card .team-check { margin-top: 1px; flex: none; }
+.team-card .team-check { opacity: 0; transition: opacity .12s; }
+.team-card:hover .team-check, .team-card:focus-within .team-check, .team-card .team-check:checked, .teams-card:has(.bulk-bar) .team-card .team-check { opacity: 1; }
+.team-card .kebab { margin: -6px -8px 0 0; }
+.team-dropdown { right: 0; left: auto; top: 34px; min-width: 180px; z-index: 30; }
+.team-dropdown .danger { color: #b23940; }
+.team-mono { display: inline-grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 12px; background: var(--team-bg); color: var(--team-fg); font-size: 14px; font-weight: 500; letter-spacing: .02em; }
+.team-figure { display: flex; align-items: baseline; gap: 6px; }
+.team-figure-num { font-size: 32px; line-height: 36px; font-weight: 500; color: #0f172b; font-variant-numeric: tabular-nums; }
+.team-figure-unit { font-size: 14px; color: #45556c; }
+.team-figure-groups { margin-left: auto; font-size: 12px; font-weight: 500; color: #62748e; }
+.team-status-bar { display: flex; gap: 3px; height: 8px; border-radius: 999px; overflow: hidden; background: #f1f5f9; }
+.team-status-bar span { min-width: 6px; }
+.team-status-bar .ok { background: #22a06b; }
+.team-status-bar .warn { background: #f5b13d; }
+.team-status-bar .off { background: #90a1b9; }
+.team-status-legend { margin: -8px 0 0; font-size: 12px; line-height: 18px; color: #62748e; }
+.team-card-empty { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 76px; padding: 0 14px; border-radius: 12px; background: #f8fafc; color: #62748e; font-size: 14px; }
+.team-card-empty .team-foot-action { position: relative; z-index: 1; }
+.team-card-foot { display: flex; align-items: center; gap: 10px; margin-top: auto; padding-top: 12px; border-top: 1px solid #eef2f7; min-height: 44px; }
+.team-foot-text { font-size: 13px; color: #45556c; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.team-foot-spacer { flex: 1; }
+.team-foot-action { font-size: 13px; font-weight: 500; }
+.faces { display: inline-flex; flex: none; }
+.face { display: inline-grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: 50%; background: #e2f3f7; color: #00627a; font-size: 10px; font-weight: 600; letter-spacing: -0.03em; line-height: 1; overflow: hidden; box-shadow: 0 0 0 2px #fff; }
+.faces .face + .face { margin-left: -7px; }
+.face.more { background: #f1f5f9; color: #45556c; }
+.team-flag { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 999px; background: #fff7e6; color: #92400e; font-size: 12px; font-weight: 500; white-space: nowrap; }
+.team-flag.muted { background: #f1f5f9; color: #45556c; }
+.team-card-new { align-items: center; justify-content: center; gap: 6px; min-height: 180px; border: 1px dashed #c5d4e8; color: #007f9c; font-weight: 500; font-size: 14px; cursor: pointer; flex-direction: column; }
+.team-card-new .ms { font-size: 26px; }
+.team-card-new:hover { background: #f5fcfd; }
+.team-card-new:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.teams-empty { margin: 24px 0; }
+
+.teams-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.teams-table th { text-align: left; font-weight: 500; font-size: 13px; color: #45556c; padding: 12px 14px; background: #f8fafc; border-bottom: 1px solid #e1e7ef; white-space: nowrap; }
+.teams-table td { padding: 14px; border-bottom: 1px solid #eef2f7; vertical-align: middle; }
+.teams-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.teams-table tr[data-team-row] { cursor: pointer; }
+.teams-table tr[data-team-row]:hover td { background: #f8fafc; }
+.teams-table tr[data-team-row]:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.teams-table tr.is-selected td { background: #f5fcfd; }
+.teams-table .selection-col { width: 44px; }
+.teams-table .menu-cell { width: 48px; text-align: right; }
+.teams-table .menu-anchor { position: relative; display: inline-block; }
+.access-cell { display: inline-flex; align-items: center; gap: 8px; }
+
+.team-head { align-items: flex-start; }
+.team-head .muted .button-link { font-size: inherit; }
+.team-meta { margin: 6px 0 0; font-size: 13px; color: #62748e; }
+.team-head .head-actions { display: flex; align-items: center; gap: 8px; }
+.team-head .menu-anchor { position: relative; }
+.team-tabs { display: flex; gap: 28px; border-bottom: 1px solid #dce6f1; margin: 8px 0 20px; overflow-x: auto; }
+.team-tabs button { display: inline-flex; align-items: center; gap: 8px; padding: 10px 0 12px; color: #45556c; font-size: 15px; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.team-tabs button[aria-selected="true"] { color: #0f172b; font-weight: 500; border-bottom-color: #00a8c8; }
+.team-tabs button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+.tab-count { padding: 1px 8px; border-radius: 10px; background: #f1f5f9; color: #45556c; font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.team-panel { padding: 24px; border: 0; }
+.team-panel-head { display: flex; align-items: flex-start; gap: 16px; padding-bottom: 16px; }
+.team-panel-head p { flex: 1; margin: 0; color: #45556c; font-size: 14px; }
+.team-panel-head .button { flex: none; }
+.team-empty { padding: 40px 16px; }
+.team-empty p { max-width: 52ch; margin-left: auto; margin-right: auto; }
+.team-members-table .col-voucher { width: 20%; }
+.team-history .activity-day h3 { margin-top: 0; }
+
+/* Add students side panel */
+body.drawer-open { overflow: hidden; }
+.drawer-backdrop { position: fixed; inset: 0; z-index: 70; background: rgba(15, 23, 43, .32); animation: drawer-fade .18s ease-out; }
+.side-drawer { position: fixed; z-index: 71; top: 0; right: 0; bottom: 0; width: min(460px, 100vw); display: flex; flex-direction: column; background: #fff; box-shadow: -12px 0 32px rgba(15, 23, 43, .16); transform: translateX(24px); opacity: 0; transition: transform .22s cubic-bezier(.2, .8, .2, 1), opacity .18s; }
+.side-drawer.is-open { transform: none; opacity: 1; }
+@keyframes drawer-fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .side-drawer { transition: none; } .drawer-backdrop { animation: none; } }
+.drawer-head { display: flex; align-items: flex-start; gap: 12px; padding: 22px 24px 12px; }
+.drawer-head > div { flex: 1; min-width: 0; }
+.drawer-eyebrow { margin: 0; font-size: 13px; color: #007f9c; font-weight: 500; }
+.drawer-head h2 { margin: 2px 0 0; font-size: 22px; line-height: 28px; font-weight: 600; }
+.drawer-tabs { display: flex; align-items: center; gap: 22px; padding: 0 24px; border-bottom: 1px solid #dce6f1; }
+.drawer-tabs [role="tab"] { padding: 10px 0 12px; font-size: 14px; color: #45556c; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.drawer-tabs [role="tab"][aria-selected="true"] { color: #0f172b; font-weight: 500; border-bottom-color: #00a8c8; }
+.drawer-csv { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #007f9c; padding: 6px 0; }
+.drawer-csv .ms { font-size: 17px; }
+.drawer-body { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+.drawer-section { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; padding: 16px 24px; overflow-y: auto; }
+.drawer-filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.drawer-filter { display: grid; gap: 4px; font-size: 12px; color: #62748e; min-width: 0; }
+.drawer-filter select { min-width: 0; width: 100%; appearance: none; border: 1px solid #c5d4e8; border-radius: 10px; padding: 7px 26px 7px 10px; font-size: 13px; color: #0f172b; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='m3 4 3 4 3-4' fill='%238ba4c4'/%3E%3C/svg%3E") no-repeat right 8px center; }
+.drawer-note { display: flex; align-items: center; gap: 6px; margin: 0; padding: 8px 12px; border-radius: 10px; background: #ecfdf3; color: #14532d; font-size: 13px; }
+.drawer-note .ms { color: #16a34a; font-size: 17px; }
+.drawer-select-all { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #31445f; padding: 2px 12px; }
+.drawer-select-all .row-check, .drawer-person .row-check { flex: none; }
+.drawer-person.is-disabled .row-check { background: #f1f5f9; cursor: default; }
+.drawer-list { flex: 1; min-height: 120px; overflow-y: auto; border: 1px solid #e1e7ef; border-radius: 12px; }
+.drawer-person { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-top: 1px solid #eef2f7; cursor: pointer; }
+.drawer-person:first-child { border-top: 0; }
+.drawer-person:hover { background: #f8fafc; }
+.drawer-person.is-picked { background: #f5fcfd; }
+.drawer-person.is-disabled { cursor: default; opacity: .6; }
+.drawer-person-text { flex: 1; min-width: 0; display: grid; }
+.drawer-person-text strong { font-weight: 500; font-size: 14px; color: #0f172b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.drawer-person-text span { font-size: 12px; color: #62748e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.move-tag { font-size: 11px; font-weight: 500; color: #92400e; background: #fff7e6; border-radius: 999px; padding: 1px 8px; }
+.drawer-empty { margin: 0; padding: 24px 16px; text-align: center; color: #62748e; font-size: 14px; }
+.drawer-label { font-weight: 500; font-size: 14px; color: #0f172b; }
+.drawer-hint { margin: -6px 0 0; font-size: 13px; color: #62748e; }
+#drawer-paste { width: 100%; border: 1px solid #c5d4e8; border-radius: 12px; padding: 10px 12px; font: inherit; font-size: 14px; resize: vertical; min-height: 140px; }
+.paste-results { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 13px; }
+.paste-results li { display: flex; gap: 8px; align-items: flex-start; padding: 8px 10px; border-radius: 10px; background: #f8fafc; color: #31445f; }
+.paste-results li .ms { font-size: 17px; margin-top: 1px; }
+.paste-results li.ok { background: #ecfdf3; } .paste-results li.ok .ms { color: #16a34a; }
+.paste-results li.warn { background: #fff7e6; } .paste-results li.warn .ms { color: #b45309; }
+.paste-results li.error { background: #fef2f2; } .paste-results li.error .ms { color: #c10007; }
+.paste-results strong { font-weight: 500; }
+.paste-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.drawer-foot { display: flex; align-items: center; gap: 12px; padding: 14px 24px 18px; border-top: 1px solid #e1e7ef; background: #fff; }
+.drawer-summary { flex: 1; min-width: 0; display: grid; gap: 1px; font-size: 13px; color: #45556c; }
+.drawer-summary strong { font-size: 14px; font-weight: 500; color: #0f172b; }
+.drawer-buttons { display: flex; gap: 8px; flex: none; }
+.optional { font-weight: 400; color: #62748e; font-size: 12px; margin-left: 4px; }
+.choice-list { display: grid; gap: 8px; margin: 10px 0 14px; }
+.choice { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid #dce6f1; border-radius: 10px; font-size: 14px; }
+.choice:has(input:checked) { border-color: #009fbd; background: #f5fcfd; }
+.choice select { margin-left: auto; border: 1px solid #c5d4e8; border-radius: 8px; padding: 5px 8px; font-size: 13px; max-width: 55%; }
+#team-form textarea { width: 100%; border: 1px solid #c5d4e8; border-radius: 10px; padding: 10px 12px; font: inherit; resize: vertical; }
+
+@media (max-width: 900px) {
+  .health-strip { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  .teams-toolbar .search, .team-members-toolbar .search { flex: 1 1 100%; }
+  .teams-toolbar-spacer { display: none; }
+  .team-head { flex-direction: column; }
+  .team-head .head-actions { width: 100%; }
+  .team-panel, .teams-card { padding: 16px; }
+  .team-panel-head { flex-direction: column; }
+  .drawer-filters { grid-template-columns: 1fr; }
+  .drawer-foot { flex-direction: column; align-items: stretch; }
+  .drawer-buttons { justify-content: flex-end; }
+}
+
+.choice input[type="radio"] { appearance: auto; width: 16px; height: 16px; min-height: 0; margin: 0; padding: 0; border: 0; box-shadow: none; accent-color: #009fbd; flex: none; }
+.teams-table .table-wrap, .teams-card .table-wrap { overflow-x: auto; }
 </style></head>
 <body><div class="proto-bar" role="note"><strong>Prototype</strong><span>Fictional demo data. Changes stay in this browser.</span></div><div id="app"></div><dialog id="modal" aria-labelledby="modal-title"></dialog><div id="toast" role="status" aria-live="polite"></div><script type="module">const GROUPS = [
   "Federal Division",
@@ -5942,7 +6142,17 @@ const TEAMS = [
   "Cloud Platform",
   "Security Operations",
   "GRC & Audit",
+  "Threat Intelligence",
+  "Forensics Lab",
 ];
+// Seed descriptions for the demo teams, so the cards show what each team is for.
+const TEAM_DESCRIPTIONS = {
+  "Application Security": "Secure code review, testing and developer enablement",
+  "Cloud Platform": "Cloud build and run teams across EMEA and APAC",
+  "Security Operations": "Monitoring, triage and escalation for the global SOC",
+  "GRC & Audit": "Governance, risk and internal audit",
+  "Threat Intelligence": "Tracks threat actors and briefs the SOC",
+};
 const VOUCHERS = [
   "Cyber Defense FY26",
   "Cloud Security FY26",
@@ -6050,6 +6260,18 @@ function seed() {
     [TEAMS[2]],
     [TEAMS[2]],
   ];
+  // Which teams each portal user can see, so some teams are visible to nobody.
+  const PORTAL_TEAMS = [
+    ["Application Security", "Cloud Platform", "Security Operations"],
+    ["Application Security", "Cloud Platform"],
+    ["Security Operations"],
+    ["Application Security"],
+    ["Security Operations"],
+    ["Security Operations", "Application Security"],
+    ["Cloud Platform"],
+    [],
+    [],
+  ];
   const make = (name, i, type) => ({
     id: uid(),
     name,
@@ -6074,7 +6296,7 @@ function seed() {
           : i === 1 || i === 4
             ? groupsForVouchers([VOUCHERS[i % 4]])
             : groupsForVouchers([VOUCHERS[i % 4]]).slice(0, 1),
-    teams: type === "student" ? studentTeams[i] : [...TEAMS],
+    teams: type === "student" ? studentTeams[i] : PORTAL_TEAMS[i] || [],
     vouchers:
       type === "portal" && [0, 7].includes(i)
         ? [...VOUCHERS]
@@ -7387,6 +7609,7 @@ function makeDirectories(source = {}) {
   const teams = teamNames.map((name) => ({
     id: recordId("team", name),
     name,
+    description: TEAM_DESCRIPTIONS[name] || "",
     createdAt: "2026-10-15T09:00:00.000Z",
     createdBy: "system",
   }));
@@ -8044,6 +8267,11 @@ function createStore({ storage = null, initialData } = {}) {
       });
     }
   };
+  const assertCanManageTeams = (next) => {
+    const actor = next.people.find((item) => item.id === next.session.actorId);
+    if (!["Admin", "SSO Admin", "Limited Admin"].includes(actor?.portal?.role))
+      throw Error("You do not have permission to change teams.");
+  };
   const transact = (change) => {
     const next = structuredClone(data);
     const result = change(next);
@@ -8584,7 +8812,7 @@ function createStore({ storage = null, initialData } = {}) {
         next.importDrafts = next.importDrafts.filter((item) => item.id !== id);
       });
     },
-    createTeam(name) {
+    createTeam(name, description = "") {
       return transact((next) => {
         const clean = String(name || "").trim();
         if (
@@ -8597,8 +8825,9 @@ function createStore({ storage = null, initialData } = {}) {
         const team = {
           id: `${recordId("team", clean)}-${uid().slice(0, 8)}`,
           name: clean,
+          description: String(description || "").trim(),
           createdAt: isoNow(),
-          createdBy: "system",
+          createdBy: next.session.actorId || "system",
         };
         next.teams.push(team);
         logEvent(next, {
@@ -8607,6 +8836,60 @@ function createStore({ storage = null, initialData } = {}) {
           via: "list",
         });
         return team.id;
+      });
+    },
+    // Rename a team and change its description. Names stay unique.
+    updateTeam(id, { name, description } = {}) {
+      return transact((next) => {
+        const team = next.teams.find((item) => item.id === id);
+        if (!team) throw Error("That team no longer exists.");
+        assertCanManageTeams(next);
+        const clean = String(name ?? team.name).trim();
+        if (!clean) throw Error("Enter a team name.");
+        if (next.teams.some((item) => item.id !== id && item.name.toLowerCase() === clean.toLowerCase()))
+          throw Error("Another team already has that name.");
+        const text = String(description ?? team.description ?? "").trim();
+        if (clean !== team.name) {
+          logEvent(next, {
+            action: "team.renamed",
+            target: targetRecord("team", { ...team, name: clean }),
+            changes: [{ field: "team", from: team.name, to: clean }],
+            via: "team",
+          });
+          team.name = clean;
+        }
+        if (text !== (team.description || "")) {
+          logEvent(next, {
+            action: "team.description_changed",
+            target: targetRecord("team", team),
+            changes: [{ field: "description", from: team.description || "", to: text }],
+            via: "team",
+          });
+          team.description = text;
+        }
+        team.updatedAt = isoNow();
+        team.updatedBy = next.session.actorId;
+        return team.id;
+      });
+    },
+    // Delete a team with no members. Portal users lose access to it.
+    deleteTeam(id) {
+      return transact((next) => {
+        const team = next.teams.find((item) => item.id === id);
+        if (!team) throw Error("That team no longer exists.");
+        assertCanManageTeams(next);
+        const members = next.people.filter((p) => !p.archivedAt && p.student?.teamId === id);
+        if (members.length) throw Error("Move this team's members before deleting it.");
+        const withAccess = next.people.filter((p) => p.portal?.teamIds?.includes(id));
+        for (const person of withAccess) person.portal.teamIds = person.portal.teamIds.filter((t) => t !== id);
+        next.teams = next.teams.filter((item) => item.id !== id);
+        logEvent(next, {
+          action: "team.deleted",
+          target: targetRecord("team", team),
+          changes: withAccess.length ? [{ field: "access", from: `${withAccess.length} portal ${withAccess.length === 1 ? "user" : "users"}`, to: "" }] : [],
+          via: "team",
+        });
+        return withAccess.length;
       });
     },
     commitCsvImport(inputs, { fileName = "CSV import", excluded = 0 } = {}) {
@@ -8878,6 +9161,10 @@ function describeEvent(event) {
       return `${actor} created team ${target(event)}`;
     case "team.renamed":
       return `${actor} renamed team ${from} to ${to}`;
+    case "team.description_changed":
+      return `${actor} changed the description of team ${target(event)}`;
+    case "team.deleted":
+      return `${actor} deleted team ${target(event)}`;
     case "import.completed":
       return `${actor} imported ${escapeHtml(value(event, "count", "to") || 0)} students from ${escapeHtml(value(event, "file", "to") || "CSV")}`;
     case "legacy.note":
@@ -10459,7 +10746,7 @@ peopleView = function () {
       ? users
           .map((u) => {
             const meta = metaFor(u);
-            return `<tr${rowHighlight(u)}>${`<td class="selection-col">${checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email))}</td>`}<td><div class="person-name">${esc(u.name || u.email)}</div>${dualTag(u)}<div class="secondary person-role">${esc(portal ? u.role : u.workRole || u.email)}</div></td>${portal ? `<td class="scope">${u.accessLabel ? esc(u.accessLabel) : `${u.vouchers.length} ${u.vouchers.length === 1 ? "Voucher" : "Vouchers"} • ${u.groups.length} Admin ${u.groups.length === 1 ? "Group" : "Groups"} • ${u.teams.length} Teams`}</td>` : `<td class="scope ${u.groups.length ? "" : "unassigned"}">${esc(u.groups.join(", ") || "Unassigned")}</td><td class="scope ${u.teams.length ? "" : "unassigned"}">${esc(u.teams.join(", ") || "Unassigned")}</td>`}<td class="modifier"><span>${esc(meta.name)}</span><span class="secondary">${esc(meta.detail)}</span></td><td class="status-cell">${labelStatus(u.status)}${alertBadge(u)}${voucherFlag(u)}${u.accountSetup && u.status === "Pending invite" ? `<span class="secondary account-pending">Awaiting SANS account</span>` : portal ? `<span class="secondary">${esc(meta.last)}</span>` : ""}</td><td class="menu-cell">${rowActions(u)}</td></tr>`;
+            return `<tr${rowHighlight(u)}>${`<td class="selection-col">${checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email))}</td>`}<td><div class="person-name">${esc(u.name || u.email)}</div>${personMeta(u, portal ? u.role : u.workRole || u.email, "person-role")}</td>${portal ? `<td class="scope">${u.accessLabel ? esc(u.accessLabel) : `${u.vouchers.length} ${u.vouchers.length === 1 ? "Voucher" : "Vouchers"} • ${u.groups.length} Admin ${u.groups.length === 1 ? "Group" : "Groups"} • ${u.teams.length} Teams`}</td>` : `<td class="scope ${u.groups.length ? "" : "unassigned"}">${esc(u.groups.join(", ") || "Unassigned")}</td><td class="scope ${u.teams.length ? "" : "unassigned"}">${esc(u.teams.join(", ") || "Unassigned")}</td>`}<td class="modifier"><span>${esc(meta.name)}</span><span class="secondary">${esc(meta.detail)}</span></td><td class="status-cell">${labelStatus(u.status)}${voucherFlag(u)}${u.accountSetup && u.status === "Pending invite" ? `<span class="secondary account-pending">Awaiting SANS account</span>` : portal ? `<span class="secondary">${esc(meta.last)}</span>` : ""}</td><td class="menu-cell">${rowActions(u)}</td></tr>`;
           })
           .join("")
       : `<tr><td colspan="${portal ? 6 : 7}"><div class="empty">${icon("search")}<h2>No people found</h2><p>Try another name or clear your filters.</p>${btn("Clear filters", "all-filters-clear")}</div></td></tr>`
@@ -11587,11 +11874,19 @@ var ROLE_HINTS = {
   Viewer: "Read-only reporting and activity",
 };
 
-// Small tag under a person's name when they also hold the other role.
+// Quiet link beside a person's role when they also hold the other role.
+var PERSON_CIRCLE_ICON = `<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.33a6.67 6.67 0 1 0 0 13.34A6.67 6.67 0 0 0 8 1.33ZM8 4a2.33 2.33 0 1 1 0 4.67A2.33 2.33 0 0 1 8 4Zm0 9.33a5.3 5.3 0 0 1-4.1-1.92 6.6 6.6 0 0 1 8.2 0A5.3 5.3 0 0 1 8 13.33Z" fill="currentColor"/></svg>`;
+var STUDENT_ICON = `<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 5.775C5.09 4.925 3.94 4.33 2.66 4.1C2.055 3.995 1.5 4.475 1.5 5.09V8.21C1.5 9.05 1.86 9.49 2.355 9.555C3.605 9.715 4.74 10.23 5.67 10.99C5.845 11.135 6.13 11.15 6.305 11.01C7.24 10.245 8.385 9.72 9.645 9.56C10.115 9.495 10.5 9.03 10.5 8.55V5.09C10.5 4.475 9.945 3.995 9.34 4.1C8.06 4.33 6.91 4.925 6 5.775ZM6 4C6.83 4 7.5 3.33 7.5 2.5C7.5 1.67 6.83 1 6 1C5.17 1 4.5 1.67 4.5 2.5C4.5 3.33 5.17 4 6 4Z" fill="currentColor"/></svg>`;
 function dualTag(u) {
   const other = linkedPerson(u.email, otherType(u.type));
   if (!other) return "";
-  return `<button class="role-tag" data-action="open-linked" data-id="${esc(other.id)}" title="Open their ${other.type === "student" ? "student" : "portal user"} record">${icon(other.type === "student" ? "book" : "users")}${other.type === "student" ? "Also a student" : "Also a portal user"}</button>`;
+  const student = other.type === "student";
+  return `<button type="button" class="role-tag" data-action="open-linked" data-id="${esc(other.id)}" title="Open their ${student ? "student" : "portal user"} record">${student ? STUDENT_ICON : PERSON_CIRCLE_ICON}${student ? "Student" : "Portal user"}</button>`;
+}
+
+// Role (or email) line under a person's name, with the dual-role link beside it.
+function personMeta(u, text, className = "") {
+  return `<div class="person-meta"><div class="secondary ${className}">${esc(text)}</div>${dualTag(u)}</div>`;
 }
 
 // Row-menu shortcut to give someone the role they don't have yet.
@@ -12399,6 +12694,7 @@ function alertCountFor(personId) {
   }
   return alertCache.counts.get(personId) || 0;
 }
+// Not shown in the people tables for now (removed from the Status column); kept for when it returns.
 function alertBadge(row) {
   const count = alertCountFor(row.personId);
   if (!count) return "";
@@ -14410,6 +14706,1108 @@ document.addEventListener("click", (event) => {
     toast(error.message);
   }
 }, true);
+
+// Teams: a card or row list with health checks, a page per team with tabs
+// (Members, Portal users with access, History), and one side panel for adding
+// students. Moves and removals go through store.bulk(), so they share the
+// permission checks, activity events and Undo used on Students.
+// Loads after import-review.js and before motion.js.
+
+var TEAMS_LAYOUT_KEY = "sans-teams-layout";
+
+// ---------- Data helpers ----------
+function teamRecords() {
+  return store.snapshot().teams;
+}
+function teamById(id) {
+  return teamRecords().find((team) => team.id === id);
+}
+function currentTeam() {
+  return state.teamId ? teamById(state.teamId) : null;
+}
+function teamMembers(team) {
+  return db.users.filter((u) => u.type === "student" && u.teams.includes(team.name));
+}
+function teamAccess(team) {
+  return db.users.filter((u) => u.type === "portal" && u.teams.includes(team.name));
+}
+function teamEvents(team) {
+  return store
+    .snapshot()
+    .events.filter(
+      (event) =>
+        (event.target?.type === "team" && event.target.id === team.id) ||
+        event.changes?.some((change) => change.field === "team" && (change.from === team.name || change.to === team.name)),
+    );
+}
+function teamSummary(team) {
+  const members = teamMembers(team);
+  const access = teamAccess(team);
+  const groups = [...new Set(members.flatMap((u) => u.groups))];
+  const last = teamEvents(team)[0]?.at || team.updatedAt || team.createdAt;
+  return {
+    ...team,
+    members,
+    access,
+    groups,
+    pending: members.filter((u) => u.status === "Pending invite").length,
+    needsVoucher: members.filter((u) => u.status === "Needs voucher").length,
+    last,
+  };
+}
+function personName(id) {
+  if (!id || id === "system") return "SANS";
+  return store.snapshot().people.find((p) => p.id === id)?.name || "Someone";
+}
+function shortName(name) {
+  const parts = String(name || "").trim().split(/\s+/);
+  return parts.length > 1 ? `${parts[0]} ${parts[parts.length - 1][0]}` : parts[0] || "";
+}
+function teamDayLabel(iso) {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  const days = Math.floor((Date.now() - date.getTime()) / 86400000);
+  if (days < 1) return "Today";
+  if (days < 2) return "Yesterday";
+  if (days < 7) return `${days} days ago`;
+  return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+function readLayout() {
+  try {
+    return localStorage.getItem(TEAMS_LAYOUT_KEY) === "rows" ? "rows" : "cards";
+  } catch {
+    return "cards";
+  }
+}
+function saveLayout(layout) {
+  try {
+    localStorage.setItem(TEAMS_LAYOUT_KEY, layout);
+  } catch {}
+}
+function teamsState() {
+  state.teamsQuery ??= "";
+  state.teamsChip ??= "all";
+  state.teamsSort ??= "name";
+  state.teamsLayout ??= readLayout();
+  state.teamSel ??= [];
+  state.teamTab ??= "members";
+  state.teamSearch ??= "";
+  state.teamChip ??= "all";
+  state.teamHistoryOpen ??= [];
+  state.teamHistoryShown ??= 20;
+  return state;
+}
+
+// ---------- Teams list ----------
+var TEAMS_CHIPS = [
+  ["all", "All", () => true],
+  ["empty", "Empty", (t) => !t.members.length],
+  ["hidden", "Not visible to anyone", (t) => !t.access.length],
+];
+var TEAMS_SORTS = [
+  ["name", "Name A to Z", (a, b) => a.name.localeCompare(b.name)],
+  ["members", "Most members", (a, b) => b.members.length - a.members.length || a.name.localeCompare(b.name)],
+  ["recent", "Recently changed", (a, b) => Date.parse(b.last || 0) - Date.parse(a.last || 0)],
+];
+
+function healthTile(kind, tone, title, detail, go) {
+  return `<button type="button" class="health-tile ${tone}" data-action="teams-health" data-go="${go}"><span class="health-dot" aria-hidden="true"></span><span class="health-text"><strong>${title}</strong><span>${detail}</span></span>${icon("arrow")}</button>`;
+}
+function teamsHealth(all) {
+  const noTeam = db.users.filter((u) => u.type === "student" && !u.teams.length).length;
+  const empty = all.filter((t) => !t.members.length).length;
+  const hidden = all.filter((t) => !t.access.length).length;
+  return `<div class="health-strip" role="group" aria-label="Team health">${
+    noTeam
+      ? healthTile("noTeam", "warn", `${pluralize(noTeam, "student")} in no team`, "They don't appear in any team report. Assign them", "no-team")
+      : healthTile("noTeam", "ok", "Every student is in a team", "Nothing to assign", "no-team")
+  }${
+    empty
+      ? healthTile("empty", "neutral", `${pluralize(empty, "empty team")}`, "Add students, or delete teams you no longer need", "empty")
+      : healthTile("empty", "ok", "No empty teams", "Every team has members", "empty")
+  }${
+    hidden
+      ? healthTile("hidden", "neutral", `${pluralize(hidden, "team")} not visible to anyone`, "No portal user can see their reports", "hidden")
+      : healthTile("hidden", "ok", "Every team is visible", "Each one has at least one portal user with access", "hidden")
+  }</div>`;
+}
+function teamsToolbar(all) {
+  const counts = Object.fromEntries(TEAMS_CHIPS.map(([key, , test]) => [key, all.filter(test).length]));
+  return `<div class="teams-toolbar"><div class="search">${icon("search")}<input id="teams-search" placeholder="Search teams" aria-label="Search teams" value="${esc(state.teamsQuery)}" autocomplete="off"></div><div class="chip-bar" role="group" aria-label="Quick filters">${TEAMS_CHIPS.map(
+    ([key, label]) => `<button type="button" class="filter-chip${state.teamsChip === key ? " active" : ""}" data-action="teams-chip" data-chip="${key}" aria-pressed="${state.teamsChip === key}">${esc(label)}<span class="chip-count">${counts[key]}</span></button>`,
+  ).join("")}</div><span class="teams-toolbar-spacer"></span><label class="teams-sort" for="teams-sort"><span>Sort</span><select id="teams-sort">${TEAMS_SORTS.map(([key, label]) => `<option value="${key}" ${state.teamsSort === key ? "selected" : ""}>${esc(label)}</option>`).join("")}</select></label><div class="view-toggle" role="group" aria-label="Layout">${["cards", "rows"]
+    .map((layout) => `<button type="button" data-action="teams-layout" data-layout="${layout}" aria-pressed="${state.teamsLayout === layout}">${icon(layout === "cards" ? "grid" : "menu")}${layout === "cards" ? "Cards" : "Rows"}</button>`)
+    .join("")}</div></div>`;
+}
+function teamsBulkBar() {
+  const n = state.teamSel.length;
+  return `<div class="bulk-bar" role="region" aria-label="Bulk actions"><span class="bulk-count" role="status">${pluralize(n, "team")} selected</span><div class="bulk-actions"><button type="button" class="button small" data-action="teams-bulk-delete">Delete…</button></div><button type="button" class="bulk-clear" data-action="teams-bulk-clear" aria-label="Clear selection">Clear${icon("close")}</button></div>`;
+}
+function teamMenu(t, where) {
+  const open = state.teamMenu === `${where}:${t.id}`;
+  const canManage = actorCanBulk();
+  return `<div class="menu-anchor team-menu-anchor"><button type="button" class="icon-btn kebab" data-action="team-menu" data-team="${esc(t.id)}" data-where="${where}" aria-label="Actions for ${esc(t.name)}" aria-haspopup="menu" aria-expanded="${open}">${menuIcon()}</button>${
+    open
+      ? `<div class="dropdown-menu team-dropdown" role="menu"><button type="button" role="menuitem" data-action="team-open" data-team="${esc(t.id)}">Open team</button>${canManage ? `<button type="button" role="menuitem" data-action="team-edit" data-team="${esc(t.id)}">Edit details</button><button type="button" role="menuitem" class="danger" data-action="team-delete" data-team="${esc(t.id)}">Delete team…</button>` : ""}</div>`
+      : ""
+  }</div>`;
+}
+function faces(people) {
+  const shown = people.slice(0, 3);
+  return `<span class="faces" aria-hidden="true">${shown.map((p) => `<span class="face">${esc(initial(p.name))}</span>`).join("")}${people.length > 3 ? `<span class="face more">+${people.length - 3}</span>` : ""}</span>`;
+}
+function accessLine(t) {
+  if (!t.access.length) return "";
+  if (t.access.length <= 2) return `${t.access.map((p) => esc(shortName(p.name))).join(" and ")} can see this team`;
+  return `${pluralize(t.access.length, "person", "people")} can see this team`;
+}
+// Each team gets a two-letter tile in one of a few soft tints. Tints follow the order teams were created in,
+// so neighbours differ and a team keeps its colour when the list is sorted or filtered.
+var TEAM_TINTS = [
+  ["#e2f3f7", "#00627a"],
+  ["#e8ecfb", "#3843a3"],
+  ["#f1eafb", "#6b3fa0"],
+  ["#fdf3e1", "#8a4b00"],
+  ["#e6f6ee", "#0f6b45"],
+  ["#fbeaee", "#a02c4a"],
+];
+function teamMonogram(t) {
+  const order = teamRecords().findIndex((team) => team.id === t.id);
+  const [bg, fg] = TEAM_TINTS[Math.max(order, 0) % TEAM_TINTS.length];
+  const words = t.name.replace(/&/g, " ").split(/\s+/).filter(Boolean);
+  const letters = `${words[0]?.[0] || ""}${words[1]?.[0] || ""}`.toUpperCase();
+  return `<span class="team-mono" style="--team-bg:${bg};--team-fg:${fg}" aria-hidden="true">${esc(letters)}</span>`;
+}
+function teamCard(t) {
+  const canManage = actorCanBulk();
+  const selected = state.teamSel.includes(t.id);
+  const empty = !t.members.length;
+  const count = (status) => t.members.filter((u) => u.status === status).length;
+  const active = count("Active");
+  const suspended = count("Suspended");
+  const legend = [
+    [active, "active"],
+    [t.pending, "pending"],
+    [t.needsVoucher, t.needsVoucher === 1 ? "needs a voucher" : "need a voucher"],
+    [suspended, "suspended"],
+  ]
+    .filter(([n]) => n)
+    .map(([n, label]) => `${n} ${label}`)
+    .join(" · ");
+  const bar = [
+    ["ok", active],
+    ["warn", t.pending + t.needsVoucher],
+    ["off", suspended],
+  ]
+    .filter(([, n]) => n)
+    .map(([tone, n]) => `<span class="${tone}" style="flex-grow:${n}"></span>`)
+    .join("");
+  const body = empty
+    ? `<div class="team-card-empty"><span>No members yet</span>${canManage ? `<button type="button" class="button-link team-foot-action" data-action="team-add-students" data-team="${esc(t.id)}">Add students</button>` : ""}</div>`
+    : `<div class="team-figure"><span class="team-figure-num">${t.members.length}</span><span class="team-figure-unit">${t.members.length === 1 ? "member" : "members"}</span><span class="team-figure-groups">${pluralize(t.groups.length, "admin group")}</span></div><div class="team-status-bar" aria-hidden="true">${bar}</div><p class="team-status-legend">${legend}</p>`;
+  const foot = empty
+    ? ""
+    : `<div class="team-card-foot">${
+        t.access.length
+          ? `${faces(t.access)}<span class="team-foot-text">${accessLine(t)}</span>`
+          : `<span class="team-flag">Not visible to anyone</span><span class="team-foot-spacer"></span>${canManage ? `<button type="button" class="button-link team-foot-action" data-action="team-give-access-from-list" data-team="${esc(t.id)}">Give access</button>` : ""}`
+      }</div>`;
+  return `<article class="team-card${empty ? " is-empty" : ""}${selected ? " is-selected" : ""}${state.highlightTeam === t.id ? " is-new" : ""}" aria-labelledby="team-card-${esc(t.id)}"><div class="team-card-top">${teamMonogram(t)}<div class="team-card-title"><h2 id="team-card-${esc(t.id)}"><button type="button" class="team-card-link" data-action="team-open" data-team="${esc(t.id)}">${esc(t.name)}</button></h2><p class="${t.description ? "" : "is-missing"}">${esc(t.description || "No description")}</p></div>${canManage ? `<input type="checkbox" class="row-check team-check" data-team-select="${esc(t.id)}" aria-label="Select ${esc(t.name)}" ${selected ? "checked" : ""}>` : ""}${teamMenu(t, "card")}</div>${body}${foot}</article>`;
+}
+function teamRow(t) {
+  const canManage = actorCanBulk();
+  const selected = state.teamSel.includes(t.id);
+  return `<tr data-team-row="${esc(t.id)}" tabindex="0" class="${selected ? "is-selected" : ""}">${canManage ? `<td class="selection-col"><input type="checkbox" class="row-check team-check" data-team-select="${esc(t.id)}" aria-label="Select ${esc(t.name)}" ${selected ? "checked" : ""}></td>` : ""}<td><div class="person-name">${esc(t.name)}</div><div class="secondary${t.description ? "" : " is-missing"}">${esc(t.description || "No description")}</div></td><td class="num">${t.members.length || `<span class="team-flag muted">Empty</span>`}</td><td class="num">${t.groups.length}</td><td>${t.access.length ? `<span class="access-cell">${faces(t.access)}<span>${t.access.map((p) => esc(shortName(p.name))).slice(0, 2).join(", ")}${t.access.length > 2 ? ` +${t.access.length - 2}` : ""}</span></span>` : `<span class="team-flag">Not visible to anyone</span>`}</td><td class="secondary">${esc(teamDayLabel(t.last))}</td><td class="menu-cell">${teamMenu(t, "row")}</td></tr>`;
+}
+function teamsListView() {
+  teamsState();
+  const canManage = actorCanBulk();
+  const all = teamRecords().map(teamSummary);
+  const chip = TEAMS_CHIPS.find(([key]) => key === state.teamsChip) || TEAMS_CHIPS[0];
+  const sort = TEAMS_SORTS.find(([key]) => key === state.teamsSort) || TEAMS_SORTS[0];
+  const q = state.teamsQuery.trim().toLowerCase();
+  const shown = all
+    .filter((t) => chip[2](t) && (!q || `${t.name} ${t.description || ""}`.toLowerCase().includes(q)))
+    .sort(sort[2]);
+  state.teamSel = state.teamSel.filter((id) => all.some((t) => t.id === id));
+  const empty = !shown.length
+    ? `<div class="empty teams-empty">${icon("search")}<h2>No teams match</h2><p>Try another search or clear the filter.</p>${btn("Clear filters", "teams-clear-filters")}</div>`
+    : "";
+  const body =
+    state.teamsLayout === "rows"
+      ? `<div class="table-wrap"><table class="teams-table"><thead><tr>${canManage ? `<th class="selection-col"><input type="checkbox" class="row-check team-check" data-team-select="all" aria-label="Select all visible teams" ${shown.length && shown.every((t) => state.teamSel.includes(t.id)) ? "checked" : ""}></th>` : ""}<th>Team</th><th class="num">Members</th><th class="num">Admin groups</th><th>Portal users with access</th><th>Last change</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody>${shown.map(teamRow).join("")}</tbody></table></div>${empty}`
+      : `${empty}<div class="team-grid">${shown.map(teamCard).join("")}${canManage && state.teamsChip === "all" && !q ? `<button type="button" class="team-card team-card-new" data-action="create-team">${icon("plus")}<span>Create team</span></button>` : ""}</div>`;
+  return `${heading("Teams", "Group students for reporting. Teams don't give anyone access to training or funding.", canManage ? btn(icon("plus") + "Create team", "create-team", "primary") : "")}${teamsHealth(all)}<section class="card teams-card" aria-label="Teams">${state.teamSel.length ? teamsBulkBar() : teamsToolbar(all)}${body}</section>`;
+}
+
+// ---------- Team page ----------
+var TEAM_MEMBER_CHIPS = [
+  ["all", "All", () => true],
+  ["pending", "Pending invite", (u) => u.status === "Pending invite"],
+  ["needsVoucher", "Needs voucher", (u) => u.status === "Needs voucher"],
+  ["noGroup", "No admin group", (u) => !u.groups.length],
+];
+function memberMatches(u) {
+  const chip = TEAM_MEMBER_CHIPS.find(([key]) => key === state.teamChip) || TEAM_MEMBER_CHIPS[0];
+  const q = state.teamSearch.trim().toLowerCase();
+  return chip[2](u) && (!q || `${u.name} ${u.email}`.toLowerCase().includes(q));
+}
+function teamContext() {
+  const team = currentTeam();
+  const rows = team ? teamMembers(team) : [];
+  return {
+    key: "team",
+    noun: ["student", "students"],
+    rows,
+    visible: rows.filter(memberMatches),
+    run: storeRun,
+    canEdit: actorCanBulk(),
+    rowFor: (id) => rows.find((u) => u.id === id),
+  };
+}
+function accessContext(team) {
+  const rows = db.users.filter((u) => u.type === "portal");
+  return { key: "teamAccess", noun: ["person", "people"], rows, visible: rows, run: storeRun, canEdit: actorCanBulk(), rowFor: (id) => rows.find((u) => u.id === id) };
+}
+function memberMenu(u) {
+  const open = state.rowMenu === u.id;
+  const canManage = actorCanBulk();
+  return `<div class="menu-anchor row-menu-anchor"><button class="icon-btn kebab" aria-label="Actions for ${esc(u.name || u.email)}" aria-expanded="${open}" data-action="row-menu" data-id="${esc(u.id)}">${menuIcon()}</button>${
+    open
+      ? `<div class="dropdown-menu row-dropdown">${btn("Open profile", "team-member-profile", "", `data-id="${esc(u.id)}"`)}${canManage ? `${btn("Move to another team…", "team-member-move", "", `data-id="${esc(u.id)}"`)}${btn("Remove from team", "team-member-remove", "", `data-id="${esc(u.id)}"`)}` : ""}</div>`
+      : ""
+  }</div>`;
+}
+function membersPanel(team) {
+  const canManage = actorCanBulk();
+  const ctx = teamContext();
+  const rows = ctx.visible;
+  const counts = Object.fromEntries(TEAM_MEMBER_CHIPS.map(([key, , test]) => [key, ctx.rows.filter(test).length]));
+  const toolbarHtml = state.selected.length
+    ? bulkBarHtml(ctx)
+    : `<div class="team-members-toolbar"><div class="search">${icon("search")}<input id="team-member-search" placeholder="Search members" aria-label="Search members" value="${esc(state.teamSearch)}" autocomplete="off"></div><span class="teams-toolbar-spacer"></span>${canManage ? btn(icon("plus") + "Add students", "team-add-students", "primary", `data-team="${esc(team.id)}" id="team-add-button"`) : ""}</div>`;
+  if (!ctx.rows.length)
+    return `<section class="card team-panel" aria-label="Members"><div class="empty team-empty">${icon("users")}<h2>No members yet</h2><p>Add students to start reporting on ${esc(team.name)}. You can pick people who are already students, paste a list of emails, or upload a CSV.</p>${canManage ? btn("Add students", "team-add-students", "primary", `data-team="${esc(team.id)}" id="team-add-button"`) : ""}</div></section>`;
+  const chips = `<div class="chip-bar" role="group" aria-label="Quick filters">${TEAM_MEMBER_CHIPS.map(
+    ([key, label]) => `<button type="button" class="filter-chip${state.teamChip === key ? " active" : ""}" data-action="team-chip" data-chip="${key}" aria-pressed="${state.teamChip === key}">${esc(label)}<span class="chip-count">${counts[key]}</span></button>`,
+  ).join("")}</div>`;
+  const allChecked = rows.length > 0 && rows.every((u) => state.selected.includes(u.id));
+  return `<section class="card people-card team-panel" aria-label="Members">${toolbarHtml}${chips}<div class="table-wrap"><table class="people-table team-members-table"><colgroup><col class="col-check"><col class="col-person"><col class="col-group"><col class="col-voucher"><col class="col-status"><col class="col-menu"></colgroup><thead><tr><th class="selection-col">${canManage ? checkRow("all", allChecked, "Select all visible members") : ""}</th><th>Name</th><th>Admin group</th><th>Voucher</th><th>Status</th><th></th></tr></thead><tbody>${
+    rows.length
+      ? rows
+          .map(
+            (u) =>
+              `<tr${rowHighlight(u)}><td class="selection-col">${canManage ? checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email)) : `<input type="hidden" data-select="${esc(u.id)}">`}</td><td><div class="person-name">${esc(u.name || u.email)}</div>${personMeta(u, u.email)}</td><td class="scope">${u.groups.length ? esc(u.groups[0]) : canManage && u.vouchers.length ? `<button type="button" class="inline-assignment" data-action="cell-pick" data-kind="adminGroup" data-row="${esc(u.id)}">${icon("plus")}Set admin group</button>` : `<span class="unassigned">None</span>`}</td><td class="scope">${u.vouchers.length ? esc(u.vouchers[0]) : voucherFlag(u) || `<span class="unassigned">None</span>`}</td><td class="status-cell">${labelStatus(u.status)}</td><td class="menu-cell">${memberMenu(u)}</td></tr>`,
+          )
+          .join("")
+      : `<tr><td colspan="6"><div class="empty">${icon("search")}<h2>No members match</h2><p>Try another name or clear the filter.</p>${btn("Clear filters", "team-clear-filters")}</div></td></tr>`
+  }</tbody></table></div></section>`;
+}
+function accessPanel(team) {
+  const canManage = actorCanBulk();
+  const people = teamAccess(team);
+  const intro = `<div class="team-panel-head"><p>Portal users with access can see this team's students and reports. They aren't members, and access doesn't change their role.</p>${canManage ? btn(icon("plus") + "Give access", "team-give-access", "primary", 'id="team-give-access"') : ""}</div>`;
+  if (!people.length)
+    return `<section class="card team-panel" aria-label="Portal users with access">${intro}<div class="empty team-empty">${icon("groups")}<h2>Nobody can see this team yet</h2><p>Until someone has access, ${esc(team.name)}'s progress doesn't appear in anyone's reports.</p></div></section>`;
+  return `<section class="card team-panel" aria-label="Portal users with access">${intro}<div class="table-wrap"><table class="teams-table access-table"><thead><tr><th>Name</th><th>Role</th><th>Other teams they can see</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody>${people
+    .map((u) => {
+      const others = u.teams.filter((name) => name !== team.name);
+      return `<tr${rowHighlight(u)}><td><div class="person-name">${esc(u.name)}</div><div class="secondary">${esc(u.email)}</div></td><td>${esc(u.role)}</td><td class="secondary">${others.length ? esc(others.length > 3 ? `${others.slice(0, 3).join(", ")} +${others.length - 3}` : others.join(", ")) : "This team only"}</td><td>${labelStatus(u.status)}</td><td class="menu-cell">${canManage ? `<button type="button" class="button small text" data-action="team-remove-access" data-id="${esc(u.id)}">Remove access</button>` : ""}</td></tr>`;
+    })
+    .join("")}</tbody></table></div></section>`;
+}
+function historyPanel(team) {
+  const all = store.snapshot().events;
+  const events = teamEvents(team);
+  const visible = events.slice(0, state.teamHistoryShown);
+  if (!events.length)
+    return `<section class="card team-panel" aria-label="History"><div class="empty team-empty">${icon("schedule")}<h2>No history yet</h2><p>Changes to this team and its members will appear here.</p></div></section>`;
+  return `<section class="card team-panel team-history" aria-label="History">${groupEventsByDay(visible)
+    .map(
+      (group) =>
+        `<section class="activity-day"><h3>${esc(group.label)}</h3><ul aria-label="Activity on ${esc(group.label)}">${group.events.map((event) => activityEntryHtml(event, all, state.teamHistoryOpen.includes(event.id), "team-history-toggle")).join("")}</ul></section>`,
+    )
+    .join("")}${events.length > visible.length ? `<div class="activity-more">${btn(`Show more (${events.length - visible.length})`, "team-history-more", "small")}</div>` : ""}</section>`;
+}
+function teamPageView() {
+  teamsState();
+  const team = currentTeam();
+  if (!team) {
+    state.teamId = null;
+    return teamsListView();
+  }
+  const s = teamSummary(team);
+  const canManage = actorCanBulk();
+  const tabs = [
+    ["members", "Members", s.members.length],
+    ["access", "Portal users with access", s.access.length],
+    ["history", "History", null],
+  ];
+  const created = `Created by ${esc(personName(team.createdBy))} · ${esc(teamDayLabel(team.createdAt))}`;
+  const changed = s.last && s.last !== team.createdAt ? ` · Last change ${esc(teamDayLabel(s.last).toLowerCase() === "today" ? "today" : teamDayLabel(s.last))}` : "";
+  const panel = state.teamTab === "access" ? accessPanel(team) : state.teamTab === "history" ? historyPanel(team) : membersPanel(team);
+  return `<button class="back" data-action="teams-back">${icon("back")}Teams</button><div class="page-head team-head"><div><h1>${esc(team.name)}</h1><p class="muted">${team.description ? esc(team.description) : canManage ? `<button type="button" class="button-link" data-action="team-edit" data-team="${esc(team.id)}">Add a description</button> so people can tell similar teams apart.` : "No description"}</p><p class="team-meta">${created}${changed}</p></div><div class="head-actions">${btn(icon("arrow") + "View training progress", "team-progress", "", `data-team="${esc(team.id)}"`)}${canManage ? teamMenu(team, "page") : ""}</div></div><div class="team-tabs" role="tablist" aria-label="${esc(team.name)}">${tabs
+    .map(
+      ([key, label, count]) =>
+        `<button type="button" role="tab" id="team-tab-${key}" aria-selected="${state.teamTab === key}" data-action="team-tab" data-tab="${key}">${esc(label)}${count === null ? "" : `<span class="tab-count">${count}</span>`}</button>`,
+    )
+    .join("")}</div><div role="tabpanel" aria-labelledby="team-tab-${state.teamTab}">${panel}</div>`;
+}
+
+// ---------- Wiring into the app ----------
+const teamsBaseContent = content;
+content = function () {
+  if (state.view === "teams") return state.teamId ? teamPageView() : teamsListView();
+  const html = teamsBaseContent();
+  if (state.view === "profile" && state.profileReturnTeam) {
+    const team = teamById(state.profileReturnTeam);
+    if (team)
+      return html.replace(
+        /<button class="back" data-action="navigate" data-view="students">[\s\S]*?<\/button>/,
+        `<button class="back" data-action="team-return">${icon("back")}Back to ${esc(team.name)}</button>`,
+      );
+  }
+  return html;
+};
+const teamsBaseBulkContext = bulkContext;
+bulkContext = function () {
+  if (state.view === "teams" && state.teamId && (state.teamTab || "members") === "members") return teamContext();
+  return teamsBaseBulkContext();
+};
+const teamsBaseMainActions = mainActions;
+mainActions = function (ctx) {
+  if (ctx.key === "team") return [["team-move", "Move to another team"], ["adminGroup", "Set admin group"], ["team-remove", "Remove from team"]];
+  return teamsBaseMainActions(ctx);
+};
+const teamsBaseMoreItems = moreMenuItems;
+moreMenuItems = function (ctx) {
+  if (ctx.key === "team") return [["export", "Export selected"]];
+  return teamsBaseMoreItems(ctx);
+};
+const teamsBaseBulkPicker = openBulkPicker;
+openBulkPicker = function (ctx, kind, anchor) {
+  if (ctx.key === "team" && kind === "team-move") return openMovePicker(selectedRows(ctx), anchor, `[data-action="bulk-open"][data-kind="team-move"]`);
+  if (ctx.key === "team" && kind === "team-remove") return removeMembers(selectedRows(ctx));
+  return teamsBaseBulkPicker(ctx, kind, anchor);
+};
+const teamsBaseOpenProfile = openProfile;
+openProfile = function (id) {
+  const fromTeam = state.view === "teams" && state.teamId ? state.teamId : null;
+  teamsBaseOpenProfile(id);
+  state.profileReturnTeam = fromTeam;
+  if (fromTeam) render();
+};
+
+// ---------- Moving and removing members ----------
+function openMovePicker(rows, anchor, returnSelector) {
+  const team = currentTeam();
+  const others = db.teams.filter((name) => name !== team.name);
+  openPopover(anchor, {
+    title: rows.length === 1 ? `Move ${rows[0].name || rows[0].email} to` : `Move ${pluralize(rows.length, "student")} to`,
+    items: others.map((name) => ({ value: name, label: name })),
+    placeholder: "Search teams",
+    returnSelector,
+    footer: [{ label: "Create a new team", run: () => createTeamThen((name) => moveMembers(rows, name)) }],
+    onPick: (name) => moveMembers(rows, name),
+  });
+}
+function finishMemberChange(result, message, extra = []) {
+  state.selected = [];
+  state.rowMenu = null;
+  const ctx = teamContext();
+  const actions = [];
+  if (result.applied.length && result.undoId) actions.push({ label: "Undo", run: () => undoBulk(ctx, result) });
+  actions.push(...extra);
+  if (result.skipped.length) actions.push({ label: "Details", run: () => showBulkResult(ctx, "team", {}, result) });
+  const skipped = result.skipped.length ? ` · ${result.skipped.length} skipped` : "";
+  toastWith(result.applied.length ? message + skipped : `No changes made${skipped}`, actions);
+  render();
+}
+function moveMembers(rows, name) {
+  const target = teamRecords().find((t) => t.name === name);
+  const result = storeRun("team", rows.map((r) => r.id), { team: name });
+  if (!result) return;
+  finishMemberChange(result, `Moved ${pluralize(result.applied.length, "student")} to ${name}`, target ? [{ label: "View team", run: () => openTeam(target.id) }] : []);
+}
+function removeMembers(rows) {
+  const team = currentTeam();
+  const result = storeRun("team", rows.map((r) => r.id), { team: "" });
+  if (!result) return;
+  finishMemberChange(result, `Removed ${pluralize(result.applied.length, "student")} from ${team.name}. They're still students.`);
+}
+
+// ---------- Navigation ----------
+function openTeam(id, tab = "members") {
+  teamsState();
+  state.teamId = id;
+  state.teamTab = tab;
+  state.teamSearch = "";
+  state.teamChip = "all";
+  state.teamHistoryShown = 20;
+  state.teamMenu = null;
+  state.profileReturnTeam = null;
+  navigate("teams");
+}
+function leaveTeam() {
+  state.teamId = null;
+  state.teamMenu = null;
+  navigate("teams");
+}
+
+// ---------- Create, edit and delete ----------
+function teamForm({ title, submit, name = "", description = "", id = "" }) {
+  state.modal = "team-form";
+  openModal(
+    title,
+    "",
+    `<form id="team-form" data-team="${esc(id)}"><div class="field"><label for="team-form-name">Team name</label><input id="team-form-name" name="name" required autocomplete="off" value="${esc(name)}" placeholder="For example, Cloud Platform"></div><div class="field"><label for="team-form-description">Description <span class="optional">Optional</span></label><textarea id="team-form-description" name="description" rows="3" placeholder="What this team does, so people can tell it apart from similar teams">${esc(description)}</textarea></div><p class="inline-error" id="team-form-error" role="alert"></p><p class="hint">Teams are for reporting. Adding someone to a team doesn't change their voucher, admin group or access.</p></form>`,
+    `<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="team-form">${esc(submit)}</button></div>`,
+    "",
+    true,
+  );
+  $("#team-form-name")?.focus();
+}
+function openDeleteTeam(id) {
+  const team = teamById(id);
+  if (!team) return;
+  const s = teamSummary(team);
+  const others = db.teams.filter((name) => name !== team.name);
+  state.modal = "team-delete";
+  state.deleteTeamId = id;
+  const members = s.members.length;
+  const move = members
+    ? `<p>${pluralize(members, "student is", "students are")} in this team. Choose where ${members === 1 ? "they go" : "they go"}:</p><div class="choice-list" role="radiogroup" aria-label="Where members go">${
+        others.length
+          ? `<label class="choice"><input type="radio" name="team-delete-mode" value="move" checked><span>Move them to</span><select id="team-delete-target" aria-label="Team to move them to">${others.map((name) => `<option>${esc(name)}</option>`).join("")}</select></label>`
+          : ""
+      }<label class="choice"><input type="radio" name="team-delete-mode" value="clear" ${others.length ? "" : "checked"}><span>Leave them with no team</span></label></div>`
+    : `<p>${esc(team.name)} has no members.</p>`;
+  const names = s.access.map((p) => esc(p.name));
+  const access = names.length
+    ? `<p class="bulk-line">${names.length > 3 ? `${names.slice(0, 2).join(", ")} and ${names.length - 2} others` : names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}` : names[0]} will lose access to this team.</p>`
+    : "";
+  openModal(
+    `Delete ${esc(team.name)}?`,
+    "",
+    `${move}${access}<p class="hint">Its history stays in the activity log. Reports already run keep the team's name.</p>`,
+    `<div class="actions">${btn("Cancel", "close-modal", "text")}${btn(members ? `Move ${members} and delete` : "Delete team", "team-delete-confirm", "danger", 'id="team-delete-confirm"')}</div>`,
+    "",
+    true,
+  );
+}
+function syncDeleteLabel() {
+  const button = $("#team-delete-confirm");
+  const team = teamById(state.deleteTeamId);
+  if (!button || !team) return;
+  const members = teamMembers(team).length;
+  if (!members) return;
+  const mode = document.querySelector("input[name=team-delete-mode]:checked")?.value;
+  button.textContent = mode === "move" ? `Move ${members} and delete` : "Delete team";
+}
+function confirmDeleteTeam() {
+  const team = teamById(state.deleteTeamId);
+  if (!team) return;
+  const members = teamMembers(team);
+  const mode = document.querySelector("input[name=team-delete-mode]:checked")?.value;
+  const target = $("#team-delete-target")?.value;
+  try {
+    let lost = 0;
+    dispatch((st) => {
+      if (members.length) st.bulk("team", members.map((u) => u.id), { team: mode === "move" ? target : "" });
+      lost = st.deleteTeam(team.id);
+    });
+    $("#modal").close();
+    state.modal = null;
+    state.teamSel = (state.teamSel || []).filter((id) => id !== team.id);
+    if (state.teamId === team.id) state.teamId = null;
+    navigate("teams");
+    toast(`Deleted ${team.name}${members.length ? `. ${pluralize(members.length, "student")} ${mode === "move" ? `moved to ${target}` : "now in no team"}` : ""}${lost ? `. ${pluralize(lost, "person", "people")} lost access` : ""}.`);
+  } catch (error) {
+    db = store.view();
+    render();
+    toast(error.message);
+  }
+}
+function openBulkDeleteTeams() {
+  const chosen = state.teamSel.map(teamById).filter(Boolean).map(teamSummary);
+  const deletable = chosen.filter((t) => !t.members.length);
+  const kept = chosen.filter((t) => t.members.length);
+  state.modal = "teams-bulk-delete";
+  state.bulkDeleteIds = deletable.map((t) => t.id);
+  openModal(
+    deletable.length ? `Delete ${pluralize(deletable.length, "empty team")}?` : "These teams have members",
+    "",
+    `${deletable.length ? `<p class="bulk-line">${deletable.map((t) => esc(t.name)).join(", ")}</p>` : ""}${deletable.some((t) => t.access.length) ? `<p class="bulk-line">Portal users with access to ${deletable.length === 1 ? "it" : "them"} will lose that access.</p>` : ""}${kept.length ? `<div class="bulk-skipped"><p><strong>${pluralize(kept.length, "team")} will be kept</strong></p><ul>${kept.map((t) => `<li><strong>${esc(t.name)}</strong>: ${pluralize(t.members.length, "member")}. Open the team to move them, then delete it.</li>`).join("")}</ul></div>` : ""}`,
+    `<div class="actions">${btn(deletable.length ? "Cancel" : "Close", "close-modal", deletable.length ? "text" : "primary")}${deletable.length ? btn(`Delete ${pluralize(deletable.length, "team")}`, "teams-bulk-delete-confirm", "danger") : ""}</div>`,
+    "",
+    true,
+  );
+}
+function confirmBulkDeleteTeams() {
+  const ids = state.bulkDeleteIds || [];
+  try {
+    dispatch((st) => ids.forEach((id) => st.deleteTeam(id)));
+    $("#modal").close();
+    state.modal = null;
+    state.teamSel = [];
+    render();
+    toast(`Deleted ${pluralize(ids.length, "team")}`);
+  } catch (error) {
+    db = store.view();
+    render();
+    toast(error.message);
+  }
+}
+
+// ---------- Portal users with access ----------
+function openGiveAccess(team, anchor) {
+  const people = db.users.filter((u) => u.type === "portal" && !u.teams.includes(team.name));
+  if (!people.length) return toast("Every portal user already has access to this team.");
+  openPopover(anchor, {
+    title: `Give access to ${team.name}`,
+    items: people.map((u) => ({ value: u.id, label: `${u.name} · ${u.role}` })),
+    multi: true,
+    placeholder: "Search portal users",
+    note: "They'll see this team's students and reports. Their role doesn't change.",
+    applyLabel: "Give access",
+    returnSelector: "#team-give-access",
+    onPick: (ids) => {
+      const ctx = accessContext(team);
+      runBulkFlow(ctx, "portalAccess", { field: "team", mode: "add", names: [team.name] }, ids.map((id) => ctx.rowFor(id)).filter(Boolean));
+    },
+  });
+}
+
+// ---------- Add students panel ----------
+function addPanelState() {
+  return state.addPanel;
+}
+function openAddPanel(teamId) {
+  const team = teamById(teamId);
+  if (!team) return;
+  state.addPanel = { teamId, tab: "choose", q: "", team: "any", group: "any", voucher: "any", picked: [], pasted: "", note: "", returnFocus: document.activeElement?.id || "team-add-button" };
+  let root = document.getElementById("team-drawer");
+  if (!root) {
+    root = document.createElement("div");
+    root.id = "team-drawer";
+    document.body.append(root);
+  }
+  document.body.classList.add("drawer-open");
+  paintAddPanel();
+  requestAnimationFrame(() => root.querySelector(".side-drawer")?.classList.add("is-open"));
+  setTimeout(() => $("#drawer-search")?.focus(), 30);
+}
+function closeAddPanel() {
+  const root = document.getElementById("team-drawer");
+  const panel = state.addPanel;
+  state.addPanel = null;
+  document.body.classList.remove("drawer-open");
+  if (root) root.innerHTML = "";
+  if (panel?.returnFocus) document.getElementById(panel.returnFocus)?.focus();
+}
+function addCandidates(p, team) {
+  const q = p.q.trim().toLowerCase();
+  return db.users
+    .filter((u) => u.type === "student")
+    .filter((u) => !q || `${u.name} ${u.email}`.toLowerCase().includes(q))
+    .filter((u) => p.team === "any" || (p.team === "none" ? !u.teams.length : u.teams.includes(p.team)))
+    .filter((u) => p.group === "any" || (p.group === "none" ? !u.groups.length : u.groups.includes(p.group)))
+    .filter((u) => p.voucher === "any" || (p.voucher === "none" ? !u.vouchers.length : u.vouchers.includes(p.voucher)))
+    .sort((a, b) => Number(a.teams.includes(team.name)) - Number(b.teams.includes(team.name)) || (a.name || a.email).localeCompare(b.name || b.email));
+}
+function parsePasted(text, team) {
+  const tokens = String(text || "").split(/[\s,;]+/).map((t) => t.trim()).filter(Boolean);
+  const seen = new Set();
+  const out = { found: [], already: [], unknown: [], invalid: [] };
+  for (const token of tokens) {
+    const email = token.replace(/^<|>$/g, "").toLowerCase();
+    if (seen.has(email)) continue;
+    seen.add(email);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      out.invalid.push(token);
+      continue;
+    }
+    const student = db.users.find((u) => u.type === "student" && u.email.toLowerCase() === email);
+    if (!student) out.unknown.push(email);
+    else if (student.teams.includes(team.name)) out.already.push(student);
+    else out.found.push(student);
+  }
+  return out;
+}
+function selectFilter(id, label, value, options) {
+  return `<label class="drawer-filter" for="${id}"><span>${label}</span><select id="${id}">${options.map(([v, text]) => `<option value="${esc(v)}" ${v === value ? "selected" : ""}>${esc(text)}</option>`).join("")}</select></label>`;
+}
+function paintAddPanel() {
+  const root = document.getElementById("team-drawer");
+  const p = addPanelState();
+  if (!root || !p) return;
+  const team = teamById(p.teamId);
+  if (!team) return closeAddPanel();
+  const focus = document.activeElement?.id;
+  const caret = document.activeElement?.selectionStart;
+  const listScroll = root.querySelector(".drawer-list")?.scrollTop || 0;
+  const wasOpen = root.querySelector(".side-drawer")?.classList.contains("is-open");
+  const picked = p.picked.map((id) => db.users.find((u) => u.id === id)).filter(Boolean);
+  const moving = picked.filter((u) => u.teams.length).length;
+  const fresh = picked.length - moving;
+  let body;
+  if (p.tab === "paste") {
+    const r = parsePasted(p.pasted, team);
+    const lines = [
+      r.found.length ? `<li class="ok">${icon("check_circle")}<span><strong>${pluralize(r.found.length, "student")} found</strong>${r.found.length ? ` · ${esc(r.found.slice(0, 3).map((u) => u.name || u.email).join(", "))}${r.found.length > 3 ? ` and ${r.found.length - 3} more` : ""}` : ""}</span></li>` : "",
+      r.already.length ? `<li class="muted">${icon("info")}<span>${pluralize(r.already.length, "is", "are")} already in ${esc(team.name)}</span></li>` : "",
+      r.unknown.length ? `<li class="warn">${icon("info")}<span><strong>${pluralize(r.unknown.length, "email isn't", "emails aren't")} a student yet.</strong> You can add ${r.unknown.length === 1 ? "them" : "them"} as new students, already placed in this team.</span></li>` : "",
+      r.invalid.length ? `<li class="error">${icon("error")}<span>${pluralize(r.invalid.length, "entry doesn't", "entries don't")} look like an email: ${esc(r.invalid.slice(0, 3).join(", "))}</span></li>` : "",
+    ].join("");
+    body = `<div class="drawer-section"><label for="drawer-paste" class="drawer-label">Paste email addresses</label><p class="drawer-hint">One per line, or separated by commas. Straight from a spreadsheet column or an email works.</p><textarea id="drawer-paste" rows="7" placeholder="amara.okafor@northwind.example">${esc(p.pasted)}</textarea>${lines ? `<ul class="paste-results">${lines}</ul>` : ""}<div class="paste-actions">${r.found.length ? btn(`Select ${pluralize(r.found.length, "student")}`, "drawer-select-pasted", "small primary") : ""}${r.unknown.length ? btn(`Add ${r.unknown.length} new ${r.unknown.length === 1 ? "student" : "students"}…`, "drawer-invite-new", "small") : ""}</div></div>`;
+  } else {
+    const list = addCandidates(p, team);
+    const eligible = list.filter((u) => !u.teams.includes(team.name));
+    const allOn = eligible.length > 0 && eligible.every((u) => p.picked.includes(u.id));
+    body = `<div class="drawer-section"><div class="search drawer-search">${icon("search")}<input id="drawer-search" placeholder="Search name or email" aria-label="Search students" value="${esc(p.q)}" autocomplete="off"></div><div class="drawer-filters">${selectFilter("drawer-team", "Team", p.team, [["any", "Any team"], ["none", "No team"], ...db.teams.filter((n) => n !== team.name).map((n) => [n, n])])}${selectFilter("drawer-group", "Admin group", p.group, [["any", "Any"], ["none", "No admin group"], ...db.groups.map((n) => [n, n])])}${selectFilter("drawer-voucher", "Voucher", p.voucher, [["any", "Any"], ["none", "No voucher"], ...db.vouchers.map((n) => [n, n])])}</div>${p.note ? `<p class="drawer-note" role="status">${icon("check_circle")}${esc(p.note)}</p>` : ""}<label class="drawer-select-all"><input type="checkbox" class="row-check" id="drawer-all" ${allOn ? "checked" : ""} ${eligible.length ? "" : "disabled"}><span>Select all ${eligible.length} matching</span></label><div class="drawer-list" role="group" aria-label="Students">${
+      list.length
+        ? list
+            .slice(0, 300)
+            .map((u) => {
+              const inTeam = u.teams.includes(team.name);
+              const where = inTeam ? `Already in ${team.name}` : u.teams.length ? `In ${u.teams[0]}` : "No team";
+              return `<label class="drawer-person${inTeam ? " is-disabled" : ""}${p.picked.includes(u.id) ? " is-picked" : ""}"><input type="checkbox" class="row-check" data-pick="${esc(u.id)}" ${p.picked.includes(u.id) ? "checked" : ""} ${inTeam ? "disabled" : ""}><span class="face">${esc(initial(u.name || u.email))}</span><span class="drawer-person-text"><strong>${esc(u.name || u.email)}</strong><span>${esc(where)}${u.groups.length ? ` · ${esc(u.groups[0])}` : ""}</span></span>${!inTeam && u.teams.length ? `<span class="move-tag">Moves</span>` : ""}</label>`;
+            })
+            .join("")
+        : `<p class="drawer-empty">No students match. Try another search or filter, or paste emails to add new students.</p>`
+    }</div></div>`;
+  }
+  const summary = picked.length
+    ? `<strong>${pluralize(picked.length, "student")} selected</strong><span>${[moving ? `${moving} will move from ${moving === 1 ? "another team" : "other teams"}` : "", fresh ? `${fresh} ${fresh === 1 ? "has" : "have"} no team yet` : ""].filter(Boolean).join(" · ")}</span>`
+    : `<strong>No one selected yet</strong><span>Pick students, or paste a list of emails</span>`;
+  root.innerHTML = `<div class="drawer-backdrop" data-action="drawer-close"></div><aside class="side-drawer${wasOpen ? " is-open" : ""}" role="dialog" aria-modal="true" aria-labelledby="drawer-title"><header class="drawer-head"><div><p class="drawer-eyebrow">${esc(team.name)}</p><h2 id="drawer-title">Add students</h2></div><button type="button" class="icon-btn" data-action="drawer-close" aria-label="Close">${icon("close")}</button></header><div class="drawer-tabs" role="tablist" aria-label="How to add">${[
+    ["choose", "Choose students"],
+    ["paste", "Paste emails"],
+  ]
+    .map(([key, label]) => `<button type="button" role="tab" id="drawer-tab-${key}" aria-selected="${p.tab === key}" data-action="drawer-tab" data-tab="${key}">${label}</button>`)
+    .join("")}<button type="button" class="drawer-csv" data-action="drawer-csv">${icon("upload")}Upload a CSV</button></div><div class="drawer-body">${body}</div><footer class="drawer-foot"><div class="drawer-summary" role="status">${summary}</div><div class="drawer-buttons">${btn("Cancel", "drawer-close", "text")}${btn(picked.length ? `Add ${pluralize(picked.length, "student")}` : "Add students", "drawer-add", "primary", picked.length ? "" : "disabled")}</div></footer></aside>`;
+  const list = root.querySelector(".drawer-list");
+  if (list) list.scrollTop = listScroll;
+  if (focus && document.getElementById(focus)) {
+    const el = document.getElementById(focus);
+    el.focus({ preventScroll: true });
+    if (typeof caret === "number" && el.setSelectionRange) el.setSelectionRange(caret, caret);
+  }
+}
+function addPicked() {
+  const p = addPanelState();
+  const team = teamById(p.teamId);
+  const ids = [...p.picked];
+  if (!ids.length || !team) return;
+  closeAddPanel();
+  if (state.teamId !== team.id) openTeam(team.id);
+  const result = storeRun("team", ids, { team: team.name });
+  if (!result) return;
+  state.highlight = new Set(result.applied.map((a) => a.id));
+  setTimeout(() => {
+    state.highlight = null;
+    if (state.view === "teams") render();
+  }, 4000);
+  const ctx = teamContext();
+  const actions = [];
+  if (result.applied.length && result.undoId) actions.push({ label: "Undo", run: () => undoBulk(ctx, result) });
+  if (result.skipped.length) actions.push({ label: "Details", run: () => showBulkResult(ctx, "team", { team: team.name }, result) });
+  toastWith(
+    result.applied.length
+      ? `Added ${pluralize(result.applied.length, "student")} to ${team.name}${result.skipped.length ? ` · ${result.skipped.length} skipped` : ""}`
+      : `No changes made${result.skipped.length ? ` · ${result.skipped.length} skipped` : ""}`,
+    actions,
+  );
+  state.teamTab = "members";
+  render();
+}
+// Emails that aren't students yet go through the CSV review, with this team filled in.
+function inviteNewFromPaste() {
+  const p = addPanelState();
+  const team = teamById(p.teamId);
+  const { unknown } = parsePasted(p.pasted, team);
+  if (!unknown.length) return;
+  closeAddPanel();
+  const cell = (v) => (/[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+  const csv = `Email,Team\r\n${unknown.map((email) => `${cell(email)},${cell(team.name)}`).join("\r\n")}\r\n`;
+  stageCSV(csv, `New students for ${team.name}.csv`);
+}
+function trapDrawerFocus(event) {
+  const root = document.getElementById("team-drawer");
+  if (!root || !state.addPanel || event.key !== "Tab") return;
+  const items = [...root.querySelectorAll(".side-drawer button:not([disabled]), .side-drawer input:not([disabled]), .side-drawer select, .side-drawer textarea")].filter((el) => el.offsetParent !== null);
+  if (!items.length) return;
+  const first = items[0],
+    last = items[items.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+}
+
+// ---------- Events ----------
+document.addEventListener(
+  "click",
+  (event) => {
+    const target = event.target.closest("[data-action]");
+    // Clicking Teams in the sidebar always goes back to the list.
+    if (target?.dataset.action === "navigate" && target.dataset.view === "teams") {
+      state.teamId = null;
+      state.teamMenu = null;
+      return;
+    }
+    // A click on a team row (not on its controls) opens the team.
+    if (!target) {
+      const tr = event.target.closest("#main .teams-table tr[data-team-row]");
+      if (tr && !event.target.closest("input,button,a,label,select,.menu-anchor")) openTeam(tr.dataset.teamRow);
+      if (state.teamMenu && !event.target.closest(".team-menu-anchor")) {
+        state.teamMenu = null;
+        render();
+      }
+      return;
+    }
+    const a = target.dataset.action;
+    const stop = () => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    };
+    if (state.teamMenu && a !== "team-menu" && !target.closest(".team-dropdown")) state.teamMenu = null;
+    switch (a) {
+      case "create-team":
+        stop();
+        teamForm({ title: "Create team", submit: "Create team" });
+        return;
+      case "team-open":
+        stop();
+        openTeam(target.dataset.team);
+        return;
+      case "teams-back":
+      case "team-return": {
+        stop();
+        const id = a === "team-return" ? state.profileReturnTeam : null;
+        if (id) openTeam(id);
+        else leaveTeam();
+        return;
+      }
+      case "team-menu": {
+        stop();
+        const key = `${target.dataset.where}:${target.dataset.team}`;
+        state.teamMenu = state.teamMenu === key ? null : key;
+        render();
+        document.querySelector(".team-dropdown button")?.focus({ preventScroll: true });
+        return;
+      }
+      case "team-edit": {
+        stop();
+        const team = teamById(target.dataset.team);
+        state.teamMenu = null;
+        render();
+        if (team) teamForm({ title: "Edit team details", submit: "Save changes", name: team.name, description: team.description || "", id: team.id });
+        return;
+      }
+      case "team-delete":
+        stop();
+        state.teamMenu = null;
+        render();
+        openDeleteTeam(target.dataset.team);
+        return;
+      case "team-delete-confirm":
+        stop();
+        confirmDeleteTeam();
+        return;
+      case "teams-chip":
+        stop();
+        state.teamsChip = target.dataset.chip;
+        render();
+        return;
+      case "teams-clear-filters":
+        stop();
+        state.teamsChip = "all";
+        state.teamsQuery = "";
+        render();
+        return;
+      case "teams-layout":
+        stop();
+        state.teamsLayout = target.dataset.layout;
+        saveLayout(state.teamsLayout);
+        render();
+        document.querySelector(`[data-action="teams-layout"][data-layout="${state.teamsLayout}"]`)?.focus();
+        return;
+      case "teams-health": {
+        stop();
+        const go = target.dataset.go;
+        if (go === "no-team") {
+          chipKey().students = "noTeam";
+          navigate("students");
+        } else {
+          state.teamsChip = state.teamsChip === go ? "all" : go;
+          render();
+        }
+        return;
+      }
+      case "teams-bulk-clear":
+        stop();
+        state.teamSel = [];
+        render();
+        return;
+      case "teams-bulk-delete":
+        stop();
+        openBulkDeleteTeams();
+        return;
+      case "teams-bulk-delete-confirm":
+        stop();
+        confirmBulkDeleteTeams();
+        return;
+      case "team-tab":
+        stop();
+        state.teamTab = target.dataset.tab;
+        state.selected = [];
+        state.rowMenu = null;
+        render();
+        document.getElementById(`team-tab-${state.teamTab}`)?.focus();
+        return;
+      case "team-chip":
+        stop();
+        state.teamChip = target.dataset.chip;
+        render();
+        return;
+      case "team-clear-filters":
+        stop();
+        state.teamChip = "all";
+        state.teamSearch = "";
+        render();
+        return;
+      case "team-add-students":
+        stop();
+        if (state.teamId !== target.dataset.team) openTeam(target.dataset.team);
+        openAddPanel(target.dataset.team);
+        return;
+      case "team-give-access-from-list":
+        stop();
+        openTeam(target.dataset.team, "access");
+        setTimeout(() => {
+          const button = $("#team-give-access");
+          if (button) openGiveAccess(currentTeam(), button);
+        }, 60);
+        return;
+      case "team-give-access":
+        stop();
+        openGiveAccess(currentTeam(), target);
+        return;
+      case "team-remove-access": {
+        stop();
+        const team = currentTeam();
+        const ctx = accessContext(team);
+        const row = ctx.rowFor(target.dataset.id);
+        if (row) runBulkFlow(ctx, "portalAccess", { field: "team", mode: "remove", names: [team.name] }, [row]);
+        return;
+      }
+      case "team-member-profile":
+        stop();
+        state.rowMenu = null;
+        openProfile(target.dataset.id);
+        return;
+      case "team-member-move": {
+        stop();
+        const row = teamContext().rowFor(target.dataset.id);
+        const kebab = document.querySelector(`[data-action="row-menu"][data-id="${target.dataset.id}"]`);
+        state.rowMenu = null;
+        render();
+        const anchor = document.querySelector(`[data-action="row-menu"][data-id="${target.dataset.id}"]`) || kebab;
+        if (row && anchor) openMovePicker([row], anchor, `[data-action="row-menu"][data-id="${target.dataset.id}"]`);
+        return;
+      }
+      case "team-member-remove": {
+        stop();
+        const row = teamContext().rowFor(target.dataset.id);
+        if (row) removeMembers([row]);
+        return;
+      }
+      case "team-progress":
+        stop();
+        navigate("learning");
+        toast("In the full product, this opens Learning filtered to this team.");
+        return;
+      case "team-history-toggle": {
+        stop();
+        const id = target.dataset.id;
+        state.teamHistoryOpen = state.teamHistoryOpen.includes(id) ? state.teamHistoryOpen.filter((x) => x !== id) : [...state.teamHistoryOpen, id];
+        render();
+        document.querySelector(`[data-action="team-history-toggle"][data-id="${id}"]`)?.focus();
+        return;
+      }
+      case "team-history-more":
+        stop();
+        state.teamHistoryShown += 20;
+        render();
+        return;
+      // ----- Add students panel -----
+      case "drawer-close":
+        stop();
+        closeAddPanel();
+        return;
+      case "drawer-tab":
+        stop();
+        state.addPanel.tab = target.dataset.tab;
+        state.addPanel.note = "";
+        paintAddPanel();
+        document.getElementById(`drawer-tab-${state.addPanel.tab}`)?.focus();
+        return;
+      case "drawer-select-pasted": {
+        stop();
+        const p = state.addPanel;
+        const { found } = parsePasted(p.pasted, teamById(p.teamId));
+        p.picked = [...new Set([...p.picked, ...found.map((u) => u.id)])];
+        p.tab = "choose";
+        p.note = `${pluralize(found.length, "student")} from your list selected`;
+        paintAddPanel();
+        return;
+      }
+      case "drawer-invite-new":
+        stop();
+        inviteNewFromPaste();
+        return;
+      case "drawer-csv":
+        stop();
+        closeAddPanel();
+        uploadForm();
+        return;
+      case "drawer-add":
+        stop();
+        addPicked();
+        return;
+    }
+  },
+  true,
+);
+document.addEventListener(
+  "change",
+  (event) => {
+    const el = event.target;
+    // Team cards and rows on the list
+    if (el.dataset?.teamSelect) {
+      event.stopImmediatePropagation();
+      const all = teamRecords().map(teamSummary);
+      if (el.dataset.teamSelect === "all") {
+        const visibleIds = [...document.querySelectorAll("[data-team-select]")].map((b) => b.dataset.teamSelect).filter((id) => id !== "all");
+        state.teamSel = el.checked ? [...new Set([...state.teamSel, ...visibleIds])] : state.teamSel.filter((id) => !visibleIds.includes(id));
+      } else
+        state.teamSel = el.checked ? [...new Set([...state.teamSel, el.dataset.teamSelect])] : state.teamSel.filter((id) => id !== el.dataset.teamSelect);
+      state.teamSel = state.teamSel.filter((id) => all.some((t) => t.id === id));
+      render();
+      document.querySelector(`[data-team-select="${el.dataset.teamSelect}"]`)?.focus({ preventScroll: true });
+      return;
+    }
+    // Member rows on a team page: "all" means the visible members of this team
+    if (state.view === "teams" && state.teamId && el.dataset?.select) {
+      event.stopImmediatePropagation();
+      const visible = teamContext().visible.map((u) => u.id);
+      if (el.dataset.select === "all")
+        state.selected = el.checked ? [...new Set([...state.selected, ...visible])] : state.selected.filter((id) => !visible.includes(id));
+      else
+        state.selected = el.checked ? [...new Set([...state.selected, el.dataset.select])] : state.selected.filter((id) => id !== el.dataset.select);
+      render();
+      document.querySelector(`[data-select="${el.dataset.select}"]`)?.focus({ preventScroll: true });
+      return;
+    }
+    if (el.id === "teams-sort") {
+      state.teamsSort = el.value;
+      render();
+      $("#teams-sort")?.focus();
+      return;
+    }
+    if (el.name === "team-delete-mode") return syncDeleteLabel();
+    // Add students panel
+    const p = state.addPanel;
+    if (!p) return;
+    if (el.dataset?.pick) {
+      p.picked = el.checked ? [...new Set([...p.picked, el.dataset.pick])] : p.picked.filter((id) => id !== el.dataset.pick);
+      p.note = "";
+      paintAddPanel();
+    } else if (el.id === "drawer-all") {
+      const team = teamById(p.teamId);
+      const eligible = addCandidates(p, team).filter((u) => !u.teams.includes(team.name)).map((u) => u.id);
+      p.picked = el.checked ? [...new Set([...p.picked, ...eligible])] : p.picked.filter((id) => !eligible.includes(id));
+      paintAddPanel();
+    } else if (["drawer-team", "drawer-group", "drawer-voucher"].includes(el.id)) {
+      p[el.id.slice(7)] = el.value;
+      paintAddPanel();
+    }
+  },
+  true,
+);
+document.addEventListener("input", (event) => {
+  const el = event.target;
+  if (el.id === "teams-search") {
+    state.teamsQuery = el.value;
+    render();
+  } else if (el.id === "team-member-search") {
+    state.teamSearch = el.value;
+    render();
+  } else if (state.addPanel && el.id === "drawer-search") {
+    state.addPanel.q = el.value;
+    paintAddPanel();
+  } else if (state.addPanel && el.id === "drawer-paste") {
+    state.addPanel.pasted = el.value;
+    paintAddPanel();
+  }
+});
+document.addEventListener(
+  "keydown",
+  (event) => {
+    if (state.addPanel) {
+      if (event.key === "Escape" && !popover) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        closeAddPanel();
+        return;
+      }
+      trapDrawerFocus(event);
+      return;
+    }
+    if (event.key === "Enter" && event.target.matches?.("#main .teams-table tr[data-team-row]")) openTeam(event.target.dataset.teamRow);
+    if (event.key === "Escape" && state.teamMenu) {
+      state.teamMenu = null;
+      render();
+    }
+  },
+  true,
+);
+document.addEventListener(
+  "submit",
+  (event) => {
+    if (event.target.id !== "team-form") return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const form = new FormData(event.target);
+    const name = String(form.get("name") || "").trim();
+    const description = String(form.get("description") || "").trim();
+    const id = event.target.dataset.team;
+    try {
+      let newId = id;
+      dispatch((st) => {
+        if (id) st.updateTeam(id, { name, description });
+        else newId = st.createTeam(name, description);
+      });
+      $("#modal").close();
+      state.modal = null;
+      if (id) {
+        toast("Team updated");
+      } else {
+        toast(`Created ${name}`);
+        openTeam(newId);
+        openAddPanel(newId);
+      }
+    } catch (error) {
+      $("#team-form-error").textContent = error.message;
+      $("#team-form-name")?.focus();
+    }
+  },
+  true,
+);
 
 // ---------- Motion: screen and dialog entrances ----------
 // Every store change re-renders the whole page, so entrances run only on a real screen change or when a

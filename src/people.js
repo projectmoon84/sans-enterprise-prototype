@@ -22,11 +22,19 @@ var ROLE_HINTS = {
   Viewer: "Read-only reporting and activity",
 };
 
-// Small tag under a person's name when they also hold the other role.
+// Quiet link beside a person's role when they also hold the other role.
+var PERSON_CIRCLE_ICON = `<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.33a6.67 6.67 0 1 0 0 13.34A6.67 6.67 0 0 0 8 1.33ZM8 4a2.33 2.33 0 1 1 0 4.67A2.33 2.33 0 0 1 8 4Zm0 9.33a5.3 5.3 0 0 1-4.1-1.92 6.6 6.6 0 0 1 8.2 0A5.3 5.3 0 0 1 8 13.33Z" fill="currentColor"/></svg>`;
+var STUDENT_ICON = `<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 5.775C5.09 4.925 3.94 4.33 2.66 4.1C2.055 3.995 1.5 4.475 1.5 5.09V8.21C1.5 9.05 1.86 9.49 2.355 9.555C3.605 9.715 4.74 10.23 5.67 10.99C5.845 11.135 6.13 11.15 6.305 11.01C7.24 10.245 8.385 9.72 9.645 9.56C10.115 9.495 10.5 9.03 10.5 8.55V5.09C10.5 4.475 9.945 3.995 9.34 4.1C8.06 4.33 6.91 4.925 6 5.775ZM6 4C6.83 4 7.5 3.33 7.5 2.5C7.5 1.67 6.83 1 6 1C5.17 1 4.5 1.67 4.5 2.5C4.5 3.33 5.17 4 6 4Z" fill="currentColor"/></svg>`;
 function dualTag(u) {
   const other = linkedPerson(u.email, otherType(u.type));
   if (!other) return "";
-  return `<button class="role-tag" data-action="open-linked" data-id="${esc(other.id)}" title="Open their ${other.type === "student" ? "student" : "portal user"} record">${icon(other.type === "student" ? "book" : "users")}${other.type === "student" ? "Also a student" : "Also a portal user"}</button>`;
+  const student = other.type === "student";
+  return `<button type="button" class="role-tag" data-action="open-linked" data-id="${esc(other.id)}" title="Open their ${student ? "student" : "portal user"} record">${student ? STUDENT_ICON : PERSON_CIRCLE_ICON}${student ? "Student" : "Portal user"}</button>`;
+}
+
+// Role (or email) line under a person's name, with the dual-role link beside it.
+function personMeta(u, text, className = "") {
+  return `<div class="person-meta"><div class="secondary ${className}">${esc(text)}</div>${dualTag(u)}</div>`;
 }
 
 // Row-menu shortcut to give someone the role they don't have yet.

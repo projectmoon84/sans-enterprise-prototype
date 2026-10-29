@@ -17,6 +17,7 @@ const profile=await readFile('src/profile.js','utf8');
 const activityPage=await readFile('src/activity-page.js','utf8');
 const bulkUi=await readFile('src/bulk-ui.js','utf8');
 const importReview=await readFile('src/import-review.js','utf8');
+const teams=await readFile('src/teams.js','utf8');
 const motion=await readFile('src/motion.js','utf8');
 css+='\n'+await readFile('src/fidelity.css','utf8');
 // Material Symbols: embed the trimmed icon font, then give every existing `svg` icon rule a matching `.ms` rule
@@ -33,5 +34,5 @@ css=css.replace(/([^{}]+)\{([^{}]*)\}/g,(rule,selector,decls)=>{
 css=msBase+css;
 const template=await readFile('src/index.html','utf8');
 await mkdir('dist',{recursive:true});
-await writeFile('dist/index.html',template.replace('/* STYLES */',()=>css).replace('/* DATA */',()=>data.replaceAll('export ','' )+'\n'+training.replaceAll('export ','')+'\n'+bulkEngine.replaceAll('export ','')+'\n'+alerts.replaceAll('export ','')+'\n'+store.replaceAll('export ','')+'\n'+activity.replaceAll('export ','')).replace('/* APP */',()=>app+'\n'+fidelity+'\n'+people+'\n'+tables+'\n'+profile+'\n'+activityPage+'\n'+bulkUi+'\n'+importReview+'\n'+motion));
+await writeFile('dist/index.html',template.replace('/* STYLES */',()=>css).replace('/* DATA */',()=>data.replaceAll('export ','' )+'\n'+training.replaceAll('export ','')+'\n'+bulkEngine.replaceAll('export ','')+'\n'+alerts.replaceAll('export ','')+'\n'+store.replaceAll('export ','')+'\n'+activity.replaceAll('export ','')).replace('/* APP */',()=>app+'\n'+fidelity+'\n'+people+'\n'+tables+'\n'+profile+'\n'+activityPage+'\n'+bulkUi+'\n'+importReview+'\n'+teams+'\n'+motion));
 console.log('Built dist/index.html — standalone, no dependencies.');

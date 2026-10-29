@@ -23,7 +23,17 @@ export const TEAMS = [
   "Cloud Platform",
   "Security Operations",
   "GRC & Audit",
+  "Threat Intelligence",
+  "Forensics Lab",
 ];
+// Seed descriptions for the demo teams, so the cards show what each team is for.
+export const TEAM_DESCRIPTIONS = {
+  "Application Security": "Secure code review, testing and developer enablement",
+  "Cloud Platform": "Cloud build and run teams across EMEA and APAC",
+  "Security Operations": "Monitoring, triage and escalation for the global SOC",
+  "GRC & Audit": "Governance, risk and internal audit",
+  "Threat Intelligence": "Tracks threat actors and briefs the SOC",
+};
 export const VOUCHERS = [
   "Cyber Defense FY26",
   "Cloud Security FY26",
@@ -131,6 +141,18 @@ export function seed() {
     [TEAMS[2]],
     [TEAMS[2]],
   ];
+  // Which teams each portal user can see, so some teams are visible to nobody.
+  const PORTAL_TEAMS = [
+    ["Application Security", "Cloud Platform", "Security Operations"],
+    ["Application Security", "Cloud Platform"],
+    ["Security Operations"],
+    ["Application Security"],
+    ["Security Operations"],
+    ["Security Operations", "Application Security"],
+    ["Cloud Platform"],
+    [],
+    [],
+  ];
   const make = (name, i, type) => ({
     id: uid(),
     name,
@@ -155,7 +177,7 @@ export function seed() {
           : i === 1 || i === 4
             ? groupsForVouchers([VOUCHERS[i % 4]])
             : groupsForVouchers([VOUCHERS[i % 4]]).slice(0, 1),
-    teams: type === "student" ? studentTeams[i] : [...TEAMS],
+    teams: type === "student" ? studentTeams[i] : PORTAL_TEAMS[i] || [],
     vouchers:
       type === "portal" && [0, 7].includes(i)
         ? [...VOUCHERS]

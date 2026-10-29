@@ -78,6 +78,7 @@ function alertCountFor(personId) {
   }
   return alertCache.counts.get(personId) || 0;
 }
+// Not shown in the people tables for now (removed from the Status column); kept for when it returns.
 function alertBadge(row) {
   const count = alertCountFor(row.personId);
   if (!count) return "";
