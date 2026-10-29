@@ -2,3 +2,8 @@ release/
 *.zip
 .DS_Store
 node_modules/
+
+# Impeccable live-mode session state and caches
+.impeccable/live/*
+!.impeccable/live/config.json
+.impeccable/hook.cache.json

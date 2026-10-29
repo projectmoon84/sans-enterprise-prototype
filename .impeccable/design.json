@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-29T12:00:00Z",
+  "title": "Design System: SANS Enterprise Portal",
+  "extensions": {
+    "colorMeta": {
+      "signal-cyan": { "role": "primary", "displayName": "Signal Cyan", "canonical": "#00b5d5", "tonalRamp": ["#00303a", "#004a59", "#006679", "#00839b", "#009fbd", "#00b5d5", "#7fdbeb", "#eaf8fb"] },
+      "control-navy": { "role": "neutral", "displayName": "Control Navy", "canonical": "#001429", "tonalRamp": ["#001429", "#00243f", "#00364e", "#1d3a5c", "#31445f", "#45556c", "#90a1b9", "#e2e8f0"] },
+      "focus-teal": { "role": "secondary", "displayName": "Focus Teal", "canonical": "#007c9b" },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#0f172b" },
+      "canvas": { "role": "neutral", "displayName": "Slate Canvas", "canonical": "#e2e8f0" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Page titles only." },
+      "intro": { "displayName": "Intro", "purpose": "Line under a page title; search text." },
+      "body": { "displayName": "Body", "purpose": "Table cells, forms, buttons." },
+      "body-strong": { "displayName": "Body strong", "purpose": "Names in tables, card titles." },
+      "label": { "displayName": "Label", "purpose": "Table headers, meta tags, chip counts." }
+    },
+    "shadows": [
+      { "name": "dialog", "value": "0 16px 36px #00000026", "purpose": "Modals." },
+      { "name": "menu", "value": "0 4px 12px #10182824", "purpose": "Dropdown menus, select pickers, row menus." },
+      { "name": "popover", "value": "0 8px 24px #10182833", "purpose": "Cell pop-overs." },
+      { "name": "frozen-edge", "value": "8px 0 8px -8px #0f172b33", "purpose": "Edge of a frozen table column." }
+    ],
+    "motion": [
+      { "name": "hover-fade", "value": "400ms ease", "purpose": "Every hover state on interactive elements." },
+      { "name": "dialog-rise", "value": "240ms cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "Dialog entrance; backdrop fades over 200ms." },
+      { "name": "stagger-section", "value": "45ms", "purpose": "Delay between page sections on a screen change." },
+      { "name": "stagger-row", "value": "18ms, capped at 12 rows", "purpose": "Delay between table rows on a screen change." }
+    ],
+    "breakpoints": [
+      { "name": "mobile", "value": "760px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one main action on a screen or dialog.",
+      "html": "<button class=\"ds-btn-primary\">Add students</button>",
+      "css": ".ds-btn-primary{font:400 14px/20px 'Fira Sans',Arial,sans-serif;background:#00b5d5;color:#000;border:1px solid #00b5d5;border-radius:24px;padding:7px 14px;height:36px;cursor:pointer;transition:background-color .4s ease,border-color .4s ease}.ds-btn-primary:hover{background:#009fbd;border-color:#009fbd}.ds-btn-primary:focus-visible{outline:2px solid #007c9b;outline-offset:2px}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Supporting actions, Cancel, Actions menu trigger.",
+      "html": "<button class=\"ds-btn-secondary\">Cancel</button>",
+      "css": ".ds-btn-secondary{font:400 14px/20px 'Fira Sans',Arial,sans-serif;background:#fff;color:#31445f;border:1px solid #c5d4e8;border-radius:24px;padding:9px 16px;height:40px;cursor:pointer;transition:background-color .4s ease}.ds-btn-secondary:hover{background:#f1f5f9}.ds-btn-secondary:focus-visible{outline:2px solid #007c9b;outline-offset:2px}"
+    },
+    {
+      "name": "Search Input",
+      "kind": "input",
+      "refersTo": "input-search",
+      "description": "Table search in the toolbar.",
+      "html": "<label class=\"ds-search\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"7\" fill=\"none\" stroke=\"#62748e\" stroke-width=\"2\"/><path d=\"m20 20-4-4\" stroke=\"#62748e\" stroke-width=\"2\"/></svg><input placeholder=\"Search students\"></label>",
+      "css": ".ds-search{position:relative;display:inline-flex;align-items:center}.ds-search svg{position:absolute;left:14px}.ds-search input{font:400 16px/24px 'Fira Sans',Arial,sans-serif;color:#0f172b;background:#fff;border:1px solid #c5d4e8;border-radius:24px;padding:7px 12px 7px 39px;height:40px;width:280px}.ds-search input:focus-visible{outline:2px solid #007c9b;outline-offset:1px}"
+    },
+    {
+      "name": "Filter Chip",
+      "kind": "chip",
+      "refersTo": "filter-chip",
+      "description": "Quick filters above tables, with a count.",
+      "html": "<button class=\"ds-chip\">Needs voucher<span>3</span></button>",
+      "css": ".ds-chip{display:inline-flex;align-items:center;gap:6px;font:400 13px/19px 'Fira Sans',Arial,sans-serif;color:#0b3b4b;background:#eaf8fb;border:1px solid #009fbd;border-radius:20px;padding:5px 12px;cursor:pointer}.ds-chip span{font-size:12px;color:#45556c;background:#fff;border-radius:10px;padding:1px 7px}"
+    },
+    {
+      "name": "Status Badges",
+      "kind": "chip",
+      "refersTo": "badge-active",
+      "description": "Tinted, bordered status pills.",
+      "html": "<span class=\"ds-badge ds-ok\">Active</span> <span class=\"ds-badge ds-warn\">Pending invite</span>",
+      "css": ".ds-badge{display:inline-block;font:400 12px/14px 'Fira Sans',Arial,sans-serif;border-radius:20px;padding:3px 6px;border:1px solid}.ds-ok{color:#00824a;background:#effcf4;border-color:#a7f3c1}.ds-warn{color:#8a4b00;background:#fffaeb;border-color:#ffd37c}"
+    },
+    {
+      "name": "Person Cell",
+      "kind": "custom",
+      "refersTo": "table-cell",
+      "description": "Name, role and dual-role meta tag in people tables.",
+      "html": "<div class=\"ds-person\"><div class=\"ds-name\">Ada Whitfield</div><div class=\"ds-meta\"><span>Security Program Lead</span><button class=\"ds-tag\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\"><path d=\"M8 1.33a6.67 6.67 0 1 0 0 13.34A6.67 6.67 0 0 0 8 1.33ZM8 4a2.33 2.33 0 1 1 0 4.67A2.33 2.33 0 0 1 8 4Zm0 9.33a5.3 5.3 0 0 1-4.1-1.92 6.6 6.6 0 0 1 8.2 0A5.3 5.3 0 0 1 8 13.33Z\" fill=\"#90a1b9\"/></svg>Portal user</button></div></div>",
+      "css": ".ds-person{font-family:'Fira Sans',Arial,sans-serif;background:#fff;padding:16px;width:320px}.ds-name{font:500 14px/22px inherit;color:#0f172b}.ds-meta{display:flex;align-items:center;gap:16px;font:400 14px/22px inherit;color:#62748e}.ds-tag{display:inline-flex;align-items:center;gap:4px;margin:0 -6px;padding:1px 6px;border:0;border-radius:999px;background:transparent;color:#62748e;font:500 12px/18px 'Fira Sans',Arial,sans-serif;cursor:pointer;transition:background-color .4s ease}.ds-tag:hover{background:#f1f5f9}"
+    },
+    {
+      "name": "Sidebar Navigation",
+      "kind": "nav",
+      "refersTo": "nav-item-active",
+      "description": "Navy sidebar with sliding cyan active bar.",
+      "html": "<nav class=\"ds-nav\"><a>Home</a><a class=\"on\">Students</a><a>Teams</a></nav>",
+      "css": ".ds-nav{display:flex;flex-direction:column;width:220px;background:#001429;padding:16px 0;font:400 14px/22px 'Fira Sans',Arial,sans-serif}.ds-nav a{display:flex;align-items:center;height:46px;padding:0 16px 0 44px;color:#dadddf;cursor:pointer;transition:background-color .4s ease,color .4s ease}.ds-nav a:hover{color:#fff}.ds-nav a.on{background:#00364e;color:#fff;box-shadow:inset 4px 0 0 #00b5d5}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Control Room",
+    "overview": "The portal is where a training manager sees the state of their whole programme at a glance and acts on it. A deep navy frame holds the navigation; the work happens on white surfaces laid on a cool slate canvas. Status is the point: active, pending, suspended, needs voucher and needs attention must read instantly against everything else, which stays quiet.\n\nThe mood is confident, clear and friendly. Data is dense (72px table rows, 14px body text), but rounded pill controls, soft tinted badges and generous card padding keep it approachable rather than austere. The Figma file is the source of truth; this document records what the prototype implements from it.",
+    "keyCharacteristics": [
+      "Navy frame, slate canvas, white work surfaces.",
+      "One signal colour (cyan) for primary action, current location and selection.",
+      "Status carried by tinted, bordered pills with dark text.",
+      "Flat surfaces; shadows only on things that float.",
+      "Fira Sans throughout, in two weights."
+    ],
+    "rules": [
+      { "name": "The One Signal Rule", "body": "Cyan means \"act here\" or \"you are here\". Never use it for decoration, and never for status.", "section": "colors" },
+      { "name": "The Status Pill Rule", "body": "Status always uses tint + border + dark text of one hue. Never a solid fill, never colour alone without the word.", "section": "colors" },
+      { "name": "The Two Weights Rule", "body": "Only 400 and 500. Emphasis beyond medium comes from size or position, not bold.", "section": "typography" },
+      { "name": "The Float-Only Rule", "body": "If it doesn't float above the page, it has no shadow.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep cyan for action, location and selection only.",
+      "Do use tinted, bordered pills with the status word for every status.",
+      "Do fade hover states over 400ms.",
+      "Do keep every dropdown and select on the shared menu style.",
+      "Do match the Figma file; where it and this document disagree, Figma wins and this file should be updated."
+    ],
+    "donts": [
+      "Don't add shadows to cards, tables or anything resting on the canvas.",
+      "Don't introduce a second font family or weights other than 400 and 500.",
+      "Don't underline meta tags on hover; use the Wash pill instead.",
+      "Don't put white text on Signal Cyan."
+    ]
+  }
+}
