@@ -267,7 +267,7 @@ async function report(which = process.argv[3]) {
   const labels = config.viewLabels || {};
   const counts = KINDS.map(([key, label]) => {
     const n = notes.filter((note) => note.kind === key).length;
-    return [n === 1 ? label.replace(/s$/, "") : label, n];
+    return [n === 1 ? (label === "Fixes" ? "Fix" : label.replace(/s$/, "")) : label, n];
   }).filter(([, n]) => n);
   const card = (n) => {
     const k = KINDS.find(([key]) => key === n.kind) || KINDS[0];
@@ -303,7 +303,7 @@ pre{background:var(--paper);border:1px solid var(--line);border-radius:10px;padd
 <p class="meta">${handover ? `Handed over ${esc(handover.date)}` : `Draft generated ${today()}`}${previous ? ` · Changes since ${esc(previous.name)} (${esc(previous.date)})` : " · First handover"}${toRef ? ` · Tag <code>${esc(toRef)}</code>` : ""}</p>
 ${handover?.summary ? `<p class="summary">${esc(handover.summary)}</p>` : ""}
 <ul class="counts">${counts.map(([l, n]) => `<li>${n} ${esc(l.toLowerCase())}</li>`).join("") || "<li>No notes in this handover</li>"}</ul>
-${notes.length ? `<nav class="toc" aria-label="Contents"><strong>Contents</strong><ol>${notes.sort((a, b) => a.ref - b.ref).map((n) => `<li><a href="#note-${n.ref}">#${n.ref} ${esc(n.title)}</a></li>`).join("")}</ol></nav>` : ""}
+${notes.length ? `<nav class="toc" aria-label="Contents"><strong>Contents</strong><ol>${KINDS.flatMap(([key]) => notes.filter((n) => n.kind === key).sort((a, b) => a.ref - b.ref)).map((n) => `<li><a href="#note-${n.ref}">#${n.ref} ${esc(n.title)}</a></li>`).join("")}</ol></nav>` : ""}
 ${sections || `<p class="muted" style="margin-top:32px">${previous ? "No notes were added in this handover." : "This is the baseline: everything in the prototype up to this point has been handed over."}</p>`}
 ${commits.length ? `<section><h2>Commits <span>${commits.length}</span></h2><pre>${esc(commits.join("\n"))}</pre></section>` : ""}
 ${files.length ? `<section><h2>Files changed</h2><pre>${esc(files.join("\n"))}</pre></section>` : ""}
