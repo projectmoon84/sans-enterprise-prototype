@@ -4,6 +4,7 @@ import {
   VOUCHERS,
   ROLES,
   VOUCHER_GROUPS,
+  TEAM_DESCRIPTIONS,
   uid,
   seed,
   validateDatabase,
@@ -250,6 +251,7 @@ function makeDirectories(source = {}) {
   const teams = teamNames.map((name) => ({
     id: recordId("team", name),
     name,
+    description: TEAM_DESCRIPTIONS[name] || "",
     createdAt: "2026-10-15T09:00:00.000Z",
     createdBy: "system",
   }));
@@ -907,6 +909,11 @@ export function createStore({ storage = null, initialData } = {}) {
       });
     }
   };
+  const assertCanManageTeams = (next) => {
+    const actor = next.people.find((item) => item.id === next.session.actorId);
+    if (!["Admin", "SSO Admin", "Limited Admin"].includes(actor?.portal?.role))
+      throw Error("You do not have permission to change teams.");
+  };
   const transact = (change) => {
     const next = structuredClone(data);
     const result = change(next);
@@ -1447,7 +1454,7 @@ export function createStore({ storage = null, initialData } = {}) {
         next.importDrafts = next.importDrafts.filter((item) => item.id !== id);
       });
     },
-    createTeam(name) {
+    createTeam(name, description = "") {
       return transact((next) => {
         const clean = String(name || "").trim();
         if (
@@ -1460,8 +1467,9 @@ export function createStore({ storage = null, initialData } = {}) {
         const team = {
           id: `${recordId("team", clean)}-${uid().slice(0, 8)}`,
           name: clean,
+          description: String(description || "").trim(),
           createdAt: isoNow(),
-          createdBy: "system",
+          createdBy: next.session.actorId || "system",
         };
         next.teams.push(team);
         logEvent(next, {
@@ -1470,6 +1478,60 @@ export function createStore({ storage = null, initialData } = {}) {
           via: "list",
         });
         return team.id;
+      });
+    },
+    // Rename a team and change its description. Names stay unique.
+    updateTeam(id, { name, description } = {}) {
+      return transact((next) => {
+        const team = next.teams.find((item) => item.id === id);
+        if (!team) throw Error("That team no longer exists.");
+        assertCanManageTeams(next);
+        const clean = String(name ?? team.name).trim();
+        if (!clean) throw Error("Enter a team name.");
+        if (next.teams.some((item) => item.id !== id && item.name.toLowerCase() === clean.toLowerCase()))
+          throw Error("Another team already has that name.");
+        const text = String(description ?? team.description ?? "").trim();
+        if (clean !== team.name) {
+          logEvent(next, {
+            action: "team.renamed",
+            target: targetRecord("team", { ...team, name: clean }),
+            changes: [{ field: "team", from: team.name, to: clean }],
+            via: "team",
+          });
+          team.name = clean;
+        }
+        if (text !== (team.description || "")) {
+          logEvent(next, {
+            action: "team.description_changed",
+            target: targetRecord("team", team),
+            changes: [{ field: "description", from: team.description || "", to: text }],
+            via: "team",
+          });
+          team.description = text;
+        }
+        team.updatedAt = isoNow();
+        team.updatedBy = next.session.actorId;
+        return team.id;
+      });
+    },
+    // Delete a team with no members. Portal users lose access to it.
+    deleteTeam(id) {
+      return transact((next) => {
+        const team = next.teams.find((item) => item.id === id);
+        if (!team) throw Error("That team no longer exists.");
+        assertCanManageTeams(next);
+        const members = next.people.filter((p) => !p.archivedAt && p.student?.teamId === id);
+        if (members.length) throw Error("Move this team's members before deleting it.");
+        const withAccess = next.people.filter((p) => p.portal?.teamIds?.includes(id));
+        for (const person of withAccess) person.portal.teamIds = person.portal.teamIds.filter((t) => t !== id);
+        next.teams = next.teams.filter((item) => item.id !== id);
+        logEvent(next, {
+          action: "team.deleted",
+          target: targetRecord("team", team),
+          changes: withAccess.length ? [{ field: "access", from: `${withAccess.length} portal ${withAccess.length === 1 ? "user" : "users"}`, to: "" }] : [],
+          via: "team",
+        });
+        return withAccess.length;
       });
     },
     commitCsvImport(inputs, { fileName = "CSV import", excluded = 0 } = {}) {
