@@ -47,6 +47,10 @@ The zip contains the original seed data, never records from the author's browser
 
 This is mock application state, not a database server. Invitations are simulated; no emails are sent. Use fictional information. A later hosted version can replace the persistence boundary with an authenticated API and a shared database.
 
+## Handover notes
+
+Press **Alt+H**, or click **Handover layer** in the bottom-left corner, to see notes for developers on each component. When running locally with `python3 serve.py`, you can add and edit notes. `npm run handover:status`, `npm run handover:report` and `npm run handover:cut -- "Name"` manage handovers and write the handover document. See `handover/README.md`.
+
 ## Developer source
 
 Source is in `src/`; `dist/index.html` is the generated standalone app. The client zip includes a `developer/` folder with the same editable source and tests.

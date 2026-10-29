@@ -168,7 +168,7 @@ peopleView = function () {
       ? users
           .map((u) => {
             const meta = metaFor(u);
-            return `<tr${rowHighlight(u)}>${`<td class="selection-col">${checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email))}</td>`}<td><div class="person-name">${esc(u.name || u.email)}</div>${personMeta(u, portal ? u.role : u.workRole || u.email, "person-role")}</td>${portal ? `<td class="scope">${u.accessLabel ? esc(u.accessLabel) : `${u.vouchers.length} ${u.vouchers.length === 1 ? "Voucher" : "Vouchers"} • ${u.groups.length} Admin ${u.groups.length === 1 ? "Group" : "Groups"} • ${u.teams.length} Teams`}</td>` : `<td class="scope ${u.groups.length ? "" : "unassigned"}">${esc(u.groups.join(", ") || "Unassigned")}</td><td class="scope ${u.teams.length ? "" : "unassigned"}">${esc(u.teams.join(", ") || "Unassigned")}</td>`}<td class="modifier"><span>${esc(meta.name)}</span><span class="secondary">${esc(meta.detail)}</span></td><td class="status-cell">${labelStatus(u.status)}${voucherFlag(u)}${u.accountSetup && u.status === "Pending invite" ? `<span class="secondary account-pending">Awaiting SANS account</span>` : portal ? `<span class="secondary">${esc(meta.last)}</span>` : ""}</td><td class="menu-cell">${rowActions(u)}</td></tr>`;
+            return `<tr${rowHighlight(u)}>${`<td class="selection-col">${checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email))}</td>`}<td><div class="person-name">${esc(u.name || u.email)}</div>${dualTag(u)}<div class="secondary person-role">${esc(portal ? u.role : u.workRole || u.email)}</div></td>${portal ? `<td class="scope">${u.accessLabel ? esc(u.accessLabel) : `${u.vouchers.length} ${u.vouchers.length === 1 ? "Voucher" : "Vouchers"} • ${u.groups.length} Admin ${u.groups.length === 1 ? "Group" : "Groups"} • ${u.teams.length} Teams`}</td>` : `<td class="scope ${u.groups.length ? "" : "unassigned"}">${esc(u.groups.join(", ") || "Unassigned")}</td><td class="scope ${u.teams.length ? "" : "unassigned"}">${esc(u.teams.join(", ") || "Unassigned")}</td>`}<td class="modifier"><span>${esc(meta.name)}</span><span class="secondary">${esc(meta.detail)}</span></td><td class="status-cell">${labelStatus(u.status)}${alertBadge(u)}${voucherFlag(u)}${u.accountSetup && u.status === "Pending invite" ? `<span class="secondary account-pending">Awaiting SANS account</span>` : portal ? `<span class="secondary">${esc(meta.last)}</span>` : ""}</td><td class="menu-cell">${rowActions(u)}</td></tr>`;
           })
           .join("")
       : `<tr><td colspan="${portal ? 6 : 7}"><div class="empty">${icon("search")}<h2>No people found</h2><p>Try another name or clear your filters.</p>${btn("Clear filters", "all-filters-clear")}</div></td></tr>`
@@ -526,7 +526,7 @@ closeModal = function () {
 function csvColumnGuide() {
   const list = (items) => items.map((x) => `<span class="value-chip">${esc(x)}</span>`).join("");
   const vouchers = db.vouchers?.length ? db.vouchers : VOUCHERS;
-  return `<details class="csv-guide"><summary>${icon("info")}<span>What goes in each column</span>${icon("arrow_drop_down")}</summary><div class="csv-guide-body"><table class="csv-guide-table"><tbody>
+  return `<details class="csv-guide" data-spec="csv.column-guide" data-spec-label="Column guide"><summary>${icon("info")}<span>What goes in each column</span>${icon("arrow_drop_down")}</summary><div class="csv-guide-body"><table class="csv-guide-table"><tbody>
 <tr><th scope="row">Email <span class="req">Required</span></th><td>Their work email. This is how we match them to a SANS account.</td></tr>
 <tr><th scope="row">Name</th><td>First and last name. Separate First name and Last name columns work too.</td></tr>
 <tr><th scope="row">Voucher</th><td>Pays for their training. Leave it blank to assign one after upload; they won't be invited until you do.<div class="value-list">${list(vouchers)}</div></td></tr>
@@ -585,7 +585,7 @@ function csvSummary(u) {
     c.alsoPortal ? `${c.alsoPortal} already ${c.alsoPortal === 1 ? "has" : "have"} portal access` : "",
   ].filter(Boolean).join(" · ");
   const columns = `<div class="csv-columns"><p>${icon("check")}<span><strong>Columns matched:</strong> ${u.matched.map((m) => esc(m.label)).join(", ")}</span></p>${u.ignored.length ? `<p class="muted-line">${icon("info")}<span><strong>Ignored:</strong> ${u.ignored.map(esc).join(", ")}</span></p>` : ""}${u.missing.includes("Voucher") ? `<p class="warn-line">${icon("info")}<span>No voucher column, so everyone will need a voucher assigned before they're invited.</span></p>` : ""}</div>`;
-  return `<div class="csv-summary"><h3 tabindex="-1">${pluralize(c.total, "student")} found</h3><div class="csv-tiles">${tile("ready", "check_circle", c.ready, "ready to invite", readyNotes, "ready")}${tile("needs", "error", c.needsVoucher, c.needsVoucher === 1 ? "needs a voucher" : "need a voucher", "Add them now and assign a voucher on the next screen", "needsVoucher")}${tile("error", "error", c.error, c.error === 1 ? "needs fixing" : "need fixing", esc(problemText), "error")}</div>${columns}</div>`;
+  return `<div class="csv-summary" data-spec="csv.summary" data-spec-label="Upload summary"><h3 tabindex="-1">${pluralize(c.total, "student")} found</h3><div class="csv-tiles">${tile("ready", "check_circle", c.ready, "ready to invite", readyNotes, "ready")}${tile("needs", "error", c.needsVoucher, c.needsVoucher === 1 ? "needs a voucher" : "need a voucher", "Add them now and assign a voucher on the next screen", "needsVoucher")}${tile("error", "error", c.error, c.error === 1 ? "needs fixing" : "need fixing", esc(problemText), "error")}</div>${columns}</div>`;
 }
 function uploadDisplay() {
   state.modal = state.upload?.phase === "uploading" ? "uploading" : "upload";
@@ -599,7 +599,7 @@ function uploadDisplay() {
   const error = u?.error
     ? `<div class="csv-upload-error" role="alert">${icon("error")}<div><strong>${esc(u.errorTitle || "We couldn't read that file")}</strong><p>${esc(u.error)}</p></div></div>`
     : "";
-  const zone = `<div class="upload-zone" id="csv-dropzone"><label for="csv-file" class="upload-visual"><span class="upload-featured-icon">${UPLOAD_CLOUD_ICON}</span><span><strong>Click to upload</strong> or drag and drop</span><small>csv files only</small></label><input type="file" id="csv-file" accept=".csv,text/csv,.xlsx,.xls" aria-label="Choose a CSV file"></div>`;
+  const zone = `<div class="upload-zone" id="csv-dropzone" data-spec="csv.dropzone" data-spec-label="Upload drop zone"><label for="csv-file" class="upload-visual"><span class="upload-featured-icon">${UPLOAD_CLOUD_ICON}</span><span><strong>Click to upload</strong> or drag and drop</span><small>csv files only</small></label><input type="file" id="csv-file" accept=".csv,text/csv,.xlsx,.xls" aria-label="Choose a CSV file"></div>`;
   openModal(
     "Import students from a CSV",
     "",

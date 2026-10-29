@@ -287,7 +287,7 @@ function bulkBarHtml(ctx) {
   const disabled = ctx.canEdit === false ? "disabled" : "";
   const visibleIds = new Set(ctx.visible.map((u) => u.id));
   const hidden = state.selected.filter((id) => !visibleIds.has(id)).length;
-  return `<div class="bulk-bar" role="region" aria-label="Bulk actions"><span class="bulk-count" role="status">${count} selected${hidden ? ` · ${hidden} hidden by filters` : ""}</span><div class="bulk-actions">${mainActions(ctx)
+  return `<div class="bulk-bar" role="region" aria-label="Bulk actions" data-spec="bulk-bar" data-spec-label="Bulk action bar"><span class="bulk-count" role="status">${count} selected${hidden ? ` · ${hidden} hidden by filters` : ""}</span><div class="bulk-actions">${mainActions(ctx)
     .map(([kind, label]) => `<button type="button" class="button small" data-action="bulk-open" data-kind="${kind}" ${disabled}>${esc(label)}</button>`)
     .join("")}<div class="menu-anchor"><button type="button" class="button small" data-action="bulk-more" aria-haspopup="menu" aria-expanded="${Boolean(state.bulkMore)}">More${icon("chevron")}</button>${state.bulkMore ? `<div class="dropdown-menu bulk-more-menu" role="menu">${moreMenuItems(ctx).map(([kind, label, tone]) => `<button type="button" role="menuitem" data-action="bulk-more-item" data-kind="${kind}" class="${tone || ""}" ${kind !== "export" ? disabled : ""}>${esc(label)}</button>`).join("")}</div>` : ""}</div></div>${offerAll ? `<button type="button" class="button-link" data-action="bulk-select-all">Select all ${ctx.rows.length} ${ctx.key === "import" ? "rows" : ctx.noun[1]}</button>` : ""}<button type="button" class="bulk-clear" data-action="bulk-clear" aria-label="Clear selection">Clear${icon("close")}</button></div>`;
 }

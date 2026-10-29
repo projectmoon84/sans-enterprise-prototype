@@ -1,0 +1,170 @@
+{
+  "version": 1,
+  "project": "SANS Enterprise Portal",
+  "nextRef": 11,
+  "handovers": [],
+  "notes": [
+    {
+      "id": "n-seed-1",
+      "ref": 1,
+      "type": "annotation",
+      "kind": "feature",
+      "title": "Team cards show size, spread and visibility at a glance",
+      "body": "Cards are the default layout for Teams.\n\n- Each card shows the name, the description (two lines, then truncated), members, the admin groups its members span, and pending invites.\n- The footer shows portal users with access as avatars, or a **Not visible to anyone** flag with a **Give access** link.\n- Empty teams have a dashed border, \"No members yet\" and an **Add students** link.\n- The whole card opens the team page. The checkbox and ⋮ menu appear on hover or keyboard focus, and stay visible while anything is selected.",
+      "anchor": {
+        "view": "teams",
+        "spec": "teams.card",
+        "label": "Team card"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-seed-2",
+      "ref": 2,
+      "type": "annotation",
+      "kind": "feature",
+      "title": "Cards and rows toggle, remembered per person",
+      "body": "Switches the Teams list between cards and a table.\n\n- The choice is saved in the browser (`localStorage` key `sans-teams-layout`) and restored on the next visit.\n- Search, filters, sort and selection work the same in both layouts.\n- In rows, clicking a row or pressing Enter on it opens the team.",
+      "anchor": {
+        "view": "teams",
+        "spec": "teams.layout-toggle",
+        "label": "Cards and rows toggle"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-seed-3",
+      "ref": 3,
+      "type": "annotation",
+      "kind": "feature",
+      "title": "Team health strip",
+      "body": "Three tiles above the list, recalculated live.\n\n- **Students in no team** opens Students with the \"No team\" filter applied.\n- **Empty teams** and **Not visible to anyone** turn on the matching filter. Clicking again turns it off.\n- When nothing needs attention, a tile shows a calm green state instead of disappearing, so the layout doesn't jump.",
+      "anchor": {
+        "view": "teams",
+        "spec": "teams.health",
+        "label": "Team health strip"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-seed-4",
+      "ref": 4,
+      "type": "annotation",
+      "kind": "feature",
+      "title": "Search, quick filters and sort",
+      "body": "- Search matches team name and description.\n- Quick filters: All, Empty, Not visible to anyone, each with a live count.\n- Sort: Name A to Z (default), Most members, Recently changed (the latest activity event for the team).",
+      "anchor": {
+        "view": "teams",
+        "spec": "teams.toolbar",
+        "label": "Search, filters and sort"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-seed-5",
+      "ref": 5,
+      "type": "annotation",
+      "kind": "feature",
+      "title": "Team page with Members, Access and History tabs",
+      "body": "Opening a team replaces the old pop-up with a full page.\n\n- The header shows the description, who created the team and when it last changed. If there's no description, admins see an **Add a description** link.\n- Tabs: Members, Portal users with access, History. Counts sit in the tab labels.\n- **View training progress** is a placeholder. In the full product it opens Learning filtered to this team.\n- ⋮ holds Edit details and Delete team.",
+      "anchor": {
+        "view": "team",
+        "spec": "team.tabs",
+        "label": "Team tabs"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-seed-6",
+      "ref": 6,
+      "type": "annotation",
+      "kind": "feature",
+      "title": "Member bulk actions with Undo",
+      "body": "Members use the shared bulk bar from Students.\n\n- **Move to another team** opens a searchable picker, with \"Create a new team\" at the bottom.\n- **Set admin group** only offers groups covered by the selected students' vouchers. Others are skipped, with a reason.\n- **Remove from team** keeps them as students in the organisation.\n- Every action applies straight away with **Undo** in the toast (about 10 seconds). Skipped rows are listed under **Details**.\n- The same actions are in each row's ⋮ menu. Clicking a row opens the profile, which offers \"Back to [team]\".",
+      "anchor": {
+        "view": "team",
+        "spec": "team.members",
+        "label": "Members table"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-seed-7",
+      "ref": 7,
+      "type": "annotation",
+      "kind": "feature",
+      "title": "Add students side panel",
+      "body": "One panel for adding people to a team, opened from the team page, an empty team card, or straight after creating a team.\n\n- **Choose students**: search, filter by current team, admin group and voucher, and \"Select all N matching\". People already in the team are shown but disabled. Anyone in another team gets a **Moves** tag.\n- The footer summarises the effect before you commit, for example \"3 will move from other teams · 1 has no team yet\".\n- **Paste emails** accepts commas, semicolons or new lines and sorts entries into found, already in this team, not a student yet, and not an email.\n- Emails that aren't students yet go to the CSV review with the Team column filled in.\n- **Upload a CSV** opens the CSV import.\n- Focus is trapped while open, Esc closes it, and focus returns to the button that opened it.",
+      "anchor": {
+        "view": "team",
+        "spec": "teams.add-panel",
+        "label": "Add students panel"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-seed-8",
+      "ref": 8,
+      "type": "annotation",
+      "kind": "feature",
+      "title": "Deleting a team moves its members instead of blocking",
+      "body": "- If the team has members, the dialog asks where they go: move them to another team, or leave them with no team. The confirm button says what will happen, for example \"Move 5 and delete\".\n- It names the portal users who will lose access (the first two, then \"and N others\").\n- The team's history stays in the activity log.\n- Bulk delete on the list only deletes empty teams. Teams with members are kept, with the reason given.",
+      "anchor": {
+        "view": "team",
+        "spec": "teams.delete-dialog",
+        "label": "Delete team dialog"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-seed-9",
+      "ref": 9,
+      "type": "annotation",
+      "kind": "global",
+      "title": "New team activity events and permissions",
+      "body": "- New events: `team.renamed`, `team.description_changed` and `team.deleted`, alongside the existing `team.created`. They appear on the Activity page and in each team's History tab.\n- New store commands: `updateTeam(id, { name, description })` and `deleteTeam(id)`. `createTeam(name, description)` now takes an optional description.\n- Only Admins, SSO Admins and Limited Admins can change teams. Viewers see everything read-only, with no create, edit or delete controls.\n- A team can only be deleted once it has no members. Portal users lose access to it automatically.",
+      "anchor": null,
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-seed-10",
+      "ref": 10,
+      "type": "annotation",
+      "kind": "change",
+      "title": "Demo data: team descriptions and varied team access",
+      "body": "Reset the demo data to see these.\n\n- Two new teams: Threat Intelligence (with a description) and Forensics Lab (without one). Both are empty.\n- The original four teams have descriptions.\n- Portal users now have access to different teams rather than all of them, so GRC & Audit starts out not visible to anyone.",
+      "anchor": null,
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    }
+  ]
+}
