@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project": "SANS Enterprise Portal",
-  "nextRef": 11,
+  "nextRef": 13,
   "handovers": [],
   "notes": [
     {
@@ -9,8 +9,8 @@
       "ref": 1,
       "type": "annotation",
       "kind": "feature",
-      "title": "Team cards show size, spread and visibility at a glance",
-      "body": "Cards are the default layout for Teams.\n\n- Each card shows the name, the description (two lines, then truncated), members, the admin groups its members span, and pending invites.\n- The footer shows portal users with access as avatars, or a **Not visible to anyone** flag with a **Give access** link.\n- Empty teams have a dashed border, \"No members yet\" and an **Add students** link.\n- The whole card opens the team page. The checkbox and ⋮ menu appear on hover or keyboard focus, and stay visible while anything is selected.",
+      "title": "Team cards show size, status and visibility at a glance",
+      "body": "Cards are the default layout for Teams.\n\n- Each card has a two-letter tile in a soft tint. Tints follow the order teams were created in, so a team keeps its colour when the list is sorted or filtered.\n- The member count is one large figure, with the number of admin groups its members span beside it.\n- A status bar splits members into active, pending or needs a voucher, and suspended, with a plain-language breakdown underneath, for example \"3 active · 1 pending\".\n- The footer shows portal users with access as avatars, or a **Not visible to anyone** flag with a **Give access** link.\n- Empty teams show a single \"No members yet\" panel with **Add students**.\n- The whole card opens the team page. The checkbox and ⋮ menu appear on hover or keyboard focus, and stay visible while anything is selected.",
       "anchor": {
         "view": "teams",
         "spec": "teams.card",
@@ -161,6 +161,40 @@
       "title": "Demo data: team descriptions and varied team access",
       "body": "Reset the demo data to see these.\n\n- Two new teams: Threat Intelligence (with a description) and Forensics Lab (without one). Both are empty.\n- The original four teams have descriptions.\n- Portal users now have access to different teams rather than all of them, so GRC & Audit starts out not visible to anyone.",
       "anchor": null,
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-seed-11",
+      "ref": 11,
+      "type": "annotation",
+      "kind": "change",
+      "title": "Role labels beside job titles in people lists",
+      "body": "- In Students and team member lists, anyone who is also a portal user shows a **Portal user** label beside their job title. On Portal users, anyone who is also a student shows **Student**. This follows the Figma cell design.\n- The label gets a faint grey pill on hover instead of an underline.",
+      "anchor": {
+        "view": "students",
+        "spec": "people.table",
+        "label": "People table"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-seed-12",
+      "ref": 12,
+      "type": "annotation",
+      "kind": "change",
+      "title": "Status column no longer shows the needs-attention badge",
+      "body": "The Status column in people tables shows only the status. Needs-attention items (such as expiring certifications) stay on each person's profile, where there's room to explain them.",
+      "anchor": {
+        "view": "students",
+        "spec": "people.table",
+        "label": "People table"
+      },
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",

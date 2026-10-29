@@ -10741,12 +10741,12 @@ peopleView = function () {
     ? btn(icon("plus") + "Invite Portal user", "invite", "primary")
     : `<div class="menu-anchor">${btn("Add students" + icon("chevron"), "student-menu", "primary", 'aria-expanded="' + state.menu + '"')}${state.menu ? `<div class="dropdown-menu"><button data-action="add-student">Individuals</button><button data-action="upload">Upload a CSV</button></div>` : ""}</div>`;
   const checks = `<th class="selection-col">${checkRow("all", allSelected(users), "Select all visible people")}</th>`;
-  return `${heading(portal ? "Portal Users" : "Students", portal ? `${all.length} people can access this portal.` : "Students do not have access to this portal", actions)}<section class="card people-card" aria-label="${portal ? "Portal users" : "Students"} list">${toolbar()}<div class="table-wrap"><table class="people-table ${portal ? "portal-table" : "students-table"}"><colgroup>${portal ? '<col class="col-check"><col class="col-person"><col class="col-access"><col class="col-modifier"><col class="col-status"><col class="col-menu">' : '<col class="col-check"><col class="col-person"><col class="col-group"><col class="col-team"><col class="col-modifier"><col class="col-status"><col class="col-menu">'}</colgroup><thead><tr>${checks}${tableHead("Name", "name", !portal)}${portal ? tableHead("Access", "access", false) : tableHead("Admin Groups", "groups") + tableHead("Team", "teams")}${tableHead("Last modified by", "updatedAt")}${tableHead(portal ? "Status / Last access" : "Status", "status", !portal)}<th></th></tr></thead><tbody>${
+  return `${heading(portal ? "Portal Users" : "Students", portal ? `${all.length} people can access this portal.` : "Students do not have access to this portal", actions)}<section class="card people-card" aria-label="${portal ? "Portal users" : "Students"} list" data-spec="people.table" data-spec-label="People table">${toolbar()}<div class="table-wrap"><table class="people-table ${portal ? "portal-table" : "students-table"}"><colgroup>${portal ? '<col class="col-check"><col class="col-person"><col class="col-access"><col class="col-modifier"><col class="col-status"><col class="col-menu">' : '<col class="col-check"><col class="col-person"><col class="col-group"><col class="col-team"><col class="col-modifier"><col class="col-status"><col class="col-menu">'}</colgroup><thead><tr>${checks}${tableHead("Name", "name", !portal)}${portal ? tableHead("Access", "access", false) : tableHead("Admin Groups", "groups") + tableHead("Team", "teams")}${tableHead("Last modified by", "updatedAt")}${tableHead(portal ? "Status / Last access" : "Status", "status", !portal)}<th></th></tr></thead><tbody>${
     users.length
       ? users
           .map((u) => {
             const meta = metaFor(u);
-            return `<tr${rowHighlight(u)}>${`<td class="selection-col">${checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email))}</td>`}<td><div class="person-name">${esc(u.name || u.email)}</div>${dualTag(u)}<div class="secondary person-role">${esc(portal ? u.role : u.workRole || u.email)}</div></td>${portal ? `<td class="scope">${u.accessLabel ? esc(u.accessLabel) : `${u.vouchers.length} ${u.vouchers.length === 1 ? "Voucher" : "Vouchers"} • ${u.groups.length} Admin ${u.groups.length === 1 ? "Group" : "Groups"} • ${u.teams.length} Teams`}</td>` : `<td class="scope ${u.groups.length ? "" : "unassigned"}">${esc(u.groups.join(", ") || "Unassigned")}</td><td class="scope ${u.teams.length ? "" : "unassigned"}">${esc(u.teams.join(", ") || "Unassigned")}</td>`}<td class="modifier"><span>${esc(meta.name)}</span><span class="secondary">${esc(meta.detail)}</span></td><td class="status-cell">${labelStatus(u.status)}${alertBadge(u)}${voucherFlag(u)}${u.accountSetup && u.status === "Pending invite" ? `<span class="secondary account-pending">Awaiting SANS account</span>` : portal ? `<span class="secondary">${esc(meta.last)}</span>` : ""}</td><td class="menu-cell">${rowActions(u)}</td></tr>`;
+            return `<tr${rowHighlight(u)}>${`<td class="selection-col">${checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email))}</td>`}<td><div class="person-name">${esc(u.name || u.email)}</div>${personMeta(u, portal ? u.role : u.workRole || u.email, "person-role")}</td>${portal ? `<td class="scope">${u.accessLabel ? esc(u.accessLabel) : `${u.vouchers.length} ${u.vouchers.length === 1 ? "Voucher" : "Vouchers"} • ${u.groups.length} Admin ${u.groups.length === 1 ? "Group" : "Groups"} • ${u.teams.length} Teams`}</td>` : `<td class="scope ${u.groups.length ? "" : "unassigned"}">${esc(u.groups.join(", ") || "Unassigned")}</td><td class="scope ${u.teams.length ? "" : "unassigned"}">${esc(u.teams.join(", ") || "Unassigned")}</td>`}<td class="modifier"><span>${esc(meta.name)}</span><span class="secondary">${esc(meta.detail)}</span></td><td class="status-cell">${labelStatus(u.status)}${voucherFlag(u)}${u.accountSetup && u.status === "Pending invite" ? `<span class="secondary account-pending">Awaiting SANS account</span>` : portal ? `<span class="secondary">${esc(meta.last)}</span>` : ""}</td><td class="menu-cell">${rowActions(u)}</td></tr>`;
           })
           .join("")
       : `<tr><td colspan="${portal ? 6 : 7}"><div class="empty">${icon("search")}<h2>No people found</h2><p>Try another name or clear your filters.</p>${btn("Clear filters", "all-filters-clear")}</div></td></tr>`
@@ -14861,17 +14861,58 @@ function accessLine(t) {
   if (t.access.length <= 2) return `${t.access.map((p) => esc(shortName(p.name))).join(" and ")} can see this team`;
   return `${pluralize(t.access.length, "person", "people")} can see this team`;
 }
+// Each team gets a two-letter tile in one of a few soft tints. Tints follow the order teams were created in,
+// so neighbours differ and a team keeps its colour when the list is sorted or filtered.
+var TEAM_TINTS = [
+  ["#e2f3f7", "#00627a"],
+  ["#e8ecfb", "#3843a3"],
+  ["#f1eafb", "#6b3fa0"],
+  ["#fdf3e1", "#8a4b00"],
+  ["#e6f6ee", "#0f6b45"],
+  ["#fbeaee", "#a02c4a"],
+];
+function teamMonogram(t) {
+  const order = teamRecords().findIndex((team) => team.id === t.id);
+  const [bg, fg] = TEAM_TINTS[Math.max(order, 0) % TEAM_TINTS.length];
+  const words = t.name.replace(/&/g, " ").split(/\s+/).filter(Boolean);
+  const letters = `${words[0]?.[0] || ""}${words[1]?.[0] || ""}`.toUpperCase();
+  return `<span class="team-mono" style="--team-bg:${bg};--team-fg:${fg}" aria-hidden="true">${esc(letters)}</span>`;
+}
 function teamCard(t) {
   const canManage = actorCanBulk();
   const selected = state.teamSel.includes(t.id);
   const empty = !t.members.length;
-  const stats = `<dl class="team-stats"><div><dt>Members</dt><dd>${t.members.length}</dd></div><div><dt>${t.groups.length === 1 ? "Admin group" : "Admin groups"}</dt><dd>${t.groups.length}</dd></div><div><dt>Pending invites</dt><dd>${t.pending}</dd></div></dl>`;
+  const count = (status) => t.members.filter((u) => u.status === status).length;
+  const active = count("Active");
+  const suspended = count("Suspended");
+  const legend = [
+    [active, "active"],
+    [t.pending, "pending"],
+    [t.needsVoucher, t.needsVoucher === 1 ? "needs a voucher" : "need a voucher"],
+    [suspended, "suspended"],
+  ]
+    .filter(([n]) => n)
+    .map(([n, label]) => `${n} ${label}`)
+    .join(" · ");
+  const bar = [
+    ["ok", active],
+    ["warn", t.pending + t.needsVoucher],
+    ["off", suspended],
+  ]
+    .filter(([, n]) => n)
+    .map(([tone, n]) => `<span class="${tone}" style="flex-grow:${n}"></span>`)
+    .join("");
+  const body = empty
+    ? `<div class="team-card-empty"><span>No members yet</span>${canManage ? `<button type="button" class="button-link team-foot-action" data-action="team-add-students" data-team="${esc(t.id)}">Add students</button>` : ""}</div>`
+    : `<div class="team-figure"><span class="team-figure-num">${t.members.length}</span><span class="team-figure-unit">${t.members.length === 1 ? "member" : "members"}</span><span class="team-figure-groups">${pluralize(t.groups.length, "admin group")}</span></div><div class="team-status-bar" aria-hidden="true">${bar}</div><p class="team-status-legend">${legend}</p>`;
   const foot = empty
-    ? `<span class="team-flag muted">Empty</span><span class="team-foot-spacer"></span>${canManage ? `<button type="button" class="button-link team-foot-action" data-action="team-add-students" data-team="${esc(t.id)}">Add students</button>` : ""}`
-    : t.access.length
-      ? `${faces(t.access)}<span class="team-foot-text">${accessLine(t)}</span>`
-      : `<span class="team-flag">Not visible to anyone</span><span class="team-foot-spacer"></span>${canManage ? `<button type="button" class="button-link team-foot-action" data-action="team-give-access-from-list" data-team="${esc(t.id)}">Give access</button>` : ""}`;
-  return `<article class="team-card${empty ? " is-empty" : ""}${selected ? " is-selected" : ""}${state.highlightTeam === t.id ? " is-new" : ""}" aria-labelledby="team-card-${esc(t.id)}" data-spec="teams.card" data-spec-label="Team card"><div class="team-card-top"><div class="team-card-title"><h2 id="team-card-${esc(t.id)}"><button type="button" class="team-card-link" data-action="team-open" data-team="${esc(t.id)}">${esc(t.name)}</button></h2><p class="${t.description ? "" : "is-missing"}">${esc(t.description || "No description")}</p></div>${canManage ? `<input type="checkbox" class="row-check team-check" data-team-select="${esc(t.id)}" aria-label="Select ${esc(t.name)}" ${selected ? "checked" : ""}>` : ""}${teamMenu(t, "card")}</div>${empty ? `<p class="team-empty-line">No members yet</p>` : stats}${t.needsVoucher ? `<p class="team-note">${pluralize(t.needsVoucher, "member needs", "members need")} a voucher</p>` : ""}<div class="team-card-foot">${foot}</div></article>`;
+    ? ""
+    : `<div class="team-card-foot">${
+        t.access.length
+          ? `${faces(t.access)}<span class="team-foot-text">${accessLine(t)}</span>`
+          : `<span class="team-flag">Not visible to anyone</span><span class="team-foot-spacer"></span>${canManage ? `<button type="button" class="button-link team-foot-action" data-action="team-give-access-from-list" data-team="${esc(t.id)}">Give access</button>` : ""}`
+      }</div>`;
+  return `<article class="team-card${empty ? " is-empty" : ""}${selected ? " is-selected" : ""}${state.highlightTeam === t.id ? " is-new" : ""}" aria-labelledby="team-card-${esc(t.id)}" data-spec="teams.card" data-spec-label="Team card"><div class="team-card-top">${teamMonogram(t)}<div class="team-card-title"><h2 id="team-card-${esc(t.id)}"><button type="button" class="team-card-link" data-action="team-open" data-team="${esc(t.id)}">${esc(t.name)}</button></h2><p class="${t.description ? "" : "is-missing"}">${esc(t.description || "No description")}</p></div>${canManage ? `<input type="checkbox" class="row-check team-check" data-team-select="${esc(t.id)}" aria-label="Select ${esc(t.name)}" ${selected ? "checked" : ""}>` : ""}${teamMenu(t, "card")}</div>${body}${foot}</article>`;
 }
 function teamRow(t) {
   const canManage = actorCanBulk();
@@ -14956,7 +14997,7 @@ function membersPanel(team) {
       ? rows
           .map(
             (u) =>
-              `<tr${rowHighlight(u)}><td class="selection-col">${canManage ? checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email)) : `<input type="hidden" data-select="${esc(u.id)}">`}</td><td><div class="person-name">${esc(u.name || u.email)}</div>${dualTag(u)}<div class="secondary">${esc(u.email)}</div></td><td class="scope">${u.groups.length ? esc(u.groups[0]) : canManage && u.vouchers.length ? `<button type="button" class="inline-assignment" data-action="cell-pick" data-kind="adminGroup" data-row="${esc(u.id)}">${icon("plus")}Set admin group</button>` : `<span class="unassigned">None</span>`}</td><td class="scope">${u.vouchers.length ? esc(u.vouchers[0]) : voucherFlag(u) || `<span class="unassigned">None</span>`}</td><td class="status-cell">${labelStatus(u.status)}</td><td class="menu-cell">${memberMenu(u)}</td></tr>`,
+              `<tr${rowHighlight(u)}><td class="selection-col">${canManage ? checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email)) : `<input type="hidden" data-select="${esc(u.id)}">`}</td><td><div class="person-name">${esc(u.name || u.email)}</div>${personMeta(u, u.email)}</td><td class="scope">${u.groups.length ? esc(u.groups[0]) : canManage && u.vouchers.length ? `<button type="button" class="inline-assignment" data-action="cell-pick" data-kind="adminGroup" data-row="${esc(u.id)}">${icon("plus")}Set admin group</button>` : `<span class="unassigned">None</span>`}</td><td class="scope">${u.vouchers.length ? esc(u.vouchers[0]) : voucherFlag(u) || `<span class="unassigned">None</span>`}</td><td class="status-cell">${labelStatus(u.status)}</td><td class="menu-cell">${memberMenu(u)}</td></tr>`,
           )
           .join("")
       : `<tr><td colspan="6"><div class="empty">${icon("search")}<h2>No members match</h2><p>Try another name or clear the filter.</p>${btn("Clear filters", "team-clear-filters")}</div></td></tr>`
@@ -16003,7 +16044,7 @@ if (!REDUCED_MOTION.matches && document.getElementById("main")) staggerIn(docume
 window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
   "version": 1,
   "project": "SANS Enterprise Portal",
-  "nextRef": 11,
+  "nextRef": 13,
   "handovers": [],
   "notes": [
     {
@@ -16011,8 +16052,8 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
       "ref": 1,
       "type": "annotation",
       "kind": "feature",
-      "title": "Team cards show size, spread and visibility at a glance",
-      "body": "Cards are the default layout for Teams.\n\n- Each card shows the name, the description (two lines, then truncated), members, the admin groups its members span, and pending invites.\n- The footer shows portal users with access as avatars, or a **Not visible to anyone** flag with a **Give access** link.\n- Empty teams have a dashed border, \"No members yet\" and an **Add students** link.\n- The whole card opens the team page. The checkbox and ⋮ menu appear on hover or keyboard focus, and stay visible while anything is selected.",
+      "title": "Team cards show size, status and visibility at a glance",
+      "body": "Cards are the default layout for Teams.\n\n- Each card has a two-letter tile in a soft tint. Tints follow the order teams were created in, so a team keeps its colour when the list is sorted or filtered.\n- The member count is one large figure, with the number of admin groups its members span beside it.\n- A status bar splits members into active, pending or needs a voucher, and suspended, with a plain-language breakdown underneath, for example \"3 active · 1 pending\".\n- The footer shows portal users with access as avatars, or a **Not visible to anyone** flag with a **Give access** link.\n- Empty teams show a single \"No members yet\" panel with **Add students**.\n- The whole card opens the team page. The checkbox and ⋮ menu appear on hover or keyboard focus, and stay visible while anything is selected.",
       "anchor": {
         "view": "teams",
         "spec": "teams.card",
@@ -16163,6 +16204,40 @@ window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||{
       "title": "Demo data: team descriptions and varied team access",
       "body": "Reset the demo data to see these.\n\n- Two new teams: Threat Intelligence (with a description) and Forensics Lab (without one). Both are empty.\n- The original four teams have descriptions.\n- Portal users now have access to different teams rather than all of them, so GRC & Audit starts out not visible to anyone.",
       "anchor": null,
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-seed-11",
+      "ref": 11,
+      "type": "annotation",
+      "kind": "change",
+      "title": "Role labels beside job titles in people lists",
+      "body": "- In Students and team member lists, anyone who is also a portal user shows a **Portal user** label beside their job title. On Portal users, anyone who is also a student shows **Student**. This follows the Figma cell design.\n- The label gets a faint grey pill on hover instead of an underline.",
+      "anchor": {
+        "view": "students",
+        "spec": "people.table",
+        "label": "People table"
+      },
+      "handover": null,
+      "author": "Matt",
+      "createdAt": "2026-10-29",
+      "updatedAt": "2026-10-29"
+    },
+    {
+      "id": "n-seed-12",
+      "ref": 12,
+      "type": "annotation",
+      "kind": "change",
+      "title": "Status column no longer shows the needs-attention badge",
+      "body": "The Status column in people tables shows only the status. Needs-attention items (such as expiring certifications) stay on each person's profile, where there's room to explain them.",
+      "anchor": {
+        "view": "students",
+        "spec": "people.table",
+        "label": "People table"
+      },
       "handover": null,
       "author": "Matt",
       "createdAt": "2026-10-29",
