@@ -152,17 +152,58 @@ function accessLine(t) {
   if (t.access.length <= 2) return `${t.access.map((p) => esc(shortName(p.name))).join(" and ")} can see this team`;
   return `${pluralize(t.access.length, "person", "people")} can see this team`;
 }
+// Each team gets a two-letter tile in one of a few soft tints. Tints follow the order teams were created in,
+// so neighbours differ and a team keeps its colour when the list is sorted or filtered.
+var TEAM_TINTS = [
+  ["#e2f3f7", "#00627a"],
+  ["#e8ecfb", "#3843a3"],
+  ["#f1eafb", "#6b3fa0"],
+  ["#fdf3e1", "#8a4b00"],
+  ["#e6f6ee", "#0f6b45"],
+  ["#fbeaee", "#a02c4a"],
+];
+function teamMonogram(t) {
+  const order = teamRecords().findIndex((team) => team.id === t.id);
+  const [bg, fg] = TEAM_TINTS[Math.max(order, 0) % TEAM_TINTS.length];
+  const words = t.name.replace(/&/g, " ").split(/\s+/).filter(Boolean);
+  const letters = `${words[0]?.[0] || ""}${words[1]?.[0] || ""}`.toUpperCase();
+  return `<span class="team-mono" style="--team-bg:${bg};--team-fg:${fg}" aria-hidden="true">${esc(letters)}</span>`;
+}
 function teamCard(t) {
   const canManage = actorCanBulk();
   const selected = state.teamSel.includes(t.id);
   const empty = !t.members.length;
-  const stats = `<dl class="team-stats"><div><dt>Members</dt><dd>${t.members.length}</dd></div><div><dt>${t.groups.length === 1 ? "Admin group" : "Admin groups"}</dt><dd>${t.groups.length}</dd></div><div><dt>Pending invites</dt><dd>${t.pending}</dd></div></dl>`;
+  const count = (status) => t.members.filter((u) => u.status === status).length;
+  const active = count("Active");
+  const suspended = count("Suspended");
+  const legend = [
+    [active, "active"],
+    [t.pending, "pending"],
+    [t.needsVoucher, t.needsVoucher === 1 ? "needs a voucher" : "need a voucher"],
+    [suspended, "suspended"],
+  ]
+    .filter(([n]) => n)
+    .map(([n, label]) => `${n} ${label}`)
+    .join(" · ");
+  const bar = [
+    ["ok", active],
+    ["warn", t.pending + t.needsVoucher],
+    ["off", suspended],
+  ]
+    .filter(([, n]) => n)
+    .map(([tone, n]) => `<span class="${tone}" style="flex-grow:${n}"></span>`)
+    .join("");
+  const body = empty
+    ? `<div class="team-card-empty"><span>No members yet</span>${canManage ? `<button type="button" class="button-link team-foot-action" data-action="team-add-students" data-team="${esc(t.id)}">Add students</button>` : ""}</div>`
+    : `<div class="team-figure"><span class="team-figure-num">${t.members.length}</span><span class="team-figure-unit">${t.members.length === 1 ? "member" : "members"}</span><span class="team-figure-groups">${pluralize(t.groups.length, "admin group")}</span></div><div class="team-status-bar" aria-hidden="true">${bar}</div><p class="team-status-legend">${legend}</p>`;
   const foot = empty
-    ? `<span class="team-flag muted">Empty</span><span class="team-foot-spacer"></span>${canManage ? `<button type="button" class="button-link team-foot-action" data-action="team-add-students" data-team="${esc(t.id)}">Add students</button>` : ""}`
-    : t.access.length
-      ? `${faces(t.access)}<span class="team-foot-text">${accessLine(t)}</span>`
-      : `<span class="team-flag">Not visible to anyone</span><span class="team-foot-spacer"></span>${canManage ? `<button type="button" class="button-link team-foot-action" data-action="team-give-access-from-list" data-team="${esc(t.id)}">Give access</button>` : ""}`;
-  return `<article class="team-card${empty ? " is-empty" : ""}${selected ? " is-selected" : ""}${state.highlightTeam === t.id ? " is-new" : ""}" aria-labelledby="team-card-${esc(t.id)}"><div class="team-card-top"><div class="team-card-title"><h2 id="team-card-${esc(t.id)}"><button type="button" class="team-card-link" data-action="team-open" data-team="${esc(t.id)}">${esc(t.name)}</button></h2><p class="${t.description ? "" : "is-missing"}">${esc(t.description || "No description")}</p></div>${canManage ? `<input type="checkbox" class="row-check team-check" data-team-select="${esc(t.id)}" aria-label="Select ${esc(t.name)}" ${selected ? "checked" : ""}>` : ""}${teamMenu(t, "card")}</div>${empty ? `<p class="team-empty-line">No members yet</p>` : stats}${t.needsVoucher ? `<p class="team-note">${pluralize(t.needsVoucher, "member needs", "members need")} a voucher</p>` : ""}<div class="team-card-foot">${foot}</div></article>`;
+    ? ""
+    : `<div class="team-card-foot">${
+        t.access.length
+          ? `${faces(t.access)}<span class="team-foot-text">${accessLine(t)}</span>`
+          : `<span class="team-flag">Not visible to anyone</span><span class="team-foot-spacer"></span>${canManage ? `<button type="button" class="button-link team-foot-action" data-action="team-give-access-from-list" data-team="${esc(t.id)}">Give access</button>` : ""}`
+      }</div>`;
+  return `<article class="team-card${empty ? " is-empty" : ""}${selected ? " is-selected" : ""}${state.highlightTeam === t.id ? " is-new" : ""}" aria-labelledby="team-card-${esc(t.id)}"><div class="team-card-top">${teamMonogram(t)}<div class="team-card-title"><h2 id="team-card-${esc(t.id)}"><button type="button" class="team-card-link" data-action="team-open" data-team="${esc(t.id)}">${esc(t.name)}</button></h2><p class="${t.description ? "" : "is-missing"}">${esc(t.description || "No description")}</p></div>${canManage ? `<input type="checkbox" class="row-check team-check" data-team-select="${esc(t.id)}" aria-label="Select ${esc(t.name)}" ${selected ? "checked" : ""}>` : ""}${teamMenu(t, "card")}</div>${body}${foot}</article>`;
 }
 function teamRow(t) {
   const canManage = actorCanBulk();
@@ -247,7 +288,7 @@ function membersPanel(team) {
       ? rows
           .map(
             (u) =>
-              `<tr${rowHighlight(u)}><td class="selection-col">${canManage ? checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email)) : `<input type="hidden" data-select="${esc(u.id)}">`}</td><td><div class="person-name">${esc(u.name || u.email)}</div>${dualTag(u)}<div class="secondary">${esc(u.email)}</div></td><td class="scope">${u.groups.length ? esc(u.groups[0]) : canManage && u.vouchers.length ? `<button type="button" class="inline-assignment" data-action="cell-pick" data-kind="adminGroup" data-row="${esc(u.id)}">${icon("plus")}Set admin group</button>` : `<span class="unassigned">None</span>`}</td><td class="scope">${u.vouchers.length ? esc(u.vouchers[0]) : voucherFlag(u) || `<span class="unassigned">None</span>`}</td><td class="status-cell">${labelStatus(u.status)}</td><td class="menu-cell">${memberMenu(u)}</td></tr>`,
+              `<tr${rowHighlight(u)}><td class="selection-col">${canManage ? checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email)) : `<input type="hidden" data-select="${esc(u.id)}">`}</td><td><div class="person-name">${esc(u.name || u.email)}</div>${personMeta(u, u.email)}</td><td class="scope">${u.groups.length ? esc(u.groups[0]) : canManage && u.vouchers.length ? `<button type="button" class="inline-assignment" data-action="cell-pick" data-kind="adminGroup" data-row="${esc(u.id)}">${icon("plus")}Set admin group</button>` : `<span class="unassigned">None</span>`}</td><td class="scope">${u.vouchers.length ? esc(u.vouchers[0]) : voucherFlag(u) || `<span class="unassigned">None</span>`}</td><td class="status-cell">${labelStatus(u.status)}</td><td class="menu-cell">${memberMenu(u)}</td></tr>`,
           )
           .join("")
       : `<tr><td colspan="6"><div class="empty">${icon("search")}<h2>No members match</h2><p>Try another name or clear the filter.</p>${btn("Clear filters", "team-clear-filters")}</div></td></tr>`

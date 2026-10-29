@@ -4061,34 +4061,46 @@ html::-webkit-scrollbar {
   }
 }
 /* People model v2: dual roles, account invites, voucher-first scoping */
+.person-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 16px;
+  min-width: 0;
+}
+.person-meta > .secondary {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .role-tag {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin: 3px 0 2px;
-  padding: 2px 8px 2px 6px;
-  border: 1px solid #c5d4e8;
+  /* Padding for the hover pill, cancelled by margin so the label sits where the design puts it. */
+  margin: 0 -6px;
+  padding: 1px 6px;
+  border: 0;
   border-radius: 999px;
-  background: #f2f7fc;
-  color: #20718a;
+  background: transparent;
+  color: #62748e;
   font: inherit;
-  font-size: 11px;
-  line-height: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
   cursor: pointer;
   white-space: nowrap;
 }
 .role-tag:hover {
-  background: #e3f1f8;
-  border-color: #9cc6dc;
+  background: #f1f5f9;
 }
 .role-tag svg {
-  width: 12px;
-  height: 12px;
+  flex: none;
+  color: #90a1b9;
 }
 .role-tag .ms {
-  width: 12px;
-  height: 12px;
-;font-size:15px}
+  flex: none;
+  color: #90a1b9;
+}
 .account-status.new-account {
   color: #20718a;
 }
@@ -5947,14 +5959,14 @@ tbody td {
 .view-toggle button:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
 
 .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
-.team-card { position: relative; display: flex; flex-direction: column; gap: 14px; min-width: 0; padding: 18px 18px 14px; border: 1px solid #e1e7ef; border-radius: 16px; background: #fff; transition: border-color .15s, box-shadow .15s, transform .15s; }
+.team-card { position: relative; display: flex; flex-direction: column; gap: 16px; min-width: 0; padding: 20px; border: 1px solid #e1e7ef; border-radius: 16px; background: #fff; transition: border-color .15s, box-shadow .15s, transform .15s; }
 .team-card:hover, .team-card:focus-within { border-color: #9fd9e6; box-shadow: 0 6px 18px rgba(15, 23, 43, .07); }
 .team-card.is-selected { border-color: #009fbd; background: #f5fcfd; box-shadow: 0 0 0 1px #009fbd; }
 .team-card.is-empty { border-style: dashed; border-color: #c5d4e8; }
-.team-card-top { display: flex; align-items: flex-start; gap: 8px; }
+.team-card-top { display: flex; align-items: center; gap: 12px; }
 .team-card-title { flex: 1; min-width: 0; }
 .team-card-title h2 { margin: 0; font-size: 16px; line-height: 22px; font-weight: 600; }
-.team-card-title p { margin: 4px 0 0; font-size: 13px; line-height: 18px; color: #45556c; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.team-card-title p { margin: 4px 0 0; font-size: 13px; line-height: 18px; color: #45556c; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
 .team-card-title p.is-missing, .teams-table .is-missing { color: #90a1b9; font-style: italic; }
 .team-card-link { all: unset; cursor: pointer; color: #0f172b; }
 .team-card-link::after { content: ""; position: absolute; inset: 0; border-radius: 16px; }
@@ -5967,12 +5979,19 @@ tbody td {
 .team-card .kebab { margin: -6px -8px 0 0; }
 .team-dropdown { right: 0; left: auto; top: 34px; min-width: 180px; z-index: 30; }
 .team-dropdown .danger { color: #b23940; }
-.team-stats { display: flex; gap: 20px; margin: 0; }
-.team-stats div { display: grid; gap: 2px; }
-.team-stats dt { order: 2; font-size: 12px; color: #62748e; }
-.team-stats dd { order: 1; margin: 0; font-size: 22px; line-height: 26px; font-weight: 600; color: #0f172b; font-variant-numeric: tabular-nums; }
-.team-empty-line { margin: 0; font-size: 14px; color: #62748e; }
-.team-note { margin: -6px 0 0; font-size: 13px; color: #92400e; }
+.team-mono { display: inline-grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 12px; background: var(--team-bg); color: var(--team-fg); font-size: 14px; font-weight: 500; letter-spacing: .02em; }
+.team-figure { display: flex; align-items: baseline; gap: 6px; }
+.team-figure-num { font-size: 32px; line-height: 36px; font-weight: 500; color: #0f172b; font-variant-numeric: tabular-nums; }
+.team-figure-unit { font-size: 14px; color: #45556c; }
+.team-figure-groups { margin-left: auto; font-size: 12px; font-weight: 500; color: #62748e; }
+.team-status-bar { display: flex; gap: 3px; height: 8px; border-radius: 999px; overflow: hidden; background: #f1f5f9; }
+.team-status-bar span { min-width: 6px; }
+.team-status-bar .ok { background: #22a06b; }
+.team-status-bar .warn { background: #f5b13d; }
+.team-status-bar .off { background: #90a1b9; }
+.team-status-legend { margin: -8px 0 0; font-size: 12px; line-height: 18px; color: #62748e; }
+.team-card-empty { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 76px; padding: 0 14px; border-radius: 12px; background: #f8fafc; color: #62748e; font-size: 14px; }
+.team-card-empty .team-foot-action { position: relative; z-index: 1; }
 .team-card-foot { display: flex; align-items: center; gap: 10px; margin-top: auto; padding-top: 12px; border-top: 1px solid #eef2f7; min-height: 44px; }
 .team-foot-text { font-size: 13px; color: #45556c; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .team-foot-spacer { flex: 1; }
@@ -10727,7 +10746,7 @@ peopleView = function () {
       ? users
           .map((u) => {
             const meta = metaFor(u);
-            return `<tr${rowHighlight(u)}>${`<td class="selection-col">${checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email))}</td>`}<td><div class="person-name">${esc(u.name || u.email)}</div>${dualTag(u)}<div class="secondary person-role">${esc(portal ? u.role : u.workRole || u.email)}</div></td>${portal ? `<td class="scope">${u.accessLabel ? esc(u.accessLabel) : `${u.vouchers.length} ${u.vouchers.length === 1 ? "Voucher" : "Vouchers"} • ${u.groups.length} Admin ${u.groups.length === 1 ? "Group" : "Groups"} • ${u.teams.length} Teams`}</td>` : `<td class="scope ${u.groups.length ? "" : "unassigned"}">${esc(u.groups.join(", ") || "Unassigned")}</td><td class="scope ${u.teams.length ? "" : "unassigned"}">${esc(u.teams.join(", ") || "Unassigned")}</td>`}<td class="modifier"><span>${esc(meta.name)}</span><span class="secondary">${esc(meta.detail)}</span></td><td class="status-cell">${labelStatus(u.status)}${alertBadge(u)}${voucherFlag(u)}${u.accountSetup && u.status === "Pending invite" ? `<span class="secondary account-pending">Awaiting SANS account</span>` : portal ? `<span class="secondary">${esc(meta.last)}</span>` : ""}</td><td class="menu-cell">${rowActions(u)}</td></tr>`;
+            return `<tr${rowHighlight(u)}>${`<td class="selection-col">${checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email))}</td>`}<td><div class="person-name">${esc(u.name || u.email)}</div>${personMeta(u, portal ? u.role : u.workRole || u.email, "person-role")}</td>${portal ? `<td class="scope">${u.accessLabel ? esc(u.accessLabel) : `${u.vouchers.length} ${u.vouchers.length === 1 ? "Voucher" : "Vouchers"} • ${u.groups.length} Admin ${u.groups.length === 1 ? "Group" : "Groups"} • ${u.teams.length} Teams`}</td>` : `<td class="scope ${u.groups.length ? "" : "unassigned"}">${esc(u.groups.join(", ") || "Unassigned")}</td><td class="scope ${u.teams.length ? "" : "unassigned"}">${esc(u.teams.join(", ") || "Unassigned")}</td>`}<td class="modifier"><span>${esc(meta.name)}</span><span class="secondary">${esc(meta.detail)}</span></td><td class="status-cell">${labelStatus(u.status)}${voucherFlag(u)}${u.accountSetup && u.status === "Pending invite" ? `<span class="secondary account-pending">Awaiting SANS account</span>` : portal ? `<span class="secondary">${esc(meta.last)}</span>` : ""}</td><td class="menu-cell">${rowActions(u)}</td></tr>`;
           })
           .join("")
       : `<tr><td colspan="${portal ? 6 : 7}"><div class="empty">${icon("search")}<h2>No people found</h2><p>Try another name or clear your filters.</p>${btn("Clear filters", "all-filters-clear")}</div></td></tr>`
@@ -11855,11 +11874,19 @@ var ROLE_HINTS = {
   Viewer: "Read-only reporting and activity",
 };
 
-// Small tag under a person's name when they also hold the other role.
+// Quiet link beside a person's role when they also hold the other role.
+var PERSON_CIRCLE_ICON = `<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.33a6.67 6.67 0 1 0 0 13.34A6.67 6.67 0 0 0 8 1.33ZM8 4a2.33 2.33 0 1 1 0 4.67A2.33 2.33 0 0 1 8 4Zm0 9.33a5.3 5.3 0 0 1-4.1-1.92 6.6 6.6 0 0 1 8.2 0A5.3 5.3 0 0 1 8 13.33Z" fill="currentColor"/></svg>`;
+var STUDENT_ICON = `<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 5.775C5.09 4.925 3.94 4.33 2.66 4.1C2.055 3.995 1.5 4.475 1.5 5.09V8.21C1.5 9.05 1.86 9.49 2.355 9.555C3.605 9.715 4.74 10.23 5.67 10.99C5.845 11.135 6.13 11.15 6.305 11.01C7.24 10.245 8.385 9.72 9.645 9.56C10.115 9.495 10.5 9.03 10.5 8.55V5.09C10.5 4.475 9.945 3.995 9.34 4.1C8.06 4.33 6.91 4.925 6 5.775ZM6 4C6.83 4 7.5 3.33 7.5 2.5C7.5 1.67 6.83 1 6 1C5.17 1 4.5 1.67 4.5 2.5C4.5 3.33 5.17 4 6 4Z" fill="currentColor"/></svg>`;
 function dualTag(u) {
   const other = linkedPerson(u.email, otherType(u.type));
   if (!other) return "";
-  return `<button class="role-tag" data-action="open-linked" data-id="${esc(other.id)}" title="Open their ${other.type === "student" ? "student" : "portal user"} record">${icon(other.type === "student" ? "book" : "users")}${other.type === "student" ? "Also a student" : "Also a portal user"}</button>`;
+  const student = other.type === "student";
+  return `<button type="button" class="role-tag" data-action="open-linked" data-id="${esc(other.id)}" title="Open their ${student ? "student" : "portal user"} record">${student ? STUDENT_ICON : PERSON_CIRCLE_ICON}${student ? "Student" : "Portal user"}</button>`;
+}
+
+// Role (or email) line under a person's name, with the dual-role link beside it.
+function personMeta(u, text, className = "") {
+  return `<div class="person-meta"><div class="secondary ${className}">${esc(text)}</div>${dualTag(u)}</div>`;
 }
 
 // Row-menu shortcut to give someone the role they don't have yet.
@@ -12667,6 +12694,7 @@ function alertCountFor(personId) {
   }
   return alertCache.counts.get(personId) || 0;
 }
+// Not shown in the people tables for now (removed from the Status column); kept for when it returns.
 function alertBadge(row) {
   const count = alertCountFor(row.personId);
   if (!count) return "";
@@ -14833,17 +14861,58 @@ function accessLine(t) {
   if (t.access.length <= 2) return `${t.access.map((p) => esc(shortName(p.name))).join(" and ")} can see this team`;
   return `${pluralize(t.access.length, "person", "people")} can see this team`;
 }
+// Each team gets a two-letter tile in one of a few soft tints. Tints follow the order teams were created in,
+// so neighbours differ and a team keeps its colour when the list is sorted or filtered.
+var TEAM_TINTS = [
+  ["#e2f3f7", "#00627a"],
+  ["#e8ecfb", "#3843a3"],
+  ["#f1eafb", "#6b3fa0"],
+  ["#fdf3e1", "#8a4b00"],
+  ["#e6f6ee", "#0f6b45"],
+  ["#fbeaee", "#a02c4a"],
+];
+function teamMonogram(t) {
+  const order = teamRecords().findIndex((team) => team.id === t.id);
+  const [bg, fg] = TEAM_TINTS[Math.max(order, 0) % TEAM_TINTS.length];
+  const words = t.name.replace(/&/g, " ").split(/\s+/).filter(Boolean);
+  const letters = `${words[0]?.[0] || ""}${words[1]?.[0] || ""}`.toUpperCase();
+  return `<span class="team-mono" style="--team-bg:${bg};--team-fg:${fg}" aria-hidden="true">${esc(letters)}</span>`;
+}
 function teamCard(t) {
   const canManage = actorCanBulk();
   const selected = state.teamSel.includes(t.id);
   const empty = !t.members.length;
-  const stats = `<dl class="team-stats"><div><dt>Members</dt><dd>${t.members.length}</dd></div><div><dt>${t.groups.length === 1 ? "Admin group" : "Admin groups"}</dt><dd>${t.groups.length}</dd></div><div><dt>Pending invites</dt><dd>${t.pending}</dd></div></dl>`;
+  const count = (status) => t.members.filter((u) => u.status === status).length;
+  const active = count("Active");
+  const suspended = count("Suspended");
+  const legend = [
+    [active, "active"],
+    [t.pending, "pending"],
+    [t.needsVoucher, t.needsVoucher === 1 ? "needs a voucher" : "need a voucher"],
+    [suspended, "suspended"],
+  ]
+    .filter(([n]) => n)
+    .map(([n, label]) => `${n} ${label}`)
+    .join(" · ");
+  const bar = [
+    ["ok", active],
+    ["warn", t.pending + t.needsVoucher],
+    ["off", suspended],
+  ]
+    .filter(([, n]) => n)
+    .map(([tone, n]) => `<span class="${tone}" style="flex-grow:${n}"></span>`)
+    .join("");
+  const body = empty
+    ? `<div class="team-card-empty"><span>No members yet</span>${canManage ? `<button type="button" class="button-link team-foot-action" data-action="team-add-students" data-team="${esc(t.id)}">Add students</button>` : ""}</div>`
+    : `<div class="team-figure"><span class="team-figure-num">${t.members.length}</span><span class="team-figure-unit">${t.members.length === 1 ? "member" : "members"}</span><span class="team-figure-groups">${pluralize(t.groups.length, "admin group")}</span></div><div class="team-status-bar" aria-hidden="true">${bar}</div><p class="team-status-legend">${legend}</p>`;
   const foot = empty
-    ? `<span class="team-flag muted">Empty</span><span class="team-foot-spacer"></span>${canManage ? `<button type="button" class="button-link team-foot-action" data-action="team-add-students" data-team="${esc(t.id)}">Add students</button>` : ""}`
-    : t.access.length
-      ? `${faces(t.access)}<span class="team-foot-text">${accessLine(t)}</span>`
-      : `<span class="team-flag">Not visible to anyone</span><span class="team-foot-spacer"></span>${canManage ? `<button type="button" class="button-link team-foot-action" data-action="team-give-access-from-list" data-team="${esc(t.id)}">Give access</button>` : ""}`;
-  return `<article class="team-card${empty ? " is-empty" : ""}${selected ? " is-selected" : ""}${state.highlightTeam === t.id ? " is-new" : ""}" aria-labelledby="team-card-${esc(t.id)}"><div class="team-card-top"><div class="team-card-title"><h2 id="team-card-${esc(t.id)}"><button type="button" class="team-card-link" data-action="team-open" data-team="${esc(t.id)}">${esc(t.name)}</button></h2><p class="${t.description ? "" : "is-missing"}">${esc(t.description || "No description")}</p></div>${canManage ? `<input type="checkbox" class="row-check team-check" data-team-select="${esc(t.id)}" aria-label="Select ${esc(t.name)}" ${selected ? "checked" : ""}>` : ""}${teamMenu(t, "card")}</div>${empty ? `<p class="team-empty-line">No members yet</p>` : stats}${t.needsVoucher ? `<p class="team-note">${pluralize(t.needsVoucher, "member needs", "members need")} a voucher</p>` : ""}<div class="team-card-foot">${foot}</div></article>`;
+    ? ""
+    : `<div class="team-card-foot">${
+        t.access.length
+          ? `${faces(t.access)}<span class="team-foot-text">${accessLine(t)}</span>`
+          : `<span class="team-flag">Not visible to anyone</span><span class="team-foot-spacer"></span>${canManage ? `<button type="button" class="button-link team-foot-action" data-action="team-give-access-from-list" data-team="${esc(t.id)}">Give access</button>` : ""}`
+      }</div>`;
+  return `<article class="team-card${empty ? " is-empty" : ""}${selected ? " is-selected" : ""}${state.highlightTeam === t.id ? " is-new" : ""}" aria-labelledby="team-card-${esc(t.id)}"><div class="team-card-top">${teamMonogram(t)}<div class="team-card-title"><h2 id="team-card-${esc(t.id)}"><button type="button" class="team-card-link" data-action="team-open" data-team="${esc(t.id)}">${esc(t.name)}</button></h2><p class="${t.description ? "" : "is-missing"}">${esc(t.description || "No description")}</p></div>${canManage ? `<input type="checkbox" class="row-check team-check" data-team-select="${esc(t.id)}" aria-label="Select ${esc(t.name)}" ${selected ? "checked" : ""}>` : ""}${teamMenu(t, "card")}</div>${body}${foot}</article>`;
 }
 function teamRow(t) {
   const canManage = actorCanBulk();
@@ -14928,7 +14997,7 @@ function membersPanel(team) {
       ? rows
           .map(
             (u) =>
-              `<tr${rowHighlight(u)}><td class="selection-col">${canManage ? checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email)) : `<input type="hidden" data-select="${esc(u.id)}">`}</td><td><div class="person-name">${esc(u.name || u.email)}</div>${dualTag(u)}<div class="secondary">${esc(u.email)}</div></td><td class="scope">${u.groups.length ? esc(u.groups[0]) : canManage && u.vouchers.length ? `<button type="button" class="inline-assignment" data-action="cell-pick" data-kind="adminGroup" data-row="${esc(u.id)}">${icon("plus")}Set admin group</button>` : `<span class="unassigned">None</span>`}</td><td class="scope">${u.vouchers.length ? esc(u.vouchers[0]) : voucherFlag(u) || `<span class="unassigned">None</span>`}</td><td class="status-cell">${labelStatus(u.status)}</td><td class="menu-cell">${memberMenu(u)}</td></tr>`,
+              `<tr${rowHighlight(u)}><td class="selection-col">${canManage ? checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email)) : `<input type="hidden" data-select="${esc(u.id)}">`}</td><td><div class="person-name">${esc(u.name || u.email)}</div>${personMeta(u, u.email)}</td><td class="scope">${u.groups.length ? esc(u.groups[0]) : canManage && u.vouchers.length ? `<button type="button" class="inline-assignment" data-action="cell-pick" data-kind="adminGroup" data-row="${esc(u.id)}">${icon("plus")}Set admin group</button>` : `<span class="unassigned">None</span>`}</td><td class="scope">${u.vouchers.length ? esc(u.vouchers[0]) : voucherFlag(u) || `<span class="unassigned">None</span>`}</td><td class="status-cell">${labelStatus(u.status)}</td><td class="menu-cell">${memberMenu(u)}</td></tr>`,
           )
           .join("")
       : `<tr><td colspan="6"><div class="empty">${icon("search")}<h2>No members match</h2><p>Try another name or clear the filter.</p>${btn("Clear filters", "team-clear-filters")}</div></td></tr>`
