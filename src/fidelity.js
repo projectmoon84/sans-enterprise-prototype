@@ -69,7 +69,7 @@ function checkRow(id, checked, label) {
   return `<input class="row-check" type="checkbox" data-select="${esc(id)}" aria-label="${esc(label)}" ${checked ? "checked" : ""}>`;
 }
 function rowActions(u) {
-  return `<div class="menu-anchor row-menu-anchor"><button class="icon-btn kebab" aria-label="Actions for ${esc(u.name || u.email)}" aria-expanded="${state.rowMenu === u.id}" data-action="row-menu" data-id="${esc(u.id)}">${menuIcon()}</button>${state.rowMenu === u.id ? `<div class="dropdown-menu row-dropdown">${btn("Edit details", "edit-user", "", 'data-id="' + esc(u.id) + '"')}${u.status === "Pending invite" ? btn("Resend invitation", "resend-user", "", 'data-id="' + esc(u.id) + '"') : btn(u.status === "Suspended" ? "Activate user" : "Suspend user", "set-user-status", "", 'data-id="' + esc(u.id) + '" data-status="' + (u.status === "Suspended" ? "Active" : "Suspended") + '"')}${roleShortcut(u)}${btn("Remove…", "delete-user", "danger", 'data-id="' + esc(u.id) + '"')}</div>` : ""}</div>`;
+  return `<div class="menu-anchor row-menu-anchor" data-spec="people.row-menu" data-spec-label="Row menu"><button class="icon-btn kebab" aria-label="Actions for ${esc(u.name || u.email)}" aria-expanded="${state.rowMenu === u.id}" data-action="row-menu" data-id="${esc(u.id)}">${menuIcon()}</button>${state.rowMenu === u.id ? `<div class="dropdown-menu row-dropdown">${btn("Edit details", "edit-user", "", 'data-id="' + esc(u.id) + '"')}${u.status === "Pending invite" ? btn("Resend invitation", "resend-user", "", 'data-id="' + esc(u.id) + '"') : btn(u.status === "Suspended" ? "Activate user" : "Suspend user", "set-user-status", "", 'data-id="' + esc(u.id) + '" data-status="' + (u.status === "Suspended" ? "Active" : "Suspended") + '"')}${roleShortcut(u)}${btn("Remove…", "delete-user", "danger", 'data-id="' + esc(u.id) + '"')}</div>` : ""}</div>`;
 }
 function actionsMenu(imported = false) {
   const n = state.selected.length;
@@ -77,7 +77,7 @@ function actionsMenu(imported = false) {
 }
 function toolbar(imported = false) {
   const portal = state.view === "portal";
-  return `<div class="toolbar fidelity-toolbar">${actionsMenu(imported)}<span class="filter-label">Filter</span>${portal ? filterSelect("role", [...ROLES, "SSO Admin"], state.role, "Role") : `${filterSelect("voucher", VOUCHERS, state.voucher, "Voucher")}${filterSelect("group", db.groups, state.group, "Admin Group")}${filterSelect("team", db.teams, state.team, "Team")}`}${portal || imported ? filterSelect("status", imported ? ["Ready", "Needs attention", "Added"] : ["Active", "Pending invite", "Suspended"], state.status, "Status") : ""}<div class="search">${icon("search")}<input id="people-search" placeholder="Search name or email" aria-label="Search name or email" value="${esc(state.search)}"></div>${state.selected.length ? `<span class="selection-count">${state.selected.length} selected</span>` : ""}</div>`;
+  return `<div class="toolbar fidelity-toolbar" data-spec="people.toolbar" data-spec-label="Filters, search and Actions">${actionsMenu(imported)}<span class="filter-label">Filter</span>${portal ? filterSelect("role", [...ROLES, "SSO Admin"], state.role, "Role") : `${filterSelect("voucher", VOUCHERS, state.voucher, "Voucher")}${filterSelect("group", db.groups, state.group, "Admin Group")}${filterSelect("team", db.teams, state.team, "Team")}`}${portal || imported ? filterSelect("status", imported ? ["Ready", "Needs attention", "Added"] : ["Active", "Pending invite", "Suspended"], state.status, "Status") : ""}<div class="search">${icon("search")}<input id="people-search" placeholder="Search name or email" aria-label="Search name or email" value="${esc(state.search)}"></div>${state.selected.length ? `<span class="selection-count">${state.selected.length} selected</span>` : ""}</div>`;
 }
 function matchesFilters(u, imported = false) {
   const groups = imported ? (u.group ? [u.group] : []) : u.groups;
@@ -139,11 +139,61 @@ function profileMenuContents() {
   const users = db.users.filter((user) => user.type === "portal");
   return `<div class="profile-menu-current"><span class="secondary">Signed in as</span><strong>${esc(actor?.name || "Portal user")}</strong><span class="secondary">${esc(actor?.role || "")}</span></div><div class="dropdown-divider"></div><span class="dropdown-label">Sign in as…</span>${users.map((user) => `<button data-action="sign-in-as" data-person-id="${esc(user.personId)}" ${user.personId === actor?.personId ? 'aria-current="true"' : ""}>${esc(user.name)}<span class="secondary">${esc(user.role)}</span></button>`).join("")}<div class="dropdown-divider"></div>${btn(icon("database") + "Demo data", "data")}${btn("Use sample CSV", "demo-sample")}${btn("About this prototype", "navigate", "", 'data-view="help"')}`;
 }
+// ---------- Sidebar (Figma 3195:27193) ----------
+// Parent groups start closed; people open the ones they want. A closed group that holds the current page is
+// marked as current instead, so the sliding indicator (motion.js) always has somewhere to sit.
+const NAV_GROUPS = {
+  learner: { label: "Learner Activity", icon: "insert_chart", children: [["Training Progress", "training-progress"], ["Certifications", "certifications"]] },
+  training: { label: "Training", icon: "local_library", children: [["Student Requests", "student-requests"]] },
+  finance: { label: "Finance", icon: "account_balance", children: [["Spend", "finance"]] },
+  people: { label: "People", icon: "person", children: [["Portal Users", "portal"], ["Students", "students"]] },
+  groups: { label: "Groups", icon: "groups", children: [["Teams", "teams"], ["Admin Groups", "groups"]] },
+};
+state.navOpen = [];
+function navView() {
+  if (state.view === "profile") return state.profileFrom === "students" ? "students" : "portal";
+  if (state.view === "import") return "students";
+  return state.view;
+}
+function sideLink(label, view, ico = "", mark = true) {
+  const on = mark && navView() === view;
+  return `<button class="nav-btn${ico ? "" : " sub"}${on ? " active" : ""}" data-action="navigate" data-view="${view}"${on ? ' aria-current="page"' : ""}>${ico ? icon(ico) : ""}<span class="nav-label">${label}</span></button>`;
+}
+function sideGroup(key) {
+  const group = NAV_GROUPS[key],
+    open = state.navOpen.includes(key),
+    holdsCurrent = group.children.some(([, view]) => view === navView());
+  // The child list is always in the page so it can slide open and closed; inert keeps it out of reach while closed.
+  return `<div class="nav-group"><button class="nav-btn nav-parent${!open && holdsCurrent ? " active" : ""}" data-action="toggle-nav-group" data-group="${key}" aria-expanded="${open}" aria-controls="nav-group-${key}">${icon(group.icon)}<span class="nav-label">${group.label}</span>${icon("chevron")}</button><div class="nav-children-wrap" id="nav-group-${key}" data-open="${open}"${open ? "" : " inert"}><div class="nav-children">${group.children.map(([label, view]) => sideLink(label, view, "", open)).join("")}</div></div></div>`;
+}
+function sidebarNav() {
+  return `<div class="nav-main">${sideLink("Home", "home", "home")}${sideGroup("learner")}${sideGroup("training")}${sideGroup("finance")}<div class="nav-divider"></div><div class="nav-section">Your Organization</div>${sideGroup("people")}${sideGroup("groups")}${sideLink("Activity", "activity", "schedule")}<div class="nav-divider"></div><div class="nav-section nav-section-split"><span>SANS Administration</span><span class="nav-section-note">Internal Only</span></div>${sideLink("Customer Organizations", "customer-organizations", "groups")}${sideLink("Internal Users", "internal-users", "person")}${sideLink("Default Dashboard Configuration", "dashboard-configuration", "insights")}</div><div class="nav-foot"><div class="nav-divider"></div>${sideLink("Help & Support", "help", "help")}</div>`;
+}
+// Pages the new navigation names but the prototype does not cover yet. Home, Spend and Admin Groups had
+// earlier stand-in screens; they are blank here until their designs are ready.
+const PLANNED_VIEWS = {
+  home: ["Home", "Home", "Your organization's training at a glance."],
+  finance: ["Spend", "Finance", "See how your organization's training budget is being used."],
+  groups: ["Admin Groups", "Your Organization", "Manage the Admin Groups that vouchers cover."],
+  "training-progress": ["Training Progress", "Learner Activity", "See how students are moving through their courses."],
+  certifications: ["Certifications", "Learner Activity", "Track GIAC certification attempts and renewals."],
+  "student-requests": ["Student Requests", "Training", "Review training requests from students."],
+  "customer-organizations": ["Customer Organizations", "SANS Administration", "Manage the organizations that use the portal."],
+  "internal-users": ["Internal Users", "SANS Administration", "Manage SANS staff with access to the portal."],
+  "dashboard-configuration": ["Default Dashboard Configuration", "SANS Administration", "Choose what new organizations see on their dashboard."],
+};
+const navBaseContent = content;
+content = function () {
+  const planned = PLANNED_VIEWS[state.view];
+  if (!planned) return navBaseContent();
+  const [title, area, description] = planned;
+  return `${heading(title, description)}<section class="card planned-page" aria-label="${esc(area)}"><h2>Not in This Prototype Yet</h2><p class="muted">This page is part of the new navigation. Its content will be designed separately.</p></section>`;
+};
 render = function () {
   const focus = document.activeElement?.id,
     position = document.activeElement?.selectionStart;
   $("#app").innerHTML =
-    `<header class="topbar"><button class="icon-btn mobile-menu" data-action="mobile-menu" aria-label="Toggle navigation">${icon("menu")}</button><div class="logo" aria-label="SANS">${SANS_LOGO}</div><span class="org">Organization name</span><div class="right"><div class="menu-anchor"><button class="profile-button" data-action="profile-menu" aria-label="Open profile and demo tools" aria-expanded="${state.profileOpen}"><span class="avatar">${esc(initial(signedInPortalUser()?.name || "Portal user"))}</span>${icon("chevron")}</button>${state.profileOpen ? `<div class="dropdown-menu profile-dropdown">${profileMenuContents()}</div>` : ""}</div></div></header><aside class="sidebar" aria-label="Main navigation">${nav("Home", "home", "home")}${nav("Learning", "learning", "book")}${nav("Account & Finance", "finance", "building")}<div class="nav-divider"></div><div class="nav-section">Admin</div><button class="nav-btn nav-parent" data-action="toggle-people" aria-expanded="${!state.hidePeople}">${icon("person")}People${icon("chevron")}</button>${state.hidePeople ? "" : nav("Portal users", "portal", "", true) + nav("Students", "students", "", true)}<button class="nav-btn nav-parent groups-parent" data-action="toggle-groups" aria-expanded="${!state.hideGroups}">${icon("groups")}Groups${icon("chevron")}</button>${state.hideGroups ? "" : nav("Admin Groups", "groups", "", true) + nav("Teams", "teams", "", true)}${nav("Activity", "activity", "schedule")}<div class="nav-divider bottom-divider"></div>${nav("Help & Support", "help", "help")}</aside><main class="page view-${state.view}" id="main">${storageError ? `<div class="note warning">${icon("info")}${esc(storageError)}</div>` : ""}${content()}</main>`;
+    `<header class="topbar"><button class="icon-btn mobile-menu" data-action="mobile-menu" aria-label="Toggle navigation">${icon("menu")}</button><div class="logo" aria-label="SANS">${SANS_LOGO}</div><span class="org">Organization name</span><div class="right"><div class="menu-anchor"><button class="profile-button" data-action="profile-menu" aria-label="Open profile and demo tools" aria-expanded="${state.profileOpen}"><span class="avatar">${esc(initial(signedInPortalUser()?.name || "Portal user"))}</span>${icon("chevron")}</button>${state.profileOpen ? `<div class="dropdown-menu profile-dropdown">${profileMenuContents()}</div>` : ""}</div></div></header><aside class="sidebar" aria-label="Main navigation" data-spec="nav.sidebar" data-spec-label="Sidebar navigation">${sidebarNav()}</aside><main class="page view-${state.view}" id="main">${storageError ? `<div class="note warning">${icon("info")}${esc(storageError)}</div>` : ""}${content()}</main>`;
   if (focus && document.getElementById(focus)) {
     const el = document.getElementById(focus);
     el.focus();
@@ -160,10 +210,10 @@ peopleView = function () {
   const all = db.users.filter((u) => u.type === type),
     users = ordered(all.filter((u) => matchesFilters(u)));
   const actions = portal
-    ? btn(icon("plus") + "Invite Portal user", "invite", "primary")
-    : `<div class="menu-anchor">${btn("Add students" + icon("chevron"), "student-menu", "primary", 'aria-expanded="' + state.menu + '"')}${state.menu ? `<div class="dropdown-menu"><button data-action="add-student">Individuals</button><button data-action="upload">Upload a CSV</button></div>` : ""}</div>`;
+    ? btn(icon("plus") + "Invite Portal user", "invite", "primary", 'data-spec="portal.invite-button" data-spec-label="Invite Portal user button"')
+    : `<div class="menu-anchor" data-spec="students.add-menu" data-spec-label="Add students menu">${btn("Add students" + icon("chevron"), "student-menu", "primary", 'aria-expanded="' + state.menu + '"')}${state.menu ? `<div class="dropdown-menu"><button data-action="add-student">Individuals</button><button data-action="upload">Upload a CSV</button></div>` : ""}</div>`;
   const checks = `<th class="selection-col">${checkRow("all", allSelected(users), "Select all visible people")}</th>`;
-  return `${heading(portal ? "Portal Users" : "Students", portal ? `${all.length} people can access this portal.` : "Students do not have access to this portal", actions)}<section class="card people-card" aria-label="${portal ? "Portal users" : "Students"} list">${toolbar()}<div class="table-wrap"><table class="people-table ${portal ? "portal-table" : "students-table"}"><colgroup>${portal ? '<col class="col-check"><col class="col-person"><col class="col-access"><col class="col-modifier"><col class="col-status"><col class="col-menu">' : '<col class="col-check"><col class="col-person"><col class="col-group"><col class="col-team"><col class="col-modifier"><col class="col-status"><col class="col-menu">'}</colgroup><thead><tr>${checks}${tableHead("Name", "name", !portal)}${portal ? tableHead("Access", "access", false) : tableHead("Admin Groups", "groups") + tableHead("Team", "teams")}${tableHead("Last modified by", "updatedAt")}${tableHead(portal ? "Status / Last access" : "Status", "status", !portal)}<th></th></tr></thead><tbody>${
+  return `${heading(portal ? "Portal Users" : "Students", portal ? `${all.length} people can access this portal.` : "Students do not have access to this portal", actions)}<section class="card people-card" aria-label="${portal ? "Portal users" : "Students"} list" data-spec="people.table" data-spec-label="People table">${toolbar()}<div class="table-wrap"><table class="people-table ${portal ? "portal-table" : "students-table"}"><colgroup>${portal ? '<col class="col-check"><col class="col-person"><col class="col-access"><col class="col-modifier"><col class="col-status"><col class="col-menu">' : '<col class="col-check"><col class="col-person"><col class="col-group"><col class="col-team"><col class="col-modifier"><col class="col-status"><col class="col-menu">'}</colgroup><thead><tr>${checks}${tableHead("Name", "name", !portal)}${portal ? tableHead("Access", "access", false) : tableHead("Admin Groups", "groups") + tableHead("Team", "teams")}${tableHead("Last modified by", "updatedAt")}${tableHead(portal ? "Status / Last access" : "Status", "status", !portal)}<th></th></tr></thead><tbody>${
     users.length
       ? users
           .map((u) => {
@@ -294,7 +344,7 @@ portalReview = function () {
   openModal(
     "Invite Portal User",
     "Choose what this person can access. They will be able to sign in to the portal.",
-    `<section class="portal-review-summary"><h3>Summary</h3><p>${esc(reachSentence(p))}</p><div class="review-detail"><dl class="summary-data">${[
+    `<section class="portal-review-summary" data-spec="portal.invite.review" data-spec-label="Invitation review"><h3>Summary</h3><p>${esc(reachSentence(p))}</p><div class="review-detail"><dl class="summary-data">${[
       ["Email", p.email],
       ["Role", p.role],
       ["Admin Groups", p.groups.join(", ")],
@@ -304,7 +354,7 @@ portalReview = function () {
       .map(([l, v]) => `<div><dt>${l}</dt><dd>${esc(v)}</dd></div>`)
       .join(
         "",
-      )}</dl><div class="review-permissions">${permissionLists(p.role, p.groups)}</div></div></section><label class="check consent"><input id="send-consent" type="checkbox"><span>I confirm this person may be granted portal access with the role and scope shown above under our ${termLink}.<strong>Required</strong></span></label>`,
+      )}</dl><div class="review-permissions">${permissionLists(p.role, p.groups)}</div></div></section><label class="check consent" data-spec="portal.invite.consent" data-spec-label="Consent checkbox"><input id="send-consent" type="checkbox"><span>I confirm this person may be granted portal access with the role and scope shown above under our ${termLink}.<strong>Required</strong></span></label>`,
     `<div class="actions">${btn("Back to Role and Access", "portal-back", "text")}${btn("Send Invitation", "portal-send", "primary", 'id="send-button" disabled')}</div>`,
     steps("Role and Access", "Review & Send", 2),
   );
@@ -346,7 +396,7 @@ function studentEntryValues() {
   };
 }
 function savedStudentRow(d, i) {
-  return `<div class="student-draft"><span class="row-step complete">${icon("check")}</span><div class="draft-columns">${[
+  return `<div class="student-draft" data-spec="students.add.saved" data-spec-label="Saved student row"><span class="row-step complete">${icon("check")}</span><div class="draft-columns">${[
     ["Student email", d.email],
     ["Voucher", d.voucher],
     ["Admin Group", d.group || "Unassigned"],
@@ -378,7 +428,7 @@ studentForm = function (editIndex = null) {
       .map((d) => savedStudentRow(d, state.drafts.indexOf(d)))
       .join(
         "",
-      )}${state.entryOpen ? `<form id="student-form" class="student-entry"><span class="row-step">${editIndex === null ? state.drafts.length + 1 : editIndex + 1}</span><div class="entry-fields"><div class="field"><label for="student-email">Email Address <span class="required">*</span></label><input id="student-email" name="email" type="email" required value="${esc(s.email || "")}" placeholder="Enter student’s email"></div><div class="field"><label for="student-voucher">Voucher <span class="required">*</span></label><select id="student-voucher" name="voucher" required>${opts(VOUCHERS, s.voucher)}</select><p class="hint">Pays for their training.</p></div><div class="field"><label for="student-group">Admin Group</label><select id="student-group" name="group" ${s.voucher ? "" : "disabled"}>${groupOptions(s.voucher, s.group)}</select><p class="hint" id="student-group-hint">${s.voucher ? "Optional · filtered by voucher." : "Choose a voucher first."}</p></div><div class="field"><label for="student-team">Team</label><select id="student-team" name="team">${opts(db.teams, s.team, "Leave unassigned")}</select><p class="hint">Optional · teams can mix vouchers.</p></div></div><div id="student-linked">${linkedNote(s.email, "student")}</div><div class="entry-bottom"><p id="account-status" class="account-status ${accountClass(s.email, "student")}">${accountStatus(s.email, "student")}</p><label class="check"><input type="checkbox" id="reuse-assignments" ${state.reuseAssignments ? "checked" : ""}>Use these assignments for the next student</label><button class="button primary" type="submit">Save student</button></div><p class="inline-error" id="student-error" role="alert"></p></form>` : ""}<button class="add-another" data-action="student-add-another">${icon("users")}Add Another</button>`,
+      )}${state.entryOpen ? `<form id="student-form" class="student-entry" data-spec="students.add.entry" data-spec-label="Student entry row"><span class="row-step">${editIndex === null ? state.drafts.length + 1 : editIndex + 1}</span><div class="entry-fields"><div class="field"><label for="student-email">Email Address <span class="required">*</span></label><input id="student-email" name="email" type="email" required value="${esc(s.email || "")}" placeholder="Enter student’s email"></div><div class="field"><label for="student-voucher">Voucher <span class="required">*</span></label><select id="student-voucher" name="voucher" required>${opts(VOUCHERS, s.voucher)}</select><p class="hint">Pays for their training.</p></div><div class="field"><label for="student-group">Admin Group</label><select id="student-group" name="group" ${s.voucher ? "" : "disabled"}>${groupOptions(s.voucher, s.group)}</select><p class="hint" id="student-group-hint">${s.voucher ? "Optional · filtered by voucher." : "Choose a voucher first."}</p></div><div class="field"><label for="student-team">Team</label><select id="student-team" name="team">${opts(db.teams, s.team, "Leave unassigned")}</select><p class="hint">Optional · teams can mix vouchers.</p></div></div><div id="student-linked">${linkedNote(s.email, "student")}</div><div class="entry-bottom"><p id="account-status" class="account-status ${accountClass(s.email, "student")}">${accountStatus(s.email, "student")}</p><label class="check"><input type="checkbox" id="reuse-assignments" ${state.reuseAssignments ? "checked" : ""}>Use these assignments for the next student</label><button class="button primary" type="submit">Save student</button></div><p class="inline-error" id="student-error" role="alert"></p></form>` : ""}<button class="add-another" data-action="student-add-another">${icon("users")}Add Another</button>`,
     `<span class="secondary">${state.drafts.length} ${state.drafts.length === 1 ? "student" : "students"} ready to review</span><div class="actions">${btn("Cancel", "close-modal", "text")}${btn("Save", "student-review", "primary", state.drafts.length ? "" : "disabled")}</div>`,
     steps("Add student details", "Review & Send", 1),
   );
@@ -420,7 +470,7 @@ studentReview = function () {
   openModal(
     "Add students",
     "Review the details and confirm that these people can be invited.",
-    `<p class="review-intro">Check each student’s details before sending. You can return to make changes without losing your work.</p>${studentReviewTable(state.drafts)}<label class="check consent"><input id="send-consent" type="checkbox"><span>I confirm these people are employees or contractors of our organisation and may be invited under our ${termLink}.<strong>Required</strong></span></label>`,
+    `<p class="review-intro" data-spec="students.add.review" data-spec-label="Students review step">Check each student’s details before sending. You can return to make changes without losing your work.</p>${studentReviewTable(state.drafts)}<label class="check consent"><input id="send-consent" type="checkbox"><span>I confirm these people are employees or contractors of our organisation and may be invited under our ${termLink}.<strong>Required</strong></span></label>`,
     `<span class="secondary">${state.drafts.length} ${state.drafts.length === 1 ? "student will" : "students will"} receive an invitation email</span><div class="actions">${btn("Back", "student-back", "text")}${btn("Send invitations", "student-send", "primary", 'id="send-button" disabled')}</div>`,
     steps("Add student details", "Review & Send", 2),
   );
@@ -440,7 +490,7 @@ function renderStudentResults() {
   openModal(
     "Add students",
     "Review the details and confirm that these people can be invited.",
-    `<div class="note success result-banner">${icon("check")}<div><strong>${sent} of ${rows.length} invitations sent</strong><p>${pending ? "Sending invitations. Please wait." : failed ? `Successful students have been emailed. ${failed === 1 ? "One invitation needs" : failed + " invitations need"} your attention below.` : accounts ? `Your students have been invited. ${accounts === 1 ? "One person needs" : accounts + " people need"} to create a SANS account first. They will be added automatically once it is set up.` : "Your students have been invited successfully."}</p></div></div>${studentReviewTable(rows, true)}`,
+    `<div class="note success result-banner" data-spec="students.add.results" data-spec-label="Sending results">${icon("check")}<div><strong>${sent} of ${rows.length} invitations sent</strong><p>${pending ? "Sending invitations. Please wait." : failed ? `Successful students have been emailed. ${failed === 1 ? "One invitation needs" : failed + " invitations need"} your attention below.` : accounts ? `Your students have been invited. ${accounts === 1 ? "One person needs" : accounts + " people need"} to create a SANS account first. They will be added automatically once it is set up.` : "Your students have been invited successfully."}</p></div></div>${studentReviewTable(rows, true)}`,
     `<span class="secondary">Your successful invitations are now listed on the <button class="button-link" data-action="view-invitations">Invitations</button> page.</span><div class="actions">${btn("Close", "close-modal", "text", pending ? "disabled" : "")}${pending ? btn('<span class="spinner"></span>Sending invitations', "noop", "primary", "disabled") : failed ? btn("Review failed invitations", "retry-all-students", "primary") : btn("Done", "finish-students", "primary")}</div>`,
     steps("Add student details", "Review & Send", 2),
   );
@@ -526,7 +576,7 @@ closeModal = function () {
 function csvColumnGuide() {
   const list = (items) => items.map((x) => `<span class="value-chip">${esc(x)}</span>`).join("");
   const vouchers = db.vouchers?.length ? db.vouchers : VOUCHERS;
-  return `<details class="csv-guide"><summary>${icon("info")}<span>What goes in each column</span>${icon("arrow_drop_down")}</summary><div class="csv-guide-body"><table class="csv-guide-table"><tbody>
+  return `<details class="csv-guide" data-spec="csv.column-guide" data-spec-label="Column guide"><summary>${icon("info")}<span>What goes in each column</span>${icon("arrow_drop_down")}</summary><div class="csv-guide-body"><table class="csv-guide-table"><tbody>
 <tr><th scope="row">Email <span class="req">Required</span></th><td>Their work email. This is how we match them to a SANS account.</td></tr>
 <tr><th scope="row">Name</th><td>First and last name. Separate First name and Last name columns work too.</td></tr>
 <tr><th scope="row">Voucher</th><td>Pays for their training. Leave it blank to assign one after upload; they won't be invited until you do.<div class="value-list">${list(vouchers)}</div></td></tr>
@@ -585,7 +635,7 @@ function csvSummary(u) {
     c.alsoPortal ? `${c.alsoPortal} already ${c.alsoPortal === 1 ? "has" : "have"} portal access` : "",
   ].filter(Boolean).join(" · ");
   const columns = `<div class="csv-columns"><p>${icon("check")}<span><strong>Columns matched:</strong> ${u.matched.map((m) => esc(m.label)).join(", ")}</span></p>${u.ignored.length ? `<p class="muted-line">${icon("info")}<span><strong>Ignored:</strong> ${u.ignored.map(esc).join(", ")}</span></p>` : ""}${u.missing.includes("Voucher") ? `<p class="warn-line">${icon("info")}<span>No voucher column, so everyone will need a voucher assigned before they're invited.</span></p>` : ""}</div>`;
-  return `<div class="csv-summary"><h3 tabindex="-1">${pluralize(c.total, "student")} found</h3><div class="csv-tiles">${tile("ready", "check_circle", c.ready, "ready to invite", readyNotes, "ready")}${tile("needs", "error", c.needsVoucher, c.needsVoucher === 1 ? "needs a voucher" : "need a voucher", "Add them now and assign a voucher on the next screen", "needsVoucher")}${tile("error", "error", c.error, c.error === 1 ? "needs fixing" : "need fixing", esc(problemText), "error")}</div>${columns}</div>`;
+  return `<div class="csv-summary" data-spec="csv.summary" data-spec-label="Upload summary"><h3 tabindex="-1">${pluralize(c.total, "student")} found</h3><div class="csv-tiles">${tile("ready", "check_circle", c.ready, "ready to invite", readyNotes, "ready")}${tile("needs", "error", c.needsVoucher, c.needsVoucher === 1 ? "needs a voucher" : "need a voucher", "Add them now and assign a voucher on the next screen", "needsVoucher")}${tile("error", "error", c.error, c.error === 1 ? "needs fixing" : "need fixing", esc(problemText), "error")}</div>${columns}</div>`;
 }
 function uploadDisplay() {
   state.modal = state.upload?.phase === "uploading" ? "uploading" : "upload";
@@ -599,7 +649,7 @@ function uploadDisplay() {
   const error = u?.error
     ? `<div class="csv-upload-error" role="alert">${icon("error")}<div><strong>${esc(u.errorTitle || "We couldn't read that file")}</strong><p>${esc(u.error)}</p></div></div>`
     : "";
-  const zone = `<div class="upload-zone" id="csv-dropzone"><label for="csv-file" class="upload-visual"><span class="upload-featured-icon">${UPLOAD_CLOUD_ICON}</span><span><strong>Click to upload</strong> or drag and drop</span><small>csv files only</small></label><input type="file" id="csv-file" accept=".csv,text/csv,.xlsx,.xls" aria-label="Choose a CSV file"></div>`;
+  const zone = `<div class="upload-zone" id="csv-dropzone" data-spec="csv.dropzone" data-spec-label="Upload drop zone"><label for="csv-file" class="upload-visual"><span class="upload-featured-icon">${UPLOAD_CLOUD_ICON}</span><span><strong>Click to upload</strong> or drag and drop</span><small>csv files only</small></label><input type="file" id="csv-file" accept=".csv,text/csv,.xlsx,.xls" aria-label="Choose a CSV file"></div>`;
   openModal(
     "Import students from a CSV",
     "",
@@ -846,6 +896,30 @@ document.addEventListener("click", (event) => {
         state.hideGroups = !state.hideGroups;
         render();
         break;
+      case "toggle-nav-group": {
+        // Toggled in place rather than re-rendered, so the CSS slide runs. When the group holds the current
+        // page, the selected state moves between the parent and that child.
+        const key = target.dataset.group,
+          open = !state.navOpen.includes(key),
+          list = document.getElementById(`nav-group-${key}`),
+          current = list?.querySelector(`[data-view="${navView()}"]`);
+        state.navOpen = open ? [...state.navOpen, key] : state.navOpen.filter((k) => k !== key);
+        if (!list) {
+          render();
+          break;
+        }
+        target.setAttribute("aria-expanded", String(open));
+        list.dataset.open = String(open);
+        list.inert = !open;
+        if (current) {
+          target.classList.toggle("active", !open);
+          current.classList.toggle("active", open);
+          if (open) current.setAttribute("aria-current", "page");
+          else current.removeAttribute("aria-current");
+        }
+        if (typeof followNavBar === "function") followNavBar(open ? 340 : 240);
+        break;
+      }
       case "toggle-actions":
         state.actionsOpen = !state.actionsOpen;
         state.rowMenu = null;

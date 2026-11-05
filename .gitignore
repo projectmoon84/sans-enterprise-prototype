@@ -7,3 +7,6 @@ node_modules/
 .impeccable/live/*
 !.impeccable/live/config.json
 .impeccable/hook.cache.json
+
+# Handover documents are regenerated from the tags
+handover/reports/

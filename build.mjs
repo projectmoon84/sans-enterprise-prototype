@@ -19,6 +19,10 @@ const bulkUi=await readFile('src/bulk-ui.js','utf8');
 const importReview=await readFile('src/import-review.js','utf8');
 const teams=await readFile('src/teams.js','utf8');
 const motion=await readFile('src/motion.js','utf8');
+// Handover layer: the portable overlay, this prototype's adapter and the notes, embedded so hosted copies show them read-only.
+const handoverLayer=await readFile('handover/layer/handover-layer.js','utf8').catch(()=> '');
+const handoverAdapter=await readFile('src/handover-adapter.js','utf8').catch(()=> '');
+const handoverData=await readFile('handover/data.json','utf8').catch(()=> 'null');
 css+='\n'+await readFile('src/fidelity.css','utf8');
 // Material Symbols: embed the trimmed icon font, then give every existing `svg` icon rule a matching `.ms` rule
 // so the font icons pick up the same sizes (glyphs drawn 25% larger, as Material icons carry built-in padding), colours and rotations the hand-drawn SVGs had.
@@ -34,5 +38,5 @@ css=css.replace(/([^{}]+)\{([^{}]*)\}/g,(rule,selector,decls)=>{
 css=msBase+css;
 const template=await readFile('src/index.html','utf8');
 await mkdir('dist',{recursive:true});
-await writeFile('dist/index.html',template.replace('/* STYLES */',()=>css).replace('/* DATA */',()=>data.replaceAll('export ','' )+'\n'+training.replaceAll('export ','')+'\n'+bulkEngine.replaceAll('export ','')+'\n'+alerts.replaceAll('export ','')+'\n'+store.replaceAll('export ','')+'\n'+activity.replaceAll('export ','')).replace('/* APP */',()=>app+'\n'+fidelity+'\n'+people+'\n'+tables+'\n'+profile+'\n'+activityPage+'\n'+bulkUi+'\n'+importReview+'\n'+teams+'\n'+motion));
+await writeFile('dist/index.html',template.replace('/* STYLES */',()=>css).replace('/* DATA */',()=>data.replaceAll('export ','' )+'\n'+training.replaceAll('export ','')+'\n'+bulkEngine.replaceAll('export ','')+'\n'+alerts.replaceAll('export ','')+'\n'+store.replaceAll('export ','')+'\n'+activity.replaceAll('export ','')).replace('/* APP */',()=>app+'\n'+fidelity+'\n'+people+'\n'+tables+'\n'+profile+'\n'+activityPage+'\n'+bulkUi+'\n'+importReview+'\n'+teams+'\n'+motion+'\n'+(handoverLayer?'window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||'+handoverData.trim().replace(/</g,'\\u003c')+';\n'+handoverLayer+'\n'+handoverAdapter:'')));
 console.log('Built dist/index.html — standalone, no dependencies.');

@@ -1,0 +1,19 @@
+{
+  "project": "SANS Enterprise Portal",
+  "build": "node build.mjs",
+  "entry": "dist/index.html",
+  "viewport": [1440, 900],
+  "tagPrefix": "handover-",
+  "watch": ["src", "handover/layer"],
+  "viewLabels": {
+    "home": "Home",
+    "portal": "Portal users",
+    "students": "Students",
+    "import": "CSV review",
+    "profile": "Person profile",
+    "groups": "Admin groups",
+    "teams": "Teams",
+    "team": "Team page",
+    "activity": "Activity"
+  }
+}

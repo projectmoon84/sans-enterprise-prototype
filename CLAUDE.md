@@ -4,7 +4,7 @@ This is a browser-only prototype. Source lives in `src/`; `build.mjs` embeds the
 
 ## Source map and load order
 
-The JavaScript load order is significant: `data.js` → `training.js` → `bulk-engine.js` → `alerts.js` → `store.js` → `activity.js` → `app.js` → `fidelity.js` → `people.js` → `tables.js` → `profile.js` → `activity-page.js` → `bulk-ui.js` → `import-review.js` → `teams.js` → `motion.js`.
+The JavaScript load order is significant: `data.js` → `training.js` → `bulk-engine.js` → `alerts.js` → `store.js` → `activity.js` → `app.js` → `fidelity.js` → `people.js` → `tables.js` → `profile.js` → `activity-page.js` → `bulk-ui.js` → `import-review.js` → `teams.js` → `motion.js` → `handover-adapter.js` (after the embedded handover layer).
 
 - `src/data.js`: v2 data schema, fictional seed records, voucher-to-admin-group mapping, CSV parsing and validation.
 - `src/training.js`: mock SANS course catalogue, GIAC certifications, seeded training histories and certification-status helpers. Pure functions with no store import; loaded before `store.js`.
@@ -12,6 +12,7 @@ The JavaScript load order is significant: `data.js` → `training.js` → `bulk-
 - `src/bulk-ui.js`: toast with Undo, cell pop-over, bulk action bar, quick-filter chips and preview dialog, plus the Students banners and "Needs voucher" flag.
 - `src/import-review.js`: the CSV review screen, saved import drafts and the Done dialogs.
 - `src/teams.js`: the Teams list (cards by default, rows toggle, health strip, filters, sort, bulk delete) and the team page (Members, Portal users with access and History tabs, member bulk bar, add students side panel, create, edit and delete). Member changes run through `store.bulk()` so they share permissions, events and Undo.
+- `src/handover-adapter.js`: connects the portable handover layer (`handover/layer/handover-layer.js`) to this prototype: view names, navigation and how to reveal panels and dialogs. See `handover/README.md`.
 - `src/motion.js`: screen and dialog entrances. Wraps `navigate()` and `openModal()` last, so it animates only real screen changes and dialog steps, never ordinary re-renders. Respects reduced motion.
 - `src/activity-page.js`: the global Activity page (filters, batch grouping, CSV export). Reuses entry markup from `profile.js`.
 - `src/bulk-engine.js`: bulk actions on people (voucher, admin group, team, status, resend, remove, portal access, role). Pure; returns applied / unchanged / skipped / cleared lists. Reached through `store.bulk()`, which also supports `dryRun` previews and `undo()`.
@@ -59,3 +60,7 @@ After any source change, run the syntax check, tests and build. Use `http://127.
 - Removing a person always goes through the Remove dialog (`openRemoveDialog()` in `bulk-ui.js`): remove admin access, remove as a student, remove both and archive, or permanently delete. Permanent delete anonymises the activity log rather than deleting events.
 - Missing SANS accounts do not block invitations; those people remain in the awaiting-account state until simulated acceptance.
 - SSO Admin remains future scope and is not offered in invitation flows.
+
+## Handover notes
+
+Design changes are documented for developers with the handover layer (Alt+H in the running prototype) and `handover/cli.mjs`. Notes live in `handover/data.json`. When you add a component worth annotating, give it `data-spec="area.component"` and `data-spec-label`. Keep existing `data-spec` names stable, because notes are attached to them. Read `handover/README.md` before changing the layer or the tool.
