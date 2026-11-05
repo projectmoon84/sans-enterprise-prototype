@@ -47,6 +47,8 @@ const MS = {
   help: "e887",
   home: "e88a",
   info: "e88e",
+  insert_chart: "e24b",
+  insights: "f092",
   local_library: "e54b",
   mail: "e0be",
   menu: "e5d2",

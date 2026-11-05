@@ -139,11 +139,61 @@ function profileMenuContents() {
   const users = db.users.filter((user) => user.type === "portal");
   return `<div class="profile-menu-current"><span class="secondary">Signed in as</span><strong>${esc(actor?.name || "Portal user")}</strong><span class="secondary">${esc(actor?.role || "")}</span></div><div class="dropdown-divider"></div><span class="dropdown-label">Sign in as…</span>${users.map((user) => `<button data-action="sign-in-as" data-person-id="${esc(user.personId)}" ${user.personId === actor?.personId ? 'aria-current="true"' : ""}>${esc(user.name)}<span class="secondary">${esc(user.role)}</span></button>`).join("")}<div class="dropdown-divider"></div>${btn(icon("database") + "Demo data", "data")}${btn("Use sample CSV", "demo-sample")}${btn("About this prototype", "navigate", "", 'data-view="help"')}`;
 }
+// ---------- Sidebar (Figma 3195:27193) ----------
+// Parent groups start closed; people open the ones they want. A closed group that holds the current page is
+// marked as current instead, so the sliding indicator (motion.js) always has somewhere to sit.
+const NAV_GROUPS = {
+  learner: { label: "Learner Activity", icon: "insert_chart", children: [["Training Progress", "training-progress"], ["Certifications", "certifications"]] },
+  training: { label: "Training", icon: "local_library", children: [["Student Requests", "student-requests"]] },
+  finance: { label: "Finance", icon: "account_balance", children: [["Spend", "finance"]] },
+  people: { label: "People", icon: "person", children: [["Portal Users", "portal"], ["Students", "students"]] },
+  groups: { label: "Groups", icon: "groups", children: [["Teams", "teams"], ["Admin Groups", "groups"]] },
+};
+state.navOpen = [];
+function navView() {
+  if (state.view === "profile") return state.profileFrom === "students" ? "students" : "portal";
+  if (state.view === "import") return "students";
+  return state.view;
+}
+function sideLink(label, view, ico = "", mark = true) {
+  const on = mark && navView() === view;
+  return `<button class="nav-btn${ico ? "" : " sub"}${on ? " active" : ""}" data-action="navigate" data-view="${view}"${on ? ' aria-current="page"' : ""}>${ico ? icon(ico) : ""}<span class="nav-label">${label}</span></button>`;
+}
+function sideGroup(key) {
+  const group = NAV_GROUPS[key],
+    open = state.navOpen.includes(key),
+    holdsCurrent = group.children.some(([, view]) => view === navView());
+  // The child list is always in the page so it can slide open and closed; inert keeps it out of reach while closed.
+  return `<div class="nav-group"><button class="nav-btn nav-parent${!open && holdsCurrent ? " active" : ""}" data-action="toggle-nav-group" data-group="${key}" aria-expanded="${open}" aria-controls="nav-group-${key}">${icon(group.icon)}<span class="nav-label">${group.label}</span>${icon("chevron")}</button><div class="nav-children-wrap" id="nav-group-${key}" data-open="${open}"${open ? "" : " inert"}><div class="nav-children">${group.children.map(([label, view]) => sideLink(label, view, "", open)).join("")}</div></div></div>`;
+}
+function sidebarNav() {
+  return `<div class="nav-main">${sideLink("Home", "home", "home")}${sideGroup("learner")}${sideGroup("training")}${sideGroup("finance")}<div class="nav-divider"></div><div class="nav-section">Your Organization</div>${sideGroup("people")}${sideGroup("groups")}${sideLink("Activity", "activity", "schedule")}<div class="nav-divider"></div><div class="nav-section nav-section-split"><span>SANS Administration</span><span class="nav-section-note">Internal Only</span></div>${sideLink("Customer Organizations", "customer-organizations", "groups")}${sideLink("Internal Users", "internal-users", "person")}${sideLink("Default Dashboard Configuration", "dashboard-configuration", "insights")}</div><div class="nav-foot"><div class="nav-divider"></div>${sideLink("Help & Support", "help", "help")}</div>`;
+}
+// Pages the new navigation names but the prototype does not cover yet. Home, Spend and Admin Groups had
+// earlier stand-in screens; they are blank here until their designs are ready.
+const PLANNED_VIEWS = {
+  home: ["Home", "Home", "Your organization's training at a glance."],
+  finance: ["Spend", "Finance", "See how your organization's training budget is being used."],
+  groups: ["Admin Groups", "Your Organization", "Manage the Admin Groups that vouchers cover."],
+  "training-progress": ["Training Progress", "Learner Activity", "See how students are moving through their courses."],
+  certifications: ["Certifications", "Learner Activity", "Track GIAC certification attempts and renewals."],
+  "student-requests": ["Student Requests", "Training", "Review training requests from students."],
+  "customer-organizations": ["Customer Organizations", "SANS Administration", "Manage the organizations that use the portal."],
+  "internal-users": ["Internal Users", "SANS Administration", "Manage SANS staff with access to the portal."],
+  "dashboard-configuration": ["Default Dashboard Configuration", "SANS Administration", "Choose what new organizations see on their dashboard."],
+};
+const navBaseContent = content;
+content = function () {
+  const planned = PLANNED_VIEWS[state.view];
+  if (!planned) return navBaseContent();
+  const [title, area, description] = planned;
+  return `${heading(title, description)}<section class="card planned-page" aria-label="${esc(area)}"><h2>Not in This Prototype Yet</h2><p class="muted">This page is part of the new navigation. Its content will be designed separately.</p></section>`;
+};
 render = function () {
   const focus = document.activeElement?.id,
     position = document.activeElement?.selectionStart;
   $("#app").innerHTML =
-    `<header class="topbar"><button class="icon-btn mobile-menu" data-action="mobile-menu" aria-label="Toggle navigation">${icon("menu")}</button><div class="logo" aria-label="SANS">${SANS_LOGO}</div><span class="org">Organization name</span><div class="right"><div class="menu-anchor"><button class="profile-button" data-action="profile-menu" aria-label="Open profile and demo tools" aria-expanded="${state.profileOpen}"><span class="avatar">${esc(initial(signedInPortalUser()?.name || "Portal user"))}</span>${icon("chevron")}</button>${state.profileOpen ? `<div class="dropdown-menu profile-dropdown">${profileMenuContents()}</div>` : ""}</div></div></header><aside class="sidebar" aria-label="Main navigation">${nav("Home", "home", "home")}${nav("Learning", "learning", "book")}${nav("Account & Finance", "finance", "building")}<div class="nav-divider"></div><div class="nav-section">Admin</div><button class="nav-btn nav-parent" data-action="toggle-people" aria-expanded="${!state.hidePeople}">${icon("person")}People${icon("chevron")}</button>${state.hidePeople ? "" : nav("Portal users", "portal", "", true) + nav("Students", "students", "", true)}<button class="nav-btn nav-parent groups-parent" data-action="toggle-groups" aria-expanded="${!state.hideGroups}">${icon("groups")}Groups${icon("chevron")}</button>${state.hideGroups ? "" : nav("Admin Groups", "groups", "", true) + nav("Teams", "teams", "", true)}${nav("Activity", "activity", "schedule")}<div class="nav-divider bottom-divider"></div>${nav("Help & Support", "help", "help")}</aside><main class="page view-${state.view}" id="main">${storageError ? `<div class="note warning">${icon("info")}${esc(storageError)}</div>` : ""}${content()}</main>`;
+    `<header class="topbar"><button class="icon-btn mobile-menu" data-action="mobile-menu" aria-label="Toggle navigation">${icon("menu")}</button><div class="logo" aria-label="SANS">${SANS_LOGO}</div><span class="org">Organization name</span><div class="right"><div class="menu-anchor"><button class="profile-button" data-action="profile-menu" aria-label="Open profile and demo tools" aria-expanded="${state.profileOpen}"><span class="avatar">${esc(initial(signedInPortalUser()?.name || "Portal user"))}</span>${icon("chevron")}</button>${state.profileOpen ? `<div class="dropdown-menu profile-dropdown">${profileMenuContents()}</div>` : ""}</div></div></header><aside class="sidebar" aria-label="Main navigation" data-spec="nav.sidebar" data-spec-label="Sidebar navigation">${sidebarNav()}</aside><main class="page view-${state.view}" id="main">${storageError ? `<div class="note warning">${icon("info")}${esc(storageError)}</div>` : ""}${content()}</main>`;
   if (focus && document.getElementById(focus)) {
     const el = document.getElementById(focus);
     el.focus();
@@ -846,6 +896,30 @@ document.addEventListener("click", (event) => {
         state.hideGroups = !state.hideGroups;
         render();
         break;
+      case "toggle-nav-group": {
+        // Toggled in place rather than re-rendered, so the CSS slide runs. When the group holds the current
+        // page, the selected state moves between the parent and that child.
+        const key = target.dataset.group,
+          open = !state.navOpen.includes(key),
+          list = document.getElementById(`nav-group-${key}`),
+          current = list?.querySelector(`[data-view="${navView()}"]`);
+        state.navOpen = open ? [...state.navOpen, key] : state.navOpen.filter((k) => k !== key);
+        if (!list) {
+          render();
+          break;
+        }
+        target.setAttribute("aria-expanded", String(open));
+        list.dataset.open = String(open);
+        list.inert = !open;
+        if (current) {
+          target.classList.toggle("active", !open);
+          current.classList.toggle("active", open);
+          if (open) current.setAttribute("aria-current", "page");
+          else current.removeAttribute("aria-current");
+        }
+        if (typeof followNavBar === "function") followNavBar(open ? 340 : 240);
+        break;
+      }
       case "toggle-actions":
         state.actionsOpen = !state.actionsOpen;
         state.rowMenu = null;

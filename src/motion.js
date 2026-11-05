@@ -180,10 +180,10 @@ modalEl.addEventListener("close", () => {
   if (!modalEl.open) motionModalTitle = "";
 });
 
-// ---------- Sidebar: the active bar slides to the new tab ----------
+// ---------- Sidebar: the selected pill slides to the new tab ----------
 // The whole sidebar is rebuilt on every render, so the bar is a single element re-placed after each one.
 // When the active tab changes it starts where the old bar was and slides to the new tab.
-var navBar = { top: null, height: null, key: "" };
+var navBar = { top: null, left: 0, width: 0, height: null, key: "" };
 function placeNavBar() {
   const sidebar = document.querySelector(".sidebar");
   if (!sidebar) return;
@@ -198,29 +198,76 @@ function placeNavBar() {
   }
   if (!active) {
     bar.style.opacity = "0";
-    navBar = { top: null, height: null, key: "" };
+    navBar = { top: null, left: 0, width: 0, height: null, key: "" };
     return;
   }
   const top = active.offsetTop;
+  const left = active.offsetLeft;
+  const width = active.offsetWidth;
   const height = active.offsetHeight;
   const key = active.dataset.view || active.textContent;
   const slide = navBar.top !== null && key !== navBar.key && !REDUCED_MOTION.matches;
   // The bar is a fresh element after each render: pin it to its start point (the old tab when sliding,
   // the current tab otherwise) with transitions off, then release it.
   bar.style.transition = "none";
-  bar.style.transform = `translateY(${slide ? navBar.top : top}px)`;
+  bar.style.transform = `translate(${slide ? navBar.left : left}px, ${slide ? navBar.top : top}px)`;
+  bar.style.width = `${slide ? navBar.width : width}px`;
   bar.style.height = `${slide ? navBar.height : height}px`;
   bar.style.opacity = "1";
   bar.getBoundingClientRect();
   bar.style.transition = "";
   if (slide) {
-    bar.style.transform = `translateY(${top}px)`;
+    bar.style.transform = `translate(${left}px, ${top}px)`;
+    bar.style.width = `${width}px`;
     bar.style.height = `${height}px`;
   }
-  navBar = { top, height, key };
+  navBar = { top, left, width, height, key };
+}
+// Opening or closing a sidebar group moves the items below it while the list slides. The pill follows them
+// frame by frame, and eases across when the selection itself moves between a group's parent and its child.
+var navFollow = 0;
+function followNavBar(duration = 300) {
+  const sidebar = document.querySelector(".sidebar");
+  const bar = sidebar?.querySelector(".nav-indicator");
+  if (!bar) return placeNavBar();
+  cancelAnimationFrame(navFollow);
+  const measure = () => {
+    const active = sidebar.querySelector(".nav-btn.active");
+    return active && {
+      top: active.offsetTop,
+      left: active.offsetLeft,
+      width: active.offsetWidth,
+      height: active.offsetHeight,
+      key: active.dataset.view || active.textContent,
+    };
+  };
+  const first = measure();
+  if (!first || navBar.top === null) return placeNavBar();
+  const from = { ...navBar };
+  const glide = first.key !== from.key && !REDUCED_MOTION.matches;
+  const ease = (t) => 1 - Math.pow(1 - t, 4);
+  const start = performance.now();
+  bar.style.transition = "none";
+  const step = (now) => {
+    const to = measure();
+    if (!to) return placeNavBar();
+    const t = Math.min(1, (now - start) / duration);
+    const k = glide ? ease(t) : 1;
+    const mix = (a, b) => a + (b - a) * k;
+    const top = mix(from.top, to.top), left = mix(from.left, to.left);
+    const width = mix(from.width, to.width), height = mix(from.height, to.height);
+    bar.style.transform = `translate(${left}px, ${top}px)`;
+    bar.style.width = `${width}px`;
+    bar.style.height = `${height}px`;
+    navBar = { top, left, width, height, key: to.key };
+    if (t < 1) navFollow = requestAnimationFrame(step);
+    else bar.style.transition = "";
+  };
+  navFollow = requestAnimationFrame(step);
 }
 const motionBaseRender = render;
 render = function (...args) {
+  cancelAnimationFrame(navFollow);
   const result = motionBaseRender(...args);
   placeNavBar();
   return result;

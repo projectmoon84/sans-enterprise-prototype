@@ -7,7 +7,7 @@
   const VIEW_LABELS = {
     home: "Home",
     learning: "Learning",
-    finance: "Account & Finance",
+    finance: "Spend",
     portal: "Portal users",
     students: "Students",
     import: "CSV review",
@@ -17,6 +17,12 @@
     team: "Team page",
     activity: "Activity",
     help: "Help & Support",
+    "training-progress": "Training Progress",
+    certifications: "Certifications",
+    "student-requests": "Student Requests",
+    "customer-organizations": "Customer Organizations",
+    "internal-users": "Internal Users",
+    "dashboard-configuration": "Default Dashboard Configuration",
   };
   const closeOverlays = () => {
     if (state.addPanel) closeAddPanel();
