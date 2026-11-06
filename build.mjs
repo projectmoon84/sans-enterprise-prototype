@@ -20,7 +20,9 @@ const importReview=await readFile('src/import-review.js','utf8');
 const teams=await readFile('src/teams.js','utf8');
 const motion=await readFile('src/motion.js','utf8');
 // Handover layer: the portable overlay, this prototype's adapter and the notes, embedded so hosted copies show them read-only.
-const handoverLayer=await readFile('handover/layer/handover-layer.js','utf8').catch(()=> '');
+// Handover notes stay out of hosted builds (Vercel sets VERCEL). Set HANDOVER_NOTES=1 to include them.
+const withNotes=!process.env.VERCEL||process.env.HANDOVER_NOTES==='1';
+const handoverLayer=withNotes?await readFile('handover/layer/handover-layer.js','utf8').catch(()=> ''):'';
 const handoverAdapter=await readFile('src/handover-adapter.js','utf8').catch(()=> '');
 const handoverData=await readFile('handover/data.json','utf8').catch(()=> 'null');
 css+='\n'+await readFile('src/fidelity.css','utf8');
