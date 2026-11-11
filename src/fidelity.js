@@ -134,10 +134,42 @@ function signedInPortalUser() {
     ) || db.users.find((user) => user.type === "portal")
   );
 }
+// SANS staff who look after customer organizations. They are not people in this organization, so they
+// live outside the database; who is signed in is remembered in this browser. Only SANS staff see the
+// SANS Administration section of the sidebar.
+const SANS_STAFF = [
+  { id: "sans-morgan-hale", name: "Morgan Hale", role: "SANS Administrator" },
+  { id: "sans-jordan-ellis", name: "Jordan Ellis", role: "SANS Administrator" },
+];
+const SANS_VIEWS = ["customer-organizations", "internal-users", "dashboard-configuration"];
+const SANS_STAFF_KEY = "sans-enterprise-staff-session";
+state.sansStaffId = (() => {
+  try {
+    const id = localStorage.getItem(SANS_STAFF_KEY);
+    return SANS_STAFF.some((staff) => staff.id === id) ? id : null;
+  } catch {
+    return null;
+  }
+})();
+function signedInSansStaff() {
+  return SANS_STAFF.find((staff) => staff.id === state.sansStaffId) || null;
+}
+function setSansStaff(id) {
+  state.sansStaffId = id;
+  try {
+    if (id) localStorage.setItem(SANS_STAFF_KEY, id);
+    else localStorage.removeItem(SANS_STAFF_KEY);
+  } catch {}
+}
+function signedInName() {
+  return signedInSansStaff()?.name || signedInPortalUser()?.name || "Portal user";
+}
 function profileMenuContents() {
+  const staff = signedInSansStaff();
   const actor = signedInPortalUser();
+  const current = staff || actor;
   const users = db.users.filter((user) => user.type === "portal");
-  return `<div class="profile-menu-current"><span class="secondary">Signed in as</span><strong>${esc(actor?.name || "Portal user")}</strong><span class="secondary">${esc(actor?.role || "")}</span></div><div class="dropdown-divider"></div><span class="dropdown-label">Sign in as…</span>${users.map((user) => `<button data-action="sign-in-as" data-person-id="${esc(user.personId)}" ${user.personId === actor?.personId ? 'aria-current="true"' : ""}>${esc(user.name)}<span class="secondary">${esc(user.role)}</span></button>`).join("")}<div class="dropdown-divider"></div>${btn(icon("database") + "Demo data", "data")}${btn("Use sample CSV", "demo-sample")}${btn("About this prototype", "navigate", "", 'data-view="help"')}`;
+  return `<div class="profile-menu-current"><span class="secondary">Signed In As</span><strong>${esc(current?.name || "Portal user")}</strong><span class="secondary">${esc(current?.role || "")}</span></div><div class="dropdown-divider"></div><span class="dropdown-label">Organization Users</span>${users.map((user) => `<button data-action="sign-in-as" data-person-id="${esc(user.personId)}" ${!staff && user.personId === actor?.personId ? 'aria-current="true"' : ""}>${esc(user.name)}<span class="secondary">${esc(user.role)}</span></button>`).join("")}<div class="dropdown-divider"></div><span class="dropdown-label">SANS Staff</span>${SANS_STAFF.map((member) => `<button data-action="sign-in-as-sans" data-staff-id="${esc(member.id)}" ${member.id === staff?.id ? 'aria-current="true"' : ""}>${esc(member.name)}<span class="secondary">${esc(member.role)}</span></button>`).join("")}<div class="dropdown-divider"></div>${btn(icon("database") + "Demo data", "data")}${btn("Use sample CSV", "demo-sample")}${btn("About this prototype", "navigate", "", 'data-view="help"')}`;
 }
 // ---------- Sidebar (Figma 3195:27193) ----------
 // Parent groups start closed; people open the ones they want. A closed group that holds the current page is
@@ -167,7 +199,7 @@ function sideGroup(key) {
   return `<div class="nav-group"><button class="nav-btn nav-parent${!open && holdsCurrent ? " active" : ""}" data-action="toggle-nav-group" data-group="${key}" aria-expanded="${open}" aria-controls="nav-group-${key}">${icon(group.icon)}<span class="nav-label">${group.label}</span>${icon("chevron")}</button><div class="nav-children-wrap" id="nav-group-${key}" data-open="${open}"${open ? "" : " inert"}><div class="nav-children">${group.children.map(([label, view]) => sideLink(label, view, "", open)).join("")}</div></div></div>`;
 }
 function sidebarNav() {
-  return `<div class="nav-main">${sideLink("Home", "home", "home")}${sideGroup("learner")}${sideGroup("training")}${sideGroup("finance")}<div class="nav-divider"></div><div class="nav-section">Your Organization</div>${sideGroup("people")}${sideGroup("groups")}${sideLink("Activity", "activity", "schedule")}<div class="nav-divider"></div><div class="nav-section nav-section-split"><span>SANS Administration</span><span class="nav-section-note">Internal Only</span></div>${sideLink("Customer Organizations", "customer-organizations", "groups")}${sideLink("Internal Users", "internal-users", "person")}${sideLink("Default Dashboard Configuration", "dashboard-configuration", "insights")}</div><div class="nav-foot"><div class="nav-divider"></div>${sideLink("Help & Support", "help", "help")}</div>`;
+  return `<div class="nav-main">${sideLink("Home", "home", "home")}${sideGroup("learner")}${sideGroup("training")}${sideGroup("finance")}<div class="nav-divider"></div><div class="nav-section">Your Organization</div>${sideGroup("people")}${sideGroup("groups")}${sideLink("Activity", "activity", "schedule")}${signedInSansStaff() ? `<div class="nav-divider"></div><div class="nav-section nav-section-split"><span>SANS Administration</span><span class="nav-section-note">Internal Only</span></div>${sideLink("Customer Organizations", "customer-organizations", "groups")}${sideLink("Internal Users", "internal-users", "person")}${sideLink("Default Dashboard Configuration", "dashboard-configuration", "insights")}` : ""}</div><div class="nav-foot"><div class="nav-divider"></div>${sideLink("Help & Support", "help", "help")}</div>`;
 }
 // Pages the new navigation names but the prototype does not cover yet. Home, Spend and Admin Groups had
 // earlier stand-in screens; they are blank here until their designs are ready.
@@ -184,6 +216,7 @@ const PLANNED_VIEWS = {
 };
 const navBaseContent = content;
 content = function () {
+  if (SANS_VIEWS.includes(state.view) && !signedInSansStaff()) state.view = "home";
   const planned = PLANNED_VIEWS[state.view];
   if (!planned) return navBaseContent();
   const [title, area, description] = planned;
@@ -193,7 +226,7 @@ render = function () {
   const focus = document.activeElement?.id,
     position = document.activeElement?.selectionStart;
   $("#app").innerHTML =
-    `<header class="topbar"><button class="icon-btn mobile-menu" data-action="mobile-menu" aria-label="Toggle navigation">${icon("menu")}</button><div class="logo" aria-label="SANS">${SANS_LOGO}</div><span class="org">Organization name</span><div class="right"><div class="menu-anchor"><button class="profile-button" data-action="profile-menu" aria-label="Open profile and demo tools" aria-expanded="${state.profileOpen}"><span class="avatar">${esc(initial(signedInPortalUser()?.name || "Portal user"))}</span>${icon("chevron")}</button>${state.profileOpen ? `<div class="dropdown-menu profile-dropdown">${profileMenuContents()}</div>` : ""}</div></div></header><aside class="sidebar" aria-label="Main navigation" data-spec="nav.sidebar" data-spec-label="Sidebar navigation">${sidebarNav()}</aside><main class="page view-${state.view}" id="main">${storageError ? `<div class="note warning">${icon("info")}${esc(storageError)}</div>` : ""}${content()}</main>`;
+    `<header class="topbar"><button class="icon-btn mobile-menu" data-action="mobile-menu" aria-label="Toggle navigation">${icon("menu")}</button><div class="logo" aria-label="SANS">${SANS_LOGO}</div><span class="org">Organization name</span><div class="right"><div class="menu-anchor"><button class="profile-button" data-action="profile-menu" aria-label="Open profile and demo tools" aria-expanded="${state.profileOpen}"><span class="avatar">${esc(initial(signedInName()))}</span>${icon("chevron")}</button>${state.profileOpen ? `<div class="dropdown-menu profile-dropdown">${profileMenuContents()}</div>` : ""}</div></div></header><aside class="sidebar" aria-label="Main navigation" data-spec="nav.sidebar" data-spec-label="Sidebar navigation">${sidebarNav()}</aside><main class="page view-${state.view}" id="main">${storageError ? `<div class="note warning">${icon("info")}${esc(storageError)}</div>` : ""}${content()}</main>`;
   if (focus && document.getElementById(focus)) {
     const el = document.getElementById(focus);
     el.focus();
@@ -882,9 +915,24 @@ document.addEventListener("click", (event) => {
           (user) => user.type === "portal" && user.personId === personId,
         );
         state.profileOpen = false;
+        setSansStaff(null);
+        if (SANS_VIEWS.includes(state.view)) state.view = "home";
         dispatch(
           (st) => st.setActor(personId),
           `Signed in as ${person?.name || "portal user"}`,
+        );
+        break;
+      }
+      case "sign-in-as-sans": {
+        // SANS staff work in the organization with full Admin rights, so changes in the organization's
+        // pages run as its first Admin.
+        const staff = SANS_STAFF.find((member) => member.id === target.dataset.staffId);
+        const admin = db.users.find((user) => user.type === "portal" && user.role === "Admin") || signedInPortalUser();
+        state.profileOpen = false;
+        setSansStaff(staff.id);
+        dispatch(
+          (st) => st.setActor(admin.personId),
+          `Signed in as ${staff.name}, ${staff.role}`,
         );
         break;
       }
