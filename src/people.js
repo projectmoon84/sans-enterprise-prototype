@@ -29,7 +29,7 @@ function dualTag(u) {
   const other = linkedPerson(u.email, otherType(u.type));
   if (!other) return "";
   const student = other.type === "student";
-  return `<button type="button" class="role-tag" data-action="open-linked" data-id="${esc(other.id)}" title="Open their ${student ? "student" : "portal user"} record">${student ? STUDENT_ICON : PERSON_CIRCLE_ICON}${student ? "Student" : "Portal user"}</button>`;
+  return `<button type="button" class="role-tag" data-action="open-linked" data-id="${esc(other.id)}" title="Open their ${student ? "student" : "portal user"} record">${student ? STUDENT_ICON : PERSON_CIRCLE_ICON}${student ? "Student" : "Portal User"}</button>`;
 }
 
 // Role (or email) line under a person's name, with the dual-role link beside it.
@@ -41,9 +41,9 @@ function personMeta(u, text, className = "") {
 function roleShortcut(u) {
   if (linkedPerson(u.email, otherType(u.type))) return "";
   return u.type === "portal"
-    ? btn("Add as student", "add-as-student", "", 'data-id="' + esc(u.id) + '"')
+    ? btn("Add as Student", "add-as-student", "", 'data-id="' + esc(u.id) + '"')
     : btn(
-        "Invite as portal user",
+        "Invite as Portal User",
         "invite-as-portal",
         "",
         'data-id="' + esc(u.id) + '"',
@@ -56,7 +56,7 @@ function groupOptions(voucher, current) {
   return opts(
     groupsForVouchers([voucher], db.groups),
     current,
-    "Leave unassigned",
+    "Leave Unassigned",
   );
 }
 
@@ -117,7 +117,7 @@ function linkedNote(email, type) {
   if (!other || linkedPerson(email, type)) return "";
   if (type === "student")
     return `<div class="note linked-note">${icon("users")}<div><strong>${esc(other.name)} is already a portal user</strong> (${esc(other.role)} · ${esc(other.vouchers.join(", ") || "no vouchers")}).<br>Adding them as a student gives them a training record. Their portal access won’t change.</div></div>`;
-  return `<div class="note linked-note">${icon("book")}<div><strong>${esc(other.name)} is already a student</strong> · ${esc(other.vouchers[0] || "No voucher")} · ${esc(other.groups[0] || "No admin group")} · ${esc(other.teams[0] || "No team")}.<br>Their student record stays as it is. This invitation adds portal access.</div></div>`;
+  return `<div class="note linked-note">${icon("book")}<div><strong>${esc(other.name)} is already a student</strong> · ${esc(other.vouchers[0] || "No Voucher")} · ${esc(other.groups[0] || "No Admin Group")} · ${esc(other.teams[0] || "No Team")}.<br>Their student record stays as it is. This invitation adds portal access.</div></div>`;
 }
 
 // ---------- Invite portal user ----------
@@ -128,9 +128,9 @@ function scopeSections(p) {
   const limited = p.role === LIMITED,
     type = limited ? "radio" : "checkbox";
   const available = groupsForVouchers(p.vouchers, db.groups);
-  const voucher = `<section class="field-section"><label>Voucher access <span class="required">*</span> ${helpMark("Vouchers sit at the top level. The admin groups you can choose depend on the vouchers selected here.")}</label><p class="hint">${limited ? "A Limited Admin is scoped to one voucher." : "Choose vouchers first. Admin groups follow from the vouchers you pick."}</p><div class="search scope-search">${icon("search")}<input id="voucher-scope-search" placeholder="Search vouchers" aria-label="Search vouchers" data-scope-search="vouchers"></div>${scopeInputs("vouchers", VOUCHERS, p.vouchers, type)}</section>`;
+  const voucher = `<section class="field-section"><label>Voucher Access <span class="required">*</span> ${helpMark("Vouchers sit at the top level. The admin groups you can choose depend on the vouchers selected here.")}</label><p class="hint">${limited ? "A Limited Admin is scoped to one voucher." : "Choose vouchers first. Admin groups follow from the vouchers you pick."}</p><div class="search scope-search">${icon("search")}<input id="voucher-scope-search" placeholder="Search vouchers" aria-label="Search vouchers" data-scope-search="vouchers"></div>${scopeInputs("vouchers", VOUCHERS, p.vouchers, type)}</section>`;
   const groups = `<section class="field-section"><div class="group-label"><label>Admin Groups <span class="required">*</span> ${helpMark("Only admin groups covered by the selected vouchers are shown.")}</label>${available.length ? `<label class="check"><input type="checkbox" id="all-groups" ${available.every((g) => p.groups.includes(g)) ? "checked" : ""}>All admin groups in ${p.vouchers.length === 1 ? "this voucher" : "these vouchers"}</label>` : ""}</div>${available.length ? `<p class="hint">Showing ${available.length} of ${db.groups.length} admin groups, covered by ${esc(p.vouchers.join(", "))}.</p>${scopeInputs("groups", available, p.groups)}` : `<div class="scope-empty">${icon("info")}Choose a voucher to see the admin groups it covers.</div>`}</section>`;
-  const teams = `<section class="field-section team-access-section"><label>Team access <span class="required">*</span> ${helpMark("Access lets this person see and manage a team. It doesn’t make them a member of it.")}</label><p class="hint">Teams can include students from any voucher. Access doesn’t make this person a team member.</p><div class="team-search-row"><div class="search scope-search">${icon("search")}<input id="team-scope-search" placeholder="Search teams" aria-label="Search teams" data-scope-search="teams"></div><label class="check"><input type="checkbox" id="all-teams" ${db.teams.every((t) => p.teams.includes(t)) ? "checked" : ""}>Select all</label></div>${scopeInputs("teams", db.teams, p.teams)}</section>`;
+  const teams = `<section class="field-section team-access-section"><label>Team Access <span class="required">*</span> ${helpMark("Access lets this person see and manage a team. It doesn’t make them a member of it.")}</label><p class="hint">Teams can include students from any voucher. Access doesn’t make this person a team member.</p><div class="team-search-row"><div class="search scope-search">${icon("search")}<input id="team-scope-search" placeholder="Search teams" aria-label="Search teams" data-scope-search="teams"></div><label class="check"><input type="checkbox" id="all-teams" ${db.teams.every((t) => p.teams.includes(t)) ? "checked" : ""}>Select All</label></div>${scopeInputs("teams", db.teams, p.teams)}</section>`;
   return voucher + groups + teams;
 }
 portalForm = function () {
@@ -139,7 +139,7 @@ portalForm = function () {
   openModal(
     "Invite Portal User",
     "Choose what this person can access. They will be able to sign in to the portal.",
-    `<form id="portal-form"><div class="two-column"><div class="form-panel"><div class="field email-field" data-spec="portal.invite.email" data-spec-label="Email and account check"><label for="portal-email">Email Address <span class="required">*</span></label><input id="portal-email" type="email" name="email" required value="${esc(p.email)}" autocomplete="off"><p id="portal-account" class="account-status ${accountClass(p.email, "portal")}">${accountStatus(p.email, "portal")}</p></div><div id="portal-linked">${linkedNote(p.email, "portal")}</div><section class="field-section role-section" data-spec="portal.invite.role" data-spec-label="Role picker"><label>Choose role <span class="required">*</span> ${helpMark("Choose the level of access this user will have.")}</label><div class="role-picker">${ROLES.map((r) => `<label class="role-option"><input type="radio" name="role" value="${r}" ${p.role === r ? "checked" : ""}><strong>${r}</strong><small>${ROLE_HINTS[r]}</small></label>`).join("")}</div></section><div id="portal-scope" data-spec="portal.invite.access" data-spec-label="Voucher, admin group and team access">${scopeSections(p)}</div><p class="inline-error" id="portal-error" role="alert"></p></div><div id="permission-preview" data-spec="portal.invite.summary" data-spec-label="Live permission summary">${summary(p)}</div></div></form>`,
+    `<form id="portal-form"><div class="two-column"><div class="form-panel"><div class="field email-field" data-spec="portal.invite.email" data-spec-label="Email and account check"><label for="portal-email">Email Address <span class="required">*</span></label><input id="portal-email" type="email" name="email" required value="${esc(p.email)}" autocomplete="off"><p id="portal-account" class="account-status ${accountClass(p.email, "portal")}">${accountStatus(p.email, "portal")}</p></div><div id="portal-linked">${linkedNote(p.email, "portal")}</div><section class="field-section role-section" data-spec="portal.invite.role" data-spec-label="Role picker"><label>Choose Role <span class="required">*</span> ${helpMark("Choose the level of access this user will have.")}</label><div class="role-picker">${ROLES.map((r) => `<label class="role-option"><input type="radio" name="role" value="${r}" ${p.role === r ? "checked" : ""}><strong>${r}</strong><small>${ROLE_HINTS[r]}</small></label>`).join("")}</div></section><div id="portal-scope" data-spec="portal.invite.access" data-spec-label="Voucher, admin group and team access">${scopeSections(p)}</div><p class="inline-error" id="portal-error" role="alert"></p></div><div id="permission-preview" data-spec="portal.invite.summary" data-spec-label="Live permission summary">${summary(p)}</div></div></form>`,
     `<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="portal-form">Review Invitation</button></div>`,
     steps("Role and Access", "Review & Send", 1),
   );
@@ -209,8 +209,8 @@ const baseEditForm = editForm,
 function linkedEditNote(u) {
   const other = linkedPerson(u.email, otherType(u.type));
   if (!other)
-    return `<p class="hint linked-hint">${u.type === "portal" ? "Not a student." : "Not a portal user."} <button type="button" class="button-link" data-action="${u.type === "portal" ? "add-as-student" : "invite-as-portal"}" data-id="${esc(u.id)}">${u.type === "portal" ? "Add as student" : "Invite as portal user"}</button></p>`;
-  return `<div class="note linked-note">${icon(other.type === "student" ? "book" : "users")}<div>${other.type === "student" ? `<strong>Also a student</strong> · ${esc(other.vouchers[0])} · ${esc(other.groups[0] || "No admin group")} · ${esc(other.teams[0] || "No team")}` : `<strong>Also a portal user</strong> · ${esc(other.role)}`}. <button type="button" class="button-link" data-action="open-linked" data-id="${esc(other.id)}">Open ${other.type === "student" ? "student" : "portal user"} record</button></div></div>`;
+    return `<p class="hint linked-hint">${u.type === "portal" ? "Not a student." : "Not a portal user."} <button type="button" class="button-link" data-action="${u.type === "portal" ? "add-as-student" : "invite-as-portal"}" data-id="${esc(u.id)}">${u.type === "portal" ? "Add as Student" : "Invite as Portal User"}</button></p>`;
+  return `<div class="note linked-note">${icon(other.type === "student" ? "book" : "users")}<div>${other.type === "student" ? `<strong>Also a Student</strong> · ${esc(other.vouchers[0])} · ${esc(other.groups[0] || "No Admin Group")} · ${esc(other.teams[0] || "No Team")}` : `<strong>Also a Portal User</strong> · ${esc(other.role)}`}. <button type="button" class="button-link" data-action="open-linked" data-id="${esc(other.id)}">Open ${other.type === "student" ? "Student" : "Portal User"} Record</button></div></div>`;
 }
 function editGroupChecks(vouchers, selected) {
   const available = groupsForVouchers(vouchers, db.groups);
@@ -227,13 +227,13 @@ editForm = function (id, index = null) {
   const portal = u.type === "portal";
   const status = `<div class="field"><label for="edit-status">Status</label><select id="edit-status" name="status">${opts(["Active", "Pending invite", "Suspended"], u.status)}</select><p class="hint">${u.accountSetup && u.status === "Pending invite" ? "Awaiting SANS account. " : ""}Choose Active to simulate accepting the invitation.</p></div>`;
   const body = portal
-    ? `<div class="field"><label for="edit-role">Role</label><select id="edit-role" name="role">${opts(u.role === "SSO Admin" ? [...ROLES, "SSO Admin"] : ROLES, u.role)}</select><p class="hint">Limited Admins are scoped to one voucher. They can cover several of its admin groups.</p></div>${status}<div class="field"><label>Voucher access <span class="required">*</span></label>${choices("vouchers", VOUCHERS, u.vouchers)}</div><div class="field"><label>Admin Groups <span class="required">*</span></label><div id="edit-groups">${editGroupChecks(u.vouchers, u.groups)}</div></div><div class="field"><label>Team access</label>${choices("teams", db.teams, u.teams)}<p class="hint">Access to a team doesn’t make them a member.</p></div>`
-    : `<div class="field"><label for="edit-voucher">Voucher <span class="required">*</span></label><select id="edit-voucher" name="voucher" required>${opts(VOUCHERS, u.vouchers[0])}</select></div><div class="field"><label for="edit-group">Admin Group</label><select id="edit-group" name="group">${groupOptions(u.vouchers[0], u.groups[0])}</select><p class="hint">Filtered by voucher.</p></div><div class="field"><label for="edit-team">Team</label><select id="edit-team" name="team">${opts(db.teams, u.teams[0], "Leave unassigned")}</select><p class="hint">Makes them a member of this team.</p></div><div class="field"><label for="edit-work">Work role</label><input id="edit-work" name="workRole" value="${esc(u.workRole)}"></div>${status}`;
+    ? `<div class="field"><label for="edit-role">Role</label><select id="edit-role" name="role">${opts(u.role === "SSO Admin" ? [...ROLES, "SSO Admin"] : ROLES, u.role)}</select><p class="hint">Limited Admins are scoped to one voucher. They can cover several of its admin groups.</p></div>${status}<div class="field"><label>Voucher Access <span class="required">*</span></label>${choices("vouchers", VOUCHERS, u.vouchers)}</div><div class="field"><label>Admin Groups <span class="required">*</span></label><div id="edit-groups">${editGroupChecks(u.vouchers, u.groups)}</div></div><div class="field"><label>Team Access</label>${choices("teams", db.teams, u.teams)}<p class="hint">Access to a team doesn’t make them a member.</p></div>`
+    : `<div class="field"><label for="edit-voucher">Voucher <span class="required">*</span></label><select id="edit-voucher" name="voucher" required>${opts(VOUCHERS, u.vouchers[0])}</select></div><div class="field"><label for="edit-group">Admin Group</label><select id="edit-group" name="group">${groupOptions(u.vouchers[0], u.groups[0])}</select><p class="hint">Filtered by voucher.</p></div><div class="field"><label for="edit-team">Team</label><select id="edit-team" name="team">${opts(db.teams, u.teams[0], "Leave Unassigned")}</select><p class="hint">Makes them a member of this team.</p></div><div class="field"><label for="edit-work">Work Role</label><input id="edit-work" name="workRole" value="${esc(u.workRole)}"></div>${status}`;
   openModal(
-    "Edit " + (portal ? "portal user" : "student"),
+    "Edit " + (portal ? "Portal User" : "Student"),
     "Changes are saved to the mock database in this browser.",
-    `<form id="edit-form">${linkedEditNote(u)}<div class="form-grid"><div class="field"><label for="edit-name">Full name <span class="required">*</span></label><input id="edit-name" name="name" required value="${esc(u.name)}"></div><div class="field"><label for="edit-email">Email address <span class="required">*</span></label><input id="edit-email" type="email" name="email" required value="${esc(u.email)}"></div>${body}</div><p class="inline-error" id="edit-error" role="alert"></p></form>`,
-    `${btn(icon("trash") + "Remove…", "delete-user", "danger", 'data-id="' + esc(u.id) + '"')}<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="edit-form">Save changes</button></div>`,
+    `<form id="edit-form">${linkedEditNote(u)}<div class="form-grid"><div class="field"><label for="edit-name">Full Name <span class="required">*</span></label><input id="edit-name" name="name" required value="${esc(u.name)}"></div><div class="field"><label for="edit-email">Email Address <span class="required">*</span></label><input id="edit-email" type="email" name="email" required value="${esc(u.email)}"></div>${body}</div><p class="inline-error" id="edit-error" role="alert"></p></form>`,
+    `${btn(icon("trash") + "Remove…", "delete-user", "danger", 'data-id="' + esc(u.id) + '"')}<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="edit-form">Save Changes</button></div>`,
   );
 };
 saveEdit = function () {
@@ -314,9 +314,9 @@ directory = function () {
     heading(
       teams ? "Teams" : "Admin Groups",
       teams
-        ? "Teams group students for organisation and reporting. One team can include students from different vouchers."
+        ? "Teams group students for organization and reporting. One team can include students from different vouchers."
         : "Admin groups sit within vouchers and route training approvals.",
-      teams ? btn(icon("plus") + "Create team", "create-team", "primary") : "",
+      teams ? btn(icon("plus") + "Create Team", "create-team", "primary") : "",
     ) +
     `<div class="directory">${items
       .map((name) => {
@@ -332,7 +332,7 @@ directory = function () {
           : Object.entries(VOUCHER_GROUPS)
               .filter(([, g]) => g.includes(name))
               .map(([v]) => v);
-        return `<section class="card"><div class="directory-icon">${icon(teams ? "users" : "grid")}</div><h2>${esc(name)}</h2><dl class="directory-stats"><div><dt>${teams ? "Members" : "Students"}</dt><dd>${members}</dd></div><div><dt>Portal users with access</dt><dd>${access}</dd></div></dl>${teams ? "" : `<p class="covered-by">Covered by ${esc(covered.join(", ") || "no vouchers")}</p>`}${btn("View people" + icon("arrow"), "directory-members", "", 'data-name="' + esc(name) + '"')}</section>`;
+        return `<section class="card"><div class="directory-icon">${icon(teams ? "users" : "grid")}</div><h2>${esc(name)}</h2><dl class="directory-stats"><div><dt>${teams ? "Members" : "Students"}</dt><dd>${members}</dd></div><div><dt>Portal Users With Access</dt><dd>${access}</dd></div></dl>${teams ? "" : `<p class="covered-by">Covered by ${esc(covered.join(", ") || "no vouchers")}</p>`}${btn("View People" + icon("arrow"), "directory-members", "", 'data-name="' + esc(name) + '"')}</section>`;
       })
       .join("")}</div>`
   );
@@ -364,7 +364,7 @@ document.addEventListener(
         teams
           ? `${members.length} members · ${access.length} portal users with access`
           : `${members.length} students · ${access.length} portal users with access`,
-        `<h3 class="members-heading">${teams ? "Members" : "Students"}</h3><p class="hint">${teams ? "Students assigned to this team." : "Students assigned to this admin group."}</p>${members.map(personRow).join("") || '<p class="muted">No students assigned yet.</p>'}<h3 class="members-heading">Portal users with access</h3><p class="hint">Can see and manage this ${teams ? "team" : "admin group"}. Not members.</p>${access.map(personRow).join("") || '<p class="muted">No portal users have access yet.</p>'}`,
+        `<h3 class="members-heading">${teams ? "Members" : "Students"}</h3><p class="hint">${teams ? "Students assigned to this team." : "Students assigned to this admin group."}</p>${members.map(personRow).join("") || '<p class="muted">No students assigned yet.</p>'}<h3 class="members-heading">Portal Users With Access</h3><p class="hint">Can see and manage this ${teams ? "team" : "admin group"}. Not members.</p>${access.map(personRow).join("") || '<p class="muted">No portal users have access yet.</p>'}`,
         `<div class="actions">${btn("Done", "close-modal", "primary")}</div>`,
       );
       return;

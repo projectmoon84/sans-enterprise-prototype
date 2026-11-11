@@ -45,8 +45,8 @@ After any source change, run the syntax check, tests and build. Use `http://127.
 ## Editing rules
 
 - Never edit `dist/` or `release/` by hand. They are generated outputs. Change `src/`, then run the build or packaging workflow.
-- Write all UI copy in modern UK English.
-- Use sentence case for headings and labels.
+- Write all UI copy in US English (organization, color, canceled). This is an American client.
+- Use title case for headings, labels, navigation and buttons, matching the client's house style.
 - Preserve the offline, dependency-light client experience unless the task explicitly changes it.
 
 ## People-model rules

@@ -71,16 +71,16 @@ function activityPageView() {
     "",
     matching.length ? "" : "disabled",
   );
-  return `${heading("Activity", "Everything that has changed across your organisation.", exportButton)}
-  <section class="card activity-page" aria-label="Activity log">
+  return `${heading("Activity", "Everything that has changed across your organization.", exportButton)}
+  <section class="card activity-page" aria-label="Activity Log">
     <form class="activity-filters" id="activity-filters" role="search" aria-label="Filter activity" onsubmit="return false">
       <div class="field"><label for="activity-person">Person</label><select id="activity-person" data-activity-filter="personId">${activityOptions(people.map((p) => [p.id, p.name]), filters.personId, "Everyone")}</select></div>
-      <div class="field"><label for="activity-category">Type of action</label><select id="activity-category" data-activity-filter="category">${activityOptions([...ACTION_CATEGORIES.map((c) => [c.key, c.label]), ["other", "Other"]], filters.category, "All actions")}</select></div>
-      <div class="field"><label for="activity-voucher">Voucher</label><select id="activity-voucher" data-activity-filter="voucherId">${activityOptions(snapshot.vouchers.map((v) => [v.id, v.name]), filters.voucherId, "All vouchers")}</select></div>
-      <div class="field"><label for="activity-group">Admin group</label><select id="activity-group" data-activity-filter="adminGroupId">${activityOptions(snapshot.adminGroups.map((g) => [g.id, g.name]), filters.adminGroupId, "All admin groups")}</select></div>
+      <div class="field"><label for="activity-category">Type of Action</label><select id="activity-category" data-activity-filter="category">${activityOptions([...ACTION_CATEGORIES.map((c) => [c.key, c.label]), ["other", "Other"]], filters.category, "All Actions")}</select></div>
+      <div class="field"><label for="activity-voucher">Voucher</label><select id="activity-voucher" data-activity-filter="voucherId">${activityOptions(snapshot.vouchers.map((v) => [v.id, v.name]), filters.voucherId, "All Vouchers")}</select></div>
+      <div class="field"><label for="activity-group">Admin Group</label><select id="activity-group" data-activity-filter="adminGroupId">${activityOptions(snapshot.adminGroups.map((g) => [g.id, g.name]), filters.adminGroupId, "All Admin Groups")}</select></div>
       <div class="field"><label for="activity-from">From</label><input type="date" id="activity-from" data-activity-filter="from" value="${esc(filters.from)}" max="${esc(filters.to)}"></div>
       <div class="field"><label for="activity-to">To</label><input type="date" id="activity-to" data-activity-filter="to" value="${esc(filters.to)}" min="${esc(filters.from)}"></div>
-      ${active ? btn("Clear filters", "activity-page-clear", "text") : ""}
+      ${active ? btn("Clear Filters", "activity-page-clear", "text") : ""}
     </form>
     <p class="activity-summary" role="status">${esc(status)}</p>
     ${
@@ -97,9 +97,9 @@ function activityPageView() {
                   .join("")}</ul></section>`,
             )
             .join("")
-        : `<div class="profile-empty activity-empty">${icon("schedule")}<h2>No activity found</h2><p>${active ? "Try widening the date range or clearing a filter." : "Changes will appear here as people use the portal."}</p>${active ? btn("Clear filters", "activity-page-clear") : ""}</div>`
+        : `<div class="profile-empty activity-empty">${icon("schedule")}<h2>No Activity Found</h2><p>${active ? "Try widening the date range or clearing a filter." : "Changes will appear here as people use the portal."}</p>${active ? btn("Clear Filters", "activity-page-clear") : ""}</div>`
     }
-    ${remaining > 0 ? `<div class="activity-more">${btn(`Show more (${remaining})`, "activity-page-more", "small")}</div>` : ""}
+    ${remaining > 0 ? `<div class="activity-more">${btn(`Show More (${remaining})`, "activity-page-more", "small")}</div>` : ""}
   </section>`;
 }
 

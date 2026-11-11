@@ -61,7 +61,7 @@ function teamDayLabel(iso) {
   if (days < 1) return "Today";
   if (days < 2) return "Yesterday";
   if (days < 7) return `${days} days ago`;
-  return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  return date.toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" });
 }
 function readLayout() {
   try {
@@ -93,12 +93,12 @@ function teamsState() {
 var TEAMS_CHIPS = [
   ["all", "All", () => true],
   ["empty", "Empty", (t) => !t.members.length],
-  ["hidden", "Not visible to anyone", (t) => !t.access.length],
+  ["hidden", "Not Visible to Anyone", (t) => !t.access.length],
 ];
 var TEAMS_SORTS = [
   ["name", "Name A to Z", (a, b) => a.name.localeCompare(b.name)],
-  ["members", "Most members", (a, b) => b.members.length - a.members.length || a.name.localeCompare(b.name)],
-  ["recent", "Recently changed", (a, b) => Date.parse(b.last || 0) - Date.parse(a.last || 0)],
+  ["members", "Most Members", (a, b) => b.members.length - a.members.length || a.name.localeCompare(b.name)],
+  ["recent", "Recently Changed", (a, b) => Date.parse(b.last || 0) - Date.parse(a.last || 0)],
 ];
 
 function healthTile(kind, tone, title, detail, go) {
@@ -108,14 +108,14 @@ function teamsHealth(all) {
   const noTeam = db.users.filter((u) => u.type === "student" && !u.teams.length).length;
   const empty = all.filter((t) => !t.members.length).length;
   const hidden = all.filter((t) => !t.access.length).length;
-  return `<div class="health-strip" role="group" aria-label="Team health" data-spec="teams.health" data-spec-label="Team health strip">${
+  return `<div class="health-strip" role="group" aria-label="Team Health" data-spec="teams.health" data-spec-label="Team health strip">${
     noTeam
       ? healthTile("noTeam", "warn", `${pluralize(noTeam, "student")} in no team`, "They don't appear in any team report. Assign them", "no-team")
       : healthTile("noTeam", "ok", "Every student is in a team", "Nothing to assign", "no-team")
   }${
     empty
       ? healthTile("empty", "neutral", `${pluralize(empty, "empty team")}`, "Add students, or delete teams you no longer need", "empty")
-      : healthTile("empty", "ok", "No empty teams", "Every team has members", "empty")
+      : healthTile("empty", "ok", "No Empty Teams", "Every team has members", "empty")
   }${
     hidden
       ? healthTile("hidden", "neutral", `${pluralize(hidden, "team")} not visible to anyone`, "No portal user can see their reports", "hidden")
@@ -132,14 +132,14 @@ function teamsToolbar(all) {
 }
 function teamsBulkBar() {
   const n = state.teamSel.length;
-  return `<div class="bulk-bar" role="region" aria-label="Bulk actions" data-spec="teams.bulk-bar" data-spec-label="Teams bulk bar"><span class="bulk-count" role="status">${pluralize(n, "team")} selected</span><div class="bulk-actions"><button type="button" class="button small" data-action="teams-bulk-delete">Delete…</button></div><button type="button" class="bulk-clear" data-action="teams-bulk-clear" aria-label="Clear selection">Clear${icon("close")}</button></div>`;
+  return `<div class="bulk-bar" role="region" aria-label="Bulk Actions" data-spec="teams.bulk-bar" data-spec-label="Teams bulk bar"><span class="bulk-count" role="status">${pluralize(n, "team")} selected</span><div class="bulk-actions"><button type="button" class="button small" data-action="teams-bulk-delete">Delete…</button></div><button type="button" class="bulk-clear" data-action="teams-bulk-clear" aria-label="Clear Selection">Clear${icon("close")}</button></div>`;
 }
 function teamMenu(t, where) {
   const open = state.teamMenu === `${where}:${t.id}`;
   const canManage = actorCanBulk();
   return `<div class="menu-anchor team-menu-anchor"><button type="button" class="icon-btn kebab" data-action="team-menu" data-team="${esc(t.id)}" data-where="${where}" aria-label="Actions for ${esc(t.name)}" aria-haspopup="menu" aria-expanded="${open}">${menuIcon()}</button>${
     open
-      ? `<div class="dropdown-menu team-dropdown" role="menu"><button type="button" role="menuitem" data-action="team-open" data-team="${esc(t.id)}">Open team</button>${canManage ? `<button type="button" role="menuitem" data-action="team-edit" data-team="${esc(t.id)}">Edit details</button><button type="button" role="menuitem" class="danger" data-action="team-delete" data-team="${esc(t.id)}">Delete team…</button>` : ""}</div>`
+      ? `<div class="dropdown-menu team-dropdown" role="menu"><button type="button" role="menuitem" data-action="team-open" data-team="${esc(t.id)}">Open Team</button>${canManage ? `<button type="button" role="menuitem" data-action="team-edit" data-team="${esc(t.id)}">Edit Details</button><button type="button" role="menuitem" class="danger" data-action="team-delete" data-team="${esc(t.id)}">Delete Team…</button>` : ""}</div>`
       : ""
   }</div>`;
 }
@@ -194,21 +194,21 @@ function teamCard(t) {
     .map(([tone, n]) => `<span class="${tone}" style="flex-grow:${n}"></span>`)
     .join("");
   const body = empty
-    ? `<div class="team-card-empty"><span>No members yet</span>${canManage ? `<button type="button" class="button-link team-foot-action" data-action="team-add-students" data-team="${esc(t.id)}">Add students</button>` : ""}</div>`
+    ? `<div class="team-card-empty"><span>No Members Yet</span>${canManage ? `<button type="button" class="button-link team-foot-action" data-action="team-add-students" data-team="${esc(t.id)}">Add Students</button>` : ""}</div>`
     : `<div class="team-figure"><span class="team-figure-num">${t.members.length}</span><span class="team-figure-unit">${t.members.length === 1 ? "member" : "members"}</span><span class="team-figure-groups">${pluralize(t.groups.length, "admin group")}</span></div><div class="team-status-bar" aria-hidden="true">${bar}</div><p class="team-status-legend">${legend}</p>`;
   const foot = empty
     ? ""
     : `<div class="team-card-foot">${
         t.access.length
           ? `${faces(t.access)}<span class="team-foot-text">${accessLine(t)}</span>`
-          : `<span class="team-flag">Not visible to anyone</span><span class="team-foot-spacer"></span>${canManage ? `<button type="button" class="button-link team-foot-action" data-action="team-give-access-from-list" data-team="${esc(t.id)}">Give access</button>` : ""}`
+          : `<span class="team-flag">Not Visible to Anyone</span><span class="team-foot-spacer"></span>${canManage ? `<button type="button" class="button-link team-foot-action" data-action="team-give-access-from-list" data-team="${esc(t.id)}">Give Access</button>` : ""}`
       }</div>`;
-  return `<article class="team-card${empty ? " is-empty" : ""}${selected ? " is-selected" : ""}${state.highlightTeam === t.id ? " is-new" : ""}" aria-labelledby="team-card-${esc(t.id)}" data-spec="teams.card" data-spec-label="Team card"><div class="team-card-top">${teamMonogram(t)}<div class="team-card-title"><h2 id="team-card-${esc(t.id)}"><button type="button" class="team-card-link" data-action="team-open" data-team="${esc(t.id)}">${esc(t.name)}</button></h2><p class="${t.description ? "" : "is-missing"}">${esc(t.description || "No description")}</p></div>${canManage ? `<input type="checkbox" class="row-check team-check" data-team-select="${esc(t.id)}" aria-label="Select ${esc(t.name)}" ${selected ? "checked" : ""}>` : ""}${teamMenu(t, "card")}</div>${body}${foot}</article>`;
+  return `<article class="team-card${empty ? " is-empty" : ""}${selected ? " is-selected" : ""}${state.highlightTeam === t.id ? " is-new" : ""}" aria-labelledby="team-card-${esc(t.id)}" data-spec="teams.card" data-spec-label="Team card"><div class="team-card-top">${teamMonogram(t)}<div class="team-card-title"><h2 id="team-card-${esc(t.id)}"><button type="button" class="team-card-link" data-action="team-open" data-team="${esc(t.id)}">${esc(t.name)}</button></h2><p class="${t.description ? "" : "is-missing"}">${esc(t.description || "No Description")}</p></div>${canManage ? `<input type="checkbox" class="row-check team-check" data-team-select="${esc(t.id)}" aria-label="Select ${esc(t.name)}" ${selected ? "checked" : ""}>` : ""}${teamMenu(t, "card")}</div>${body}${foot}</article>`;
 }
 function teamRow(t) {
   const canManage = actorCanBulk();
   const selected = state.teamSel.includes(t.id);
-  return `<tr data-team-row="${esc(t.id)}" tabindex="0" class="${selected ? "is-selected" : ""}">${canManage ? `<td class="selection-col"><input type="checkbox" class="row-check team-check" data-team-select="${esc(t.id)}" aria-label="Select ${esc(t.name)}" ${selected ? "checked" : ""}></td>` : ""}<td><div class="person-name">${esc(t.name)}</div><div class="secondary${t.description ? "" : " is-missing"}">${esc(t.description || "No description")}</div></td><td class="num">${t.members.length || `<span class="team-flag muted">Empty</span>`}</td><td class="num">${t.groups.length}</td><td>${t.access.length ? `<span class="access-cell">${faces(t.access)}<span>${t.access.map((p) => esc(shortName(p.name))).slice(0, 2).join(", ")}${t.access.length > 2 ? ` +${t.access.length - 2}` : ""}</span></span>` : `<span class="team-flag">Not visible to anyone</span>`}</td><td class="secondary">${esc(teamDayLabel(t.last))}</td><td class="menu-cell">${teamMenu(t, "row")}</td></tr>`;
+  return `<tr data-team-row="${esc(t.id)}" tabindex="0" class="${selected ? "is-selected" : ""}">${canManage ? `<td class="selection-col"><input type="checkbox" class="row-check team-check" data-team-select="${esc(t.id)}" aria-label="Select ${esc(t.name)}" ${selected ? "checked" : ""}></td>` : ""}<td><div class="person-name">${esc(t.name)}</div><div class="secondary${t.description ? "" : " is-missing"}">${esc(t.description || "No Description")}</div></td><td class="num">${t.members.length || `<span class="team-flag muted">Empty</span>`}</td><td class="num">${t.groups.length}</td><td>${t.access.length ? `<span class="access-cell">${faces(t.access)}<span>${t.access.map((p) => esc(shortName(p.name))).slice(0, 2).join(", ")}${t.access.length > 2 ? ` +${t.access.length - 2}` : ""}</span></span>` : `<span class="team-flag">Not Visible to Anyone</span>`}</td><td class="secondary">${esc(teamDayLabel(t.last))}</td><td class="menu-cell">${teamMenu(t, "row")}</td></tr>`;
 }
 function teamsListView() {
   teamsState();
@@ -222,13 +222,13 @@ function teamsListView() {
     .sort(sort[2]);
   state.teamSel = state.teamSel.filter((id) => all.some((t) => t.id === id));
   const empty = !shown.length
-    ? `<div class="empty teams-empty">${icon("search")}<h2>No teams match</h2><p>Try another search or clear the filter.</p>${btn("Clear filters", "teams-clear-filters")}</div>`
+    ? `<div class="empty teams-empty">${icon("search")}<h2>No Teams Match</h2><p>Try another search or clear the filter.</p>${btn("Clear Filters", "teams-clear-filters")}</div>`
     : "";
   const body =
     state.teamsLayout === "rows"
-      ? `<div class="table-wrap" data-spec="teams.rows" data-spec-label="Teams table"><table class="teams-table"><thead><tr>${canManage ? `<th class="selection-col"><input type="checkbox" class="row-check team-check" data-team-select="all" aria-label="Select all visible teams" ${shown.length && shown.every((t) => state.teamSel.includes(t.id)) ? "checked" : ""}></th>` : ""}<th>Team</th><th class="num">Members</th><th class="num">Admin groups</th><th>Portal users with access</th><th>Last change</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody>${shown.map(teamRow).join("")}</tbody></table></div>${empty}`
-      : `${empty}<div class="team-grid">${shown.map(teamCard).join("")}${canManage && state.teamsChip === "all" && !q ? `<button type="button" class="team-card team-card-new" data-action="create-team" data-spec="teams.create-card" data-spec-label="Create team card">${icon("plus")}<span>Create team</span></button>` : ""}</div>`;
-  return `${heading("Teams", "Group students for reporting. Teams don't give anyone access to training or funding.", canManage ? btn(icon("plus") + "Create team", "create-team", "primary") : "")}${teamsHealth(all)}<section class="card teams-card" aria-label="Teams">${state.teamSel.length ? teamsBulkBar() : teamsToolbar(all)}${body}</section>`;
+      ? `<div class="table-wrap" data-spec="teams.rows" data-spec-label="Teams table"><table class="teams-table"><thead><tr>${canManage ? `<th class="selection-col"><input type="checkbox" class="row-check team-check" data-team-select="all" aria-label="Select all visible teams" ${shown.length && shown.every((t) => state.teamSel.includes(t.id)) ? "checked" : ""}></th>` : ""}<th>Team</th><th class="num">Members</th><th class="num">Admin Groups</th><th>Portal Users With Access</th><th>Last Change</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody>${shown.map(teamRow).join("")}</tbody></table></div>${empty}`
+      : `${empty}<div class="team-grid">${shown.map(teamCard).join("")}${canManage && state.teamsChip === "all" && !q ? `<button type="button" class="team-card team-card-new" data-action="create-team" data-spec="teams.create-card" data-spec-label="Create team card">${icon("plus")}<span>Create Team</span></button>` : ""}</div>`;
+  return `${heading("Teams", "Group students for reporting. Teams don't give anyone access to training or funding.", canManage ? btn(icon("plus") + "Create Team", "create-team", "primary") : "")}${teamsHealth(all)}<section class="card teams-card" aria-label="Teams">${state.teamSel.length ? teamsBulkBar() : teamsToolbar(all)}${body}</section>`;
 }
 
 // ---------- Team page ----------
@@ -236,7 +236,7 @@ var TEAM_MEMBER_CHIPS = [
   ["all", "All", () => true],
   ["pending", "Pending invite", (u) => u.status === "Pending invite"],
   ["needsVoucher", "Needs voucher", (u) => u.status === "Needs voucher"],
-  ["noGroup", "No admin group", (u) => !u.groups.length],
+  ["noGroup", "No Admin Group", (u) => !u.groups.length],
 ];
 function memberMatches(u) {
   const chip = TEAM_MEMBER_CHIPS.find(([key]) => key === state.teamChip) || TEAM_MEMBER_CHIPS[0];
@@ -265,7 +265,7 @@ function memberMenu(u) {
   const canManage = actorCanBulk();
   return `<div class="menu-anchor row-menu-anchor"><button class="icon-btn kebab" aria-label="Actions for ${esc(u.name || u.email)}" aria-expanded="${open}" data-action="row-menu" data-id="${esc(u.id)}">${menuIcon()}</button>${
     open
-      ? `<div class="dropdown-menu row-dropdown">${btn("Open profile", "team-member-profile", "", `data-id="${esc(u.id)}"`)}${canManage ? `${btn("Move to another team…", "team-member-move", "", `data-id="${esc(u.id)}"`)}${btn("Remove from team", "team-member-remove", "", `data-id="${esc(u.id)}"`)}` : ""}</div>`
+      ? `<div class="dropdown-menu row-dropdown">${btn("Open Profile", "team-member-profile", "", `data-id="${esc(u.id)}"`)}${canManage ? `${btn("Move to Another Team…", "team-member-move", "", `data-id="${esc(u.id)}"`)}${btn("Remove From Team", "team-member-remove", "", `data-id="${esc(u.id)}"`)}` : ""}</div>`
       : ""
   }</div>`;
 }
@@ -276,34 +276,34 @@ function membersPanel(team) {
   const counts = Object.fromEntries(TEAM_MEMBER_CHIPS.map(([key, , test]) => [key, ctx.rows.filter(test).length]));
   const toolbarHtml = state.selected.length
     ? bulkBarHtml(ctx)
-    : `<div class="team-members-toolbar"><div class="search">${icon("search")}<input id="team-member-search" placeholder="Search members" aria-label="Search members" value="${esc(state.teamSearch)}" autocomplete="off"></div><span class="teams-toolbar-spacer"></span>${canManage ? btn(icon("plus") + "Add students", "team-add-students", "primary", `data-team="${esc(team.id)}" id="team-add-button"`) : ""}</div>`;
+    : `<div class="team-members-toolbar"><div class="search">${icon("search")}<input id="team-member-search" placeholder="Search members" aria-label="Search members" value="${esc(state.teamSearch)}" autocomplete="off"></div><span class="teams-toolbar-spacer"></span>${canManage ? btn(icon("plus") + "Add Students", "team-add-students", "primary", `data-team="${esc(team.id)}" id="team-add-button"`) : ""}</div>`;
   if (!ctx.rows.length)
-    return `<section class="card team-panel" aria-label="Members" data-spec="team.empty" data-spec-label="Empty team"><div class="empty team-empty">${icon("users")}<h2>No members yet</h2><p>Add students to start reporting on ${esc(team.name)}. You can pick people who are already students, paste a list of emails, or upload a CSV.</p>${canManage ? btn("Add students", "team-add-students", "primary", `data-team="${esc(team.id)}" id="team-add-button"`) : ""}</div></section>`;
+    return `<section class="card team-panel" aria-label="Members" data-spec="team.empty" data-spec-label="Empty Team"><div class="empty team-empty">${icon("users")}<h2>No Members Yet</h2><p>Add students to start reporting on ${esc(team.name)}. You can pick people who are already students, paste a list of emails, or upload a CSV.</p>${canManage ? btn("Add Students", "team-add-students", "primary", `data-team="${esc(team.id)}" id="team-add-button"`) : ""}</div></section>`;
   const chips = `<div class="chip-bar" role="group" aria-label="Quick filters">${TEAM_MEMBER_CHIPS.map(
     ([key, label]) => `<button type="button" class="filter-chip${state.teamChip === key ? " active" : ""}" data-action="team-chip" data-chip="${key}" aria-pressed="${state.teamChip === key}">${esc(label)}<span class="chip-count">${counts[key]}</span></button>`,
   ).join("")}</div>`;
   const allChecked = rows.length > 0 && rows.every((u) => state.selected.includes(u.id));
-  return `<section class="card people-card team-panel" aria-label="Members" data-spec="team.members" data-spec-label="Members table">${toolbarHtml}${chips}<div class="table-wrap"><table class="people-table team-members-table"><colgroup><col class="col-check"><col class="col-person"><col class="col-group"><col class="col-voucher"><col class="col-status"><col class="col-menu"></colgroup><thead><tr><th class="selection-col">${canManage ? checkRow("all", allChecked, "Select all visible members") : ""}</th><th>Name</th><th>Admin group</th><th>Voucher</th><th>Status</th><th></th></tr></thead><tbody>${
+  return `<section class="card people-card team-panel" aria-label="Members" data-spec="team.members" data-spec-label="Members table">${toolbarHtml}${chips}<div class="table-wrap"><table class="people-table team-members-table"><colgroup><col class="col-check"><col class="col-person"><col class="col-group"><col class="col-voucher"><col class="col-status"><col class="col-menu"></colgroup><thead><tr><th class="selection-col">${canManage ? checkRow("all", allChecked, "Select all visible members") : ""}</th><th>Name</th><th>Admin Group</th><th>Voucher</th><th>Status</th><th></th></tr></thead><tbody>${
     rows.length
       ? rows
           .map(
             (u) =>
-              `<tr${rowHighlight(u)}><td class="selection-col">${canManage ? checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email)) : `<input type="hidden" data-select="${esc(u.id)}">`}</td><td><div class="person-name">${esc(u.name || u.email)}</div>${personMeta(u, u.email)}</td><td class="scope">${u.groups.length ? esc(u.groups[0]) : canManage && u.vouchers.length ? `<button type="button" class="inline-assignment" data-action="cell-pick" data-kind="adminGroup" data-row="${esc(u.id)}">${icon("plus")}Set admin group</button>` : `<span class="unassigned">None</span>`}</td><td class="scope">${u.vouchers.length ? esc(u.vouchers[0]) : voucherFlag(u) || `<span class="unassigned">None</span>`}</td><td class="status-cell">${labelStatus(u.status)}</td><td class="menu-cell">${memberMenu(u)}</td></tr>`,
+              `<tr${rowHighlight(u)}><td class="selection-col">${canManage ? checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email)) : `<input type="hidden" data-select="${esc(u.id)}">`}</td><td><div class="person-name">${esc(u.name || u.email)}</div>${personMeta(u, u.email)}</td><td class="scope">${u.groups.length ? esc(u.groups[0]) : canManage && u.vouchers.length ? `<button type="button" class="inline-assignment" data-action="cell-pick" data-kind="adminGroup" data-row="${esc(u.id)}">${icon("plus")}Set Admin Group</button>` : `<span class="unassigned">None</span>`}</td><td class="scope">${u.vouchers.length ? esc(u.vouchers[0]) : voucherFlag(u) || `<span class="unassigned">None</span>`}</td><td class="status-cell">${labelStatus(u.status)}</td><td class="menu-cell">${memberMenu(u)}</td></tr>`,
           )
           .join("")
-      : `<tr><td colspan="6"><div class="empty">${icon("search")}<h2>No members match</h2><p>Try another name or clear the filter.</p>${btn("Clear filters", "team-clear-filters")}</div></td></tr>`
+      : `<tr><td colspan="6"><div class="empty">${icon("search")}<h2>No Members Match</h2><p>Try another name or clear the filter.</p>${btn("Clear Filters", "team-clear-filters")}</div></td></tr>`
   }</tbody></table></div></section>`;
 }
 function accessPanel(team) {
   const canManage = actorCanBulk();
   const people = teamAccess(team);
-  const intro = `<div class="team-panel-head"><p>Portal users with access can see this team's students and reports. They aren't members, and access doesn't change their role.</p>${canManage ? btn(icon("plus") + "Give access", "team-give-access", "primary", 'id="team-give-access"') : ""}</div>`;
+  const intro = `<div class="team-panel-head"><p>Portal users with access can see this team's students and reports. They aren't members, and access doesn't change their role.</p>${canManage ? btn(icon("plus") + "Give Access", "team-give-access", "primary", 'id="team-give-access"') : ""}</div>`;
   if (!people.length)
-    return `<section class="card team-panel" aria-label="Portal users with access" data-spec="team.access" data-spec-label="Portal users with access">${intro}<div class="empty team-empty">${icon("groups")}<h2>Nobody can see this team yet</h2><p>Until someone has access, ${esc(team.name)}'s progress doesn't appear in anyone's reports.</p></div></section>`;
-  return `<section class="card team-panel" aria-label="Portal users with access" data-spec="team.access" data-spec-label="Portal users with access">${intro}<div class="table-wrap"><table class="teams-table access-table"><thead><tr><th>Name</th><th>Role</th><th>Other teams they can see</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody>${people
+    return `<section class="card team-panel" aria-label="Portal Users With Access" data-spec="team.access" data-spec-label="Portal Users With Access">${intro}<div class="empty team-empty">${icon("groups")}<h2>Nobody Can See This Team Yet</h2><p>Until someone has access, ${esc(team.name)}'s progress doesn't appear in anyone's reports.</p></div></section>`;
+  return `<section class="card team-panel" aria-label="Portal Users With Access" data-spec="team.access" data-spec-label="Portal Users With Access">${intro}<div class="table-wrap"><table class="teams-table access-table"><thead><tr><th>Name</th><th>Role</th><th>Other Teams They Can See</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody>${people
     .map((u) => {
       const others = u.teams.filter((name) => name !== team.name);
-      return `<tr${rowHighlight(u)}><td><div class="person-name">${esc(u.name)}</div><div class="secondary">${esc(u.email)}</div></td><td>${esc(u.role)}</td><td class="secondary">${others.length ? esc(others.length > 3 ? `${others.slice(0, 3).join(", ")} +${others.length - 3}` : others.join(", ")) : "This team only"}</td><td>${labelStatus(u.status)}</td><td class="menu-cell">${canManage ? `<button type="button" class="button small text" data-action="team-remove-access" data-id="${esc(u.id)}">Remove access</button>` : ""}</td></tr>`;
+      return `<tr${rowHighlight(u)}><td><div class="person-name">${esc(u.name)}</div><div class="secondary">${esc(u.email)}</div></td><td>${esc(u.role)}</td><td class="secondary">${others.length ? esc(others.length > 3 ? `${others.slice(0, 3).join(", ")} +${others.length - 3}` : others.join(", ")) : "This Team Only"}</td><td>${labelStatus(u.status)}</td><td class="menu-cell">${canManage ? `<button type="button" class="button small text" data-action="team-remove-access" data-id="${esc(u.id)}">Remove Access</button>` : ""}</td></tr>`;
     })
     .join("")}</tbody></table></div></section>`;
 }
@@ -312,13 +312,13 @@ function historyPanel(team) {
   const events = teamEvents(team);
   const visible = events.slice(0, state.teamHistoryShown);
   if (!events.length)
-    return `<section class="card team-panel" aria-label="History"><div class="empty team-empty">${icon("schedule")}<h2>No history yet</h2><p>Changes to this team and its members will appear here.</p></div></section>`;
-  return `<section class="card team-panel team-history" aria-label="History" data-spec="team.history" data-spec-label="Team history">${groupEventsByDay(visible)
+    return `<section class="card team-panel" aria-label="History"><div class="empty team-empty">${icon("schedule")}<h2>No History Yet</h2><p>Changes to this team and its members will appear here.</p></div></section>`;
+  return `<section class="card team-panel team-history" aria-label="History" data-spec="team.history" data-spec-label="Team History">${groupEventsByDay(visible)
     .map(
       (group) =>
         `<section class="activity-day"><h3>${esc(group.label)}</h3><ul aria-label="Activity on ${esc(group.label)}">${group.events.map((event) => activityEntryHtml(event, all, state.teamHistoryOpen.includes(event.id), "team-history-toggle")).join("")}</ul></section>`,
     )
-    .join("")}${events.length > visible.length ? `<div class="activity-more">${btn(`Show more (${events.length - visible.length})`, "team-history-more", "small")}</div>` : ""}</section>`;
+    .join("")}${events.length > visible.length ? `<div class="activity-more">${btn(`Show More (${events.length - visible.length})`, "team-history-more", "small")}</div>` : ""}</section>`;
 }
 function teamPageView() {
   teamsState();
@@ -331,13 +331,13 @@ function teamPageView() {
   const canManage = actorCanBulk();
   const tabs = [
     ["members", "Members", s.members.length],
-    ["access", "Portal users with access", s.access.length],
+    ["access", "Portal Users With Access", s.access.length],
     ["history", "History", null],
   ];
   const created = `Created by ${esc(personName(team.createdBy))} · ${esc(teamDayLabel(team.createdAt))}`;
   const changed = s.last && s.last !== team.createdAt ? ` · Last change ${esc(teamDayLabel(s.last).toLowerCase() === "today" ? "today" : teamDayLabel(s.last))}` : "";
   const panel = state.teamTab === "access" ? accessPanel(team) : state.teamTab === "history" ? historyPanel(team) : membersPanel(team);
-  return `<button class="back" data-action="teams-back">${icon("back")}Teams</button><div class="page-head team-head" data-spec="team.header" data-spec-label="Team header"><div><h1>${esc(team.name)}</h1><p class="muted">${team.description ? esc(team.description) : canManage ? `<button type="button" class="button-link" data-action="team-edit" data-team="${esc(team.id)}">Add a description</button> so people can tell similar teams apart.` : "No description"}</p><p class="team-meta">${created}${changed}</p></div><div class="head-actions">${btn(icon("arrow") + "View training progress", "team-progress", "", `data-team="${esc(team.id)}"`)}${canManage ? teamMenu(team, "page") : ""}</div></div><div class="team-tabs" data-spec="team.tabs" data-spec-label="Team tabs" role="tablist" aria-label="${esc(team.name)}">${tabs
+  return `<button class="back" data-action="teams-back">${icon("back")}Teams</button><div class="page-head team-head" data-spec="team.header" data-spec-label="Team header"><div><h1>${esc(team.name)}</h1><p class="muted">${team.description ? esc(team.description) : canManage ? `<button type="button" class="button-link" data-action="team-edit" data-team="${esc(team.id)}">Add a Description</button> so people can tell similar teams apart.` : "No Description"}</p><p class="team-meta">${created}${changed}</p></div><div class="head-actions">${btn(icon("arrow") + "View Training Progress", "team-progress", "", `data-team="${esc(team.id)}"`)}${canManage ? teamMenu(team, "page") : ""}</div></div><div class="team-tabs" data-spec="team.tabs" data-spec-label="Team tabs" role="tablist" aria-label="${esc(team.name)}">${tabs
     .map(
       ([key, label, count]) =>
         `<button type="button" role="tab" id="team-tab-${key}" aria-selected="${state.teamTab === key}" data-action="team-tab" data-tab="${key}">${esc(label)}${count === null ? "" : `<span class="tab-count">${count}</span>`}</button>`,
@@ -367,12 +367,12 @@ bulkContext = function () {
 };
 const teamsBaseMainActions = mainActions;
 mainActions = function (ctx) {
-  if (ctx.key === "team") return [["team-move", "Move to another team"], ["adminGroup", "Set admin group"], ["team-remove", "Remove from team"]];
+  if (ctx.key === "team") return [["team-move", "Move to Another Team"], ["adminGroup", "Set Admin Group"], ["team-remove", "Remove From Team"]];
   return teamsBaseMainActions(ctx);
 };
 const teamsBaseMoreItems = moreMenuItems;
 moreMenuItems = function (ctx) {
-  if (ctx.key === "team") return [["export", "Export selected"]];
+  if (ctx.key === "team") return [["export", "Export Selected"]];
   return teamsBaseMoreItems(ctx);
 };
 const teamsBaseBulkPicker = openBulkPicker;
@@ -398,7 +398,7 @@ function openMovePicker(rows, anchor, returnSelector) {
     items: others.map((name) => ({ value: name, label: name })),
     placeholder: "Search teams",
     returnSelector,
-    footer: [{ label: "Create a new team", run: () => createTeamThen((name) => moveMembers(rows, name)) }],
+    footer: [{ label: "Create a New Team", run: () => createTeamThen((name) => moveMembers(rows, name)) }],
     onPick: (name) => moveMembers(rows, name),
   });
 }
@@ -418,7 +418,7 @@ function moveMembers(rows, name) {
   const target = teamRecords().find((t) => t.name === name);
   const result = storeRun("team", rows.map((r) => r.id), { team: name });
   if (!result) return;
-  finishMemberChange(result, `Moved ${pluralize(result.applied.length, "student")} to ${name}`, target ? [{ label: "View team", run: () => openTeam(target.id) }] : []);
+  finishMemberChange(result, `Moved ${pluralize(result.applied.length, "student")} to ${name}`, target ? [{ label: "View Team", run: () => openTeam(target.id) }] : []);
 }
 function removeMembers(rows) {
   const team = currentTeam();
@@ -451,7 +451,7 @@ function teamForm({ title, submit, name = "", description = "", id = "" }) {
   openModal(
     title,
     "",
-    `<form id="team-form" data-team="${esc(id)}"><div class="field"><label for="team-form-name">Team name</label><input id="team-form-name" name="name" required autocomplete="off" value="${esc(name)}" placeholder="For example, Cloud Platform"></div><div class="field"><label for="team-form-description">Description <span class="optional">Optional</span></label><textarea id="team-form-description" name="description" rows="3" placeholder="What this team does, so people can tell it apart from similar teams">${esc(description)}</textarea></div><p class="inline-error" id="team-form-error" role="alert"></p><p class="hint">Teams are for reporting. Adding someone to a team doesn't change their voucher, admin group or access.</p></form>`,
+    `<form id="team-form" data-team="${esc(id)}"><div class="field"><label for="team-form-name">Team Name</label><input id="team-form-name" name="name" required autocomplete="off" value="${esc(name)}" placeholder="For example, Cloud Platform"></div><div class="field"><label for="team-form-description">Description <span class="optional">Optional</span></label><textarea id="team-form-description" name="description" rows="3" placeholder="What this team does, so people can tell it apart from similar teams">${esc(description)}</textarea></div><p class="inline-error" id="team-form-error" role="alert"></p><p class="hint">Teams are for reporting. Adding someone to a team doesn't change their voucher, admin group or access.</p></form>`,
     `<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="team-form">${esc(submit)}</button></div>`,
     "",
     true,
@@ -467,9 +467,9 @@ function openDeleteTeam(id) {
   state.deleteTeamId = id;
   const members = s.members.length;
   const move = members
-    ? `<p>${pluralize(members, "student is", "students are")} in this team. Choose where ${members === 1 ? "they go" : "they go"}:</p><div class="choice-list" role="radiogroup" aria-label="Where members go">${
+    ? `<p>${pluralize(members, "student is", "students are")} in this team. Choose where ${members === 1 ? "they go" : "they go"}:</p><div class="choice-list" role="radiogroup" aria-label="Where Members Go">${
         others.length
-          ? `<label class="choice"><input type="radio" name="team-delete-mode" value="move" checked><span>Move them to</span><select id="team-delete-target" aria-label="Team to move them to">${others.map((name) => `<option>${esc(name)}</option>`).join("")}</select></label>`
+          ? `<label class="choice"><input type="radio" name="team-delete-mode" value="move" checked><span>Move Them To</span><select id="team-delete-target" aria-label="Team to Move Them To">${others.map((name) => `<option>${esc(name)}</option>`).join("")}</select></label>`
           : ""
       }<label class="choice"><input type="radio" name="team-delete-mode" value="clear" ${others.length ? "" : "checked"}><span>Leave them with no team</span></label></div>`
     : `<p>${esc(team.name)} has no members.</p>`;
@@ -481,7 +481,7 @@ function openDeleteTeam(id) {
     `Delete ${esc(team.name)}?`,
     "",
     `<div data-spec="teams.delete-dialog" data-spec-label="Delete team dialog">${move}${access}<p class="hint">Its history stays in the activity log. Reports already run keep the team's name.</p></div>`,
-    `<div class="actions">${btn("Cancel", "close-modal", "text")}${btn(members ? `Move ${members} and delete` : "Delete team", "team-delete-confirm", "danger", 'id="team-delete-confirm"')}</div>`,
+    `<div class="actions">${btn("Cancel", "close-modal", "text")}${btn(members ? `Move ${members} and delete` : "Delete Team", "team-delete-confirm", "danger", 'id="team-delete-confirm"')}</div>`,
     "",
     true,
   );
@@ -493,7 +493,7 @@ function syncDeleteLabel() {
   const members = teamMembers(team).length;
   if (!members) return;
   const mode = document.querySelector("input[name=team-delete-mode]:checked")?.value;
-  button.textContent = mode === "move" ? `Move ${members} and delete` : "Delete team";
+  button.textContent = mode === "move" ? `Move ${members} and delete` : "Delete Team";
 }
 function confirmDeleteTeam() {
   const team = teamById(state.deleteTeamId);
@@ -560,7 +560,7 @@ function openGiveAccess(team, anchor) {
     multi: true,
     placeholder: "Search portal users",
     note: "They'll see this team's students and reports. Their role doesn't change.",
-    applyLabel: "Give access",
+    applyLabel: "Give Access",
     returnSelector: "#team-give-access",
     onPick: (ids) => {
       const ctx = accessContext(team);
@@ -650,18 +650,18 @@ function paintAddPanel() {
       r.unknown.length ? `<li class="warn">${icon("info")}<span><strong>${pluralize(r.unknown.length, "email isn't", "emails aren't")} a student yet.</strong> You can add ${r.unknown.length === 1 ? "them" : "them"} as new students, already placed in this team.</span></li>` : "",
       r.invalid.length ? `<li class="error">${icon("error")}<span>${pluralize(r.invalid.length, "entry doesn't", "entries don't")} look like an email: ${esc(r.invalid.slice(0, 3).join(", "))}</span></li>` : "",
     ].join("");
-    body = `<div class="drawer-section"><label for="drawer-paste" class="drawer-label">Paste email addresses</label><p class="drawer-hint">One per line, or separated by commas. Straight from a spreadsheet column or an email works.</p><textarea id="drawer-paste" rows="7" placeholder="amara.okafor@northwind.example">${esc(p.pasted)}</textarea>${lines ? `<ul class="paste-results">${lines}</ul>` : ""}<div class="paste-actions">${r.found.length ? btn(`Select ${pluralize(r.found.length, "student")}`, "drawer-select-pasted", "small primary") : ""}${r.unknown.length ? btn(`Add ${r.unknown.length} new ${r.unknown.length === 1 ? "student" : "students"}…`, "drawer-invite-new", "small") : ""}</div></div>`;
+    body = `<div class="drawer-section"><label for="drawer-paste" class="drawer-label">Paste Email Addresses</label><p class="drawer-hint">One per line, or separated by commas. Straight from a spreadsheet column or an email works.</p><textarea id="drawer-paste" rows="7" placeholder="amara.okafor@northwind.example">${esc(p.pasted)}</textarea>${lines ? `<ul class="paste-results">${lines}</ul>` : ""}<div class="paste-actions">${r.found.length ? btn(`Select ${pluralize(r.found.length, "student")}`, "drawer-select-pasted", "small primary") : ""}${r.unknown.length ? btn(`Add ${r.unknown.length} new ${r.unknown.length === 1 ? "student" : "students"}…`, "drawer-invite-new", "small") : ""}</div></div>`;
   } else {
     const list = addCandidates(p, team);
     const eligible = list.filter((u) => !u.teams.includes(team.name));
     const allOn = eligible.length > 0 && eligible.every((u) => p.picked.includes(u.id));
-    body = `<div class="drawer-section"><div class="search drawer-search">${icon("search")}<input id="drawer-search" placeholder="Search name or email" aria-label="Search students" value="${esc(p.q)}" autocomplete="off"></div><div class="drawer-filters">${selectFilter("drawer-team", "Team", p.team, [["any", "Any team"], ["none", "No team"], ...db.teams.filter((n) => n !== team.name).map((n) => [n, n])])}${selectFilter("drawer-group", "Admin group", p.group, [["any", "Any"], ["none", "No admin group"], ...db.groups.map((n) => [n, n])])}${selectFilter("drawer-voucher", "Voucher", p.voucher, [["any", "Any"], ["none", "No voucher"], ...db.vouchers.map((n) => [n, n])])}</div>${p.note ? `<p class="drawer-note" role="status">${icon("check_circle")}${esc(p.note)}</p>` : ""}<label class="drawer-select-all"><input type="checkbox" class="row-check" id="drawer-all" ${allOn ? "checked" : ""} ${eligible.length ? "" : "disabled"}><span>Select all ${eligible.length} matching</span></label><div class="drawer-list" role="group" aria-label="Students">${
+    body = `<div class="drawer-section"><div class="search drawer-search">${icon("search")}<input id="drawer-search" placeholder="Search name or email" aria-label="Search students" value="${esc(p.q)}" autocomplete="off"></div><div class="drawer-filters">${selectFilter("drawer-team", "Team", p.team, [["any", "Any Team"], ["none", "No Team"], ...db.teams.filter((n) => n !== team.name).map((n) => [n, n])])}${selectFilter("drawer-group", "Admin Group", p.group, [["any", "Any"], ["none", "No Admin Group"], ...db.groups.map((n) => [n, n])])}${selectFilter("drawer-voucher", "Voucher", p.voucher, [["any", "Any"], ["none", "No Voucher"], ...db.vouchers.map((n) => [n, n])])}</div>${p.note ? `<p class="drawer-note" role="status">${icon("check_circle")}${esc(p.note)}</p>` : ""}<label class="drawer-select-all"><input type="checkbox" class="row-check" id="drawer-all" ${allOn ? "checked" : ""} ${eligible.length ? "" : "disabled"}><span>Select all ${eligible.length} matching</span></label><div class="drawer-list" role="group" aria-label="Students">${
       list.length
         ? list
             .slice(0, 300)
             .map((u) => {
               const inTeam = u.teams.includes(team.name);
-              const where = inTeam ? `Already in ${team.name}` : u.teams.length ? `In ${u.teams[0]}` : "No team";
+              const where = inTeam ? `Already in ${team.name}` : u.teams.length ? `In ${u.teams[0]}` : "No Team";
               return `<label class="drawer-person${inTeam ? " is-disabled" : ""}${p.picked.includes(u.id) ? " is-picked" : ""}"><input type="checkbox" class="row-check" data-pick="${esc(u.id)}" ${p.picked.includes(u.id) ? "checked" : ""} ${inTeam ? "disabled" : ""}><span class="face">${esc(initial(u.name || u.email))}</span><span class="drawer-person-text"><strong>${esc(u.name || u.email)}</strong><span>${esc(where)}${u.groups.length ? ` · ${esc(u.groups[0])}` : ""}</span></span>${!inTeam && u.teams.length ? `<span class="move-tag">Moves</span>` : ""}</label>`;
             })
             .join("")
@@ -671,12 +671,12 @@ function paintAddPanel() {
   const summary = picked.length
     ? `<strong>${pluralize(picked.length, "student")} selected</strong><span>${[moving ? `${moving} will move from ${moving === 1 ? "another team" : "other teams"}` : "", fresh ? `${fresh} ${fresh === 1 ? "has" : "have"} no team yet` : ""].filter(Boolean).join(" · ")}</span>`
     : `<strong>No one selected yet</strong><span>Pick students, or paste a list of emails</span>`;
-  root.innerHTML = `<div class="drawer-backdrop" data-action="drawer-close"></div><aside class="side-drawer${wasOpen ? " is-open" : ""}" data-spec="teams.add-panel" data-spec-label="Add students panel" role="dialog" aria-modal="true" aria-labelledby="drawer-title"><header class="drawer-head"><div><p class="drawer-eyebrow">${esc(team.name)}</p><h2 id="drawer-title">Add students</h2></div><button type="button" class="icon-btn" data-action="drawer-close" aria-label="Close">${icon("close")}</button></header><div class="drawer-tabs" role="tablist" aria-label="How to add">${[
-    ["choose", "Choose students"],
-    ["paste", "Paste emails"],
+  root.innerHTML = `<div class="drawer-backdrop" data-action="drawer-close"></div><aside class="side-drawer${wasOpen ? " is-open" : ""}" data-spec="teams.add-panel" data-spec-label="Add students panel" role="dialog" aria-modal="true" aria-labelledby="drawer-title"><header class="drawer-head"><div><p class="drawer-eyebrow">${esc(team.name)}</p><h2 id="drawer-title">Add Students</h2></div><button type="button" class="icon-btn" data-action="drawer-close" aria-label="Close">${icon("close")}</button></header><div class="drawer-tabs" role="tablist" aria-label="How to Add">${[
+    ["choose", "Choose Students"],
+    ["paste", "Paste Emails"],
   ]
     .map(([key, label]) => `<button type="button" role="tab" id="drawer-tab-${key}" aria-selected="${p.tab === key}" data-action="drawer-tab" data-tab="${key}">${label}</button>`)
-    .join("")}<button type="button" class="drawer-csv" data-action="drawer-csv">${icon("upload")}Upload a CSV</button></div><div class="drawer-body">${body}</div><footer class="drawer-foot"><div class="drawer-summary" role="status">${summary}</div><div class="drawer-buttons">${btn("Cancel", "drawer-close", "text")}${btn(picked.length ? `Add ${pluralize(picked.length, "student")}` : "Add students", "drawer-add", "primary", picked.length ? "" : "disabled")}</div></footer></aside>`;
+    .join("")}<button type="button" class="drawer-csv" data-action="drawer-csv">${icon("upload")}Upload a CSV</button></div><div class="drawer-body">${body}</div><footer class="drawer-foot"><div class="drawer-summary" role="status">${summary}</div><div class="drawer-buttons">${btn("Cancel", "drawer-close", "text")}${btn(picked.length ? `Add ${pluralize(picked.length, "student")}` : "Add Students", "drawer-add", "primary", picked.length ? "" : "disabled")}</div></footer></aside>`;
   const list = root.querySelector(".drawer-list");
   if (list) list.scrollTop = listScroll;
   if (focus && document.getElementById(focus)) {
@@ -769,7 +769,7 @@ document.addEventListener(
     switch (a) {
       case "create-team":
         stop();
-        teamForm({ title: "Create team", submit: "Create team" });
+        teamForm({ title: "Create Team", submit: "Create Team" });
         return;
       case "team-open":
         stop();
@@ -796,7 +796,7 @@ document.addEventListener(
         const team = teamById(target.dataset.team);
         state.teamMenu = null;
         render();
-        if (team) teamForm({ title: "Edit team details", submit: "Save changes", name: team.name, description: team.description || "", id: team.id });
+        if (team) teamForm({ title: "Edit Team Details", submit: "Save Changes", name: team.name, description: team.description || "", id: team.id });
         return;
       }
       case "team-delete":

@@ -8,7 +8,7 @@ const ALERT_DAY = 24 * 60 * 60 * 1000;
 const SEVERITY_ORDER = { error: 0, action: 1, warning: 2, info: 3 };
 export const SEVERITY_LABELS = {
   error: "Error",
-  action: "Action needed",
+  action: "Action Needed",
   warning: "Warning",
   info: "Info",
 };
@@ -16,7 +16,7 @@ export const SEVERITY_LABELS = {
 const daysSince = (iso, now) => Math.floor((now.getTime() - Date.parse(iso)) / ALERT_DAY);
 const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
 const shortDate = (iso) =>
-  new Date(iso).toLocaleDateString("en-GB", {
+  new Date(iso).toLocaleDateString("en-US", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -88,7 +88,7 @@ export function alertsFor(person, data, viewer, { now = new Date(), noTeam = fal
           title: `${type === "portal" ? "Portal" : "Student"} invitation pending for ${plural(days, "day")}`,
           detail: "They have not accepted the invitation yet.",
           action: (type === "portal" ? can.canEditPortal : can.canEditStudent)
-            ? { type: "resend", label: "Resend invitation", rowId: roleRow(type) }
+            ? { type: "resend", label: "Resend Invitation", rowId: roleRow(type) }
             : undefined,
         });
       }
@@ -98,7 +98,7 @@ export function alertsFor(person, data, viewer, { now = new Date(), noTeam = fal
         id: `suspended-${type}`,
         key: "suspended",
         severity: "info",
-        title: `${type === "portal" ? "Portal access" : "Student access"} suspended`,
+        title: `${type === "portal" ? "Portal Access" : "Student Access"} suspended`,
         detail: "They cannot use this role until it is reactivated.",
         action: (type === "portal" ? can.canEditPortal : can.canEditStudent)
           ? { type: "reactivate", label: "Reactivate", rowId: roleRow(type) }
@@ -115,7 +115,7 @@ export function alertsFor(person, data, viewer, { now = new Date(), noTeam = fal
       title: "Needs a voucher before they can be invited",
       detail: "No invitation has been sent yet. Assigning a voucher sends it.",
       action: can.canEditStudent
-        ? { type: "assign-voucher", label: "Assign voucher" }
+        ? { type: "assign-voucher", label: "Assign Voucher" }
         : undefined,
     });
 
@@ -133,7 +133,7 @@ export function alertsFor(person, data, viewer, { now = new Date(), noTeam = fal
         title: `Awaiting SANS account for ${plural(days, "day")}`,
         detail: "They have not created their SANS account yet.",
         action: (type === "portal" ? can.canEditPortal : can.canEditStudent)
-          ? { type: "resend", label: "Resend invitation", rowId: roleRow(type) }
+          ? { type: "resend", label: "Resend Invitation", rowId: roleRow(type) }
           : undefined,
       });
     }
@@ -177,9 +177,9 @@ export function alertsFor(person, data, viewer, { now = new Date(), noTeam = fal
       id: "no-team",
       key: "no-team",
       severity: "info",
-      title: "Student has no team",
+      title: "Student Has No Team",
       detail: "Assign a team so reporting groups them correctly.",
-      action: can.canEditStudent ? { type: "assign-team", label: "Assign team" } : undefined,
+      action: can.canEditStudent ? { type: "assign-team", label: "Assign Team" } : undefined,
     });
   }
 

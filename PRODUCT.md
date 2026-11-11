@@ -44,7 +44,7 @@ Longer term, the portal will add reporting tools and training pathways that prom
 
 - SANS brand guidelines apply.
 - The Figma file is binding for layout, components and styling.
-- UI copy is modern UK English in sentence case.
+- UI copy is US English in title case (the client's house style).
 
 ## Evidence on Hand
 
