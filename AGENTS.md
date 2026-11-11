@@ -60,6 +60,7 @@ After any source change, run the syntax check, tests and build. Use `http://127.
 - Removing a person always goes through the Remove dialog (`openRemoveDialog()` in `bulk-ui.js`): remove admin access, remove as a student, remove both and archive, or permanently delete. Permanent delete anonymises the activity log rather than deleting events.
 - Missing SANS accounts do not block invitations; those people remain in the awaiting-account state until simulated acceptance.
 - SSO Admin remains future scope and is not offered in invitation flows.
+- SANS staff (`SANS_STAFF` in `fidelity.js`) are not people in the customer organization and are kept out of the database. Sign in as one from the avatar menu; only SANS staff see the SANS Administration section of the sidebar and its pages. In the organization's own pages they act with full Admin rights, as the organization's first Admin.
 
 ## Handover notes
 
