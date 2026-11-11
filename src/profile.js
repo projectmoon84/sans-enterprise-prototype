@@ -41,7 +41,7 @@ const ALERT_ICONS = { error: "error", action: "schedule", warning: "error", info
 function profileAlertsCard(person, snapshot, actor) {
   const alerts = alertsFor(person, snapshot, actor);
   if (!alerts.length) return "";
-  return `<section class="card profile-alerts" aria-labelledby="profile-alerts-title"><div class="profile-card-head"><h2 id="profile-alerts-title">Needs attention</h2><span class="alert-count">${alerts.length}</span></div><ul>${alerts
+  return `<section class="card profile-alerts" aria-labelledby="profile-alerts-title"><div class="profile-card-head"><h2 id="profile-alerts-title">Needs Attention</h2><span class="alert-count">${alerts.length}</span></div><ul>${alerts
     .map((alert) => {
       const action = alert.action
         ? btn(esc(alert.action.label), "profile-alert", "small", `data-type="${esc(alert.action.type)}"${alert.action.rowId ? ` data-row="${esc(alert.action.rowId)}"` : ""}${alert.action.enrolmentId ? ` data-enrolment="${esc(alert.action.enrolmentId)}"` : ""}`)
@@ -58,9 +58,9 @@ function openProfileReview(enrolmentId) {
   const course = trainingCourse(snapshot, item);
   state.modal = "profile-review";
   openModal(
-    "Review training request",
+    "Review Training Request",
     person.name,
-    `<dl class="profile-detail-list"><div><dt>Course</dt><dd>${esc(courseLabel(course))}</dd></div><div><dt>Requested</dt><dd>${esc(trainingDate(item.requestedAt))}</dd></div><div><dt>Paid by voucher</dt><dd>${esc(profileRecordName(snapshot.vouchers, item.voucherId))}</dd></div></dl><p class="hint">Approving lets ${esc(person.name.split(/\s+/)[0])} start the course. Declining closes the request.</p>`,
+    `<dl class="profile-detail-list"><div><dt>Course</dt><dd>${esc(courseLabel(course))}</dd></div><div><dt>Requested</dt><dd>${esc(trainingDate(item.requestedAt))}</dd></div><div><dt>Paid by Voucher</dt><dd>${esc(profileRecordName(snapshot.vouchers, item.voucherId))}</dd></div></dl><p class="hint">Approving lets ${esc(person.name.split(/\s+/)[0])} start the course. Declining closes the request.</p>`,
     `<div class="actions">${btn("Cancel", "close-modal", "text")}${btn("Decline", "profile-request-decline", "danger", `data-id="${esc(enrolmentId)}"`)}${btn("Approve", "profile-request-approve", "primary", `data-id="${esc(enrolmentId)}"`)}</div>`,
     "",
     true,
@@ -88,17 +88,17 @@ function alertBadge(row) {
 
 // ---------- Training card ----------
 const trainingDate = (iso) =>
-  new Date(iso).toLocaleDateString("en-GB", {
+  new Date(iso).toLocaleDateString("en-US", {
     day: "numeric",
     month: "short",
     year: "numeric",
   });
 const trainingMonth = (iso) =>
-  new Date(iso).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+  new Date(iso).toLocaleDateString("en-US", { month: "short", year: "numeric" });
 const ENROLMENT_LABELS = {
-  requested: "Awaiting approval",
+  requested: "Awaiting Approval",
   approved: "Approved, not started",
-  in_progress: "In progress",
+  in_progress: "In Progress",
 };
 
 function trainingCourse(snapshot, item) {
@@ -114,12 +114,12 @@ function profileTrainingCurrent(snapshot, item) {
 function profileTrainingCompleted(snapshot, item) {
   const course = trainingCourse(snapshot, item);
   const voucher = profileRecordName(snapshot.vouchers, item.voucherId);
-  return `<details class="training-done"><summary><span class="training-main"><strong>${esc(course.code)}</strong><span>${esc(course.title)}</span></span><span class="training-date">${esc(trainingMonth(item.completedAt))} · ${item.score}%</span>${icon("chevron")}</summary><dl><div><dt>Started</dt><dd>${esc(trainingDate(item.startedAt))}</dd></div><div><dt>Completed</dt><dd>${esc(trainingDate(item.completedAt))}</dd></div><div><dt>Final score</dt><dd>${item.score}%</dd></div><div><dt>Paid by voucher</dt><dd>${esc(voucher)}</dd></div></dl></details>`;
+  return `<details class="training-done"><summary><span class="training-main"><strong>${esc(course.code)}</strong><span>${esc(course.title)}</span></span><span class="training-date">${esc(trainingMonth(item.completedAt))} · ${item.score}%</span>${icon("chevron")}</summary><dl><div><dt>Started</dt><dd>${esc(trainingDate(item.startedAt))}</dd></div><div><dt>Completed</dt><dd>${esc(trainingDate(item.completedAt))}</dd></div><div><dt>Final Score</dt><dd>${item.score}%</dd></div><div><dt>Paid by Voucher</dt><dd>${esc(voucher)}</dd></div></dl></details>`;
 }
 
 function profileTrainingCard(person, snapshot, permissions) {
   const manage = permissions.canManageTraining
-    ? btn(icon("edit") + "Manage training", "profile-manage-training", "small")
+    ? btn(icon("edit") + "Manage Training", "profile-manage-training", "small")
     : "";
   if (!person.student)
     return `<section class="card profile-training">${profileSectionHead("Training")}<div class="profile-empty">${icon("school")}<h3>Not a student</h3><p>Training is recorded for students only.</p></div></section>`;
@@ -149,10 +149,10 @@ function openProfileTraining() {
   const voucher = profileRecordName(snapshot.vouchers, person.student.voucherId);
   state.modal = "profile-training";
   openModal(
-    "Manage training",
+    "Manage Training",
     person.name,
-    `<form id="profile-training-form"><div class="field"><label for="profile-training-course">Assign a course</label><select id="profile-training-course" name="course" required><option value="">Choose a course</option>${available.map((course) => `<option value="${esc(course.id)}">${esc(courseLabel(course))}</option>`).join("")}</select><p class="hint">Paid for by ${esc(voucher)}, this student’s voucher.</p></div><p class="inline-error" id="profile-training-error" role="alert"></p></form><section class="field-section"><label>Current courses</label>${current.length ? `<ul class="training-manage-list">${current.map((item) => `<li><span class="training-main"><strong>${esc(trainingCourse(snapshot, item).code)}</strong><span>${esc(ENROLMENT_LABELS[item.status])}</span></span>${btn("Withdraw", "profile-training-withdraw", "small danger", `data-id="${esc(item.id)}"`)}</li>`).join("")}</ul>` : '<p class="training-none">No current courses to withdraw from.</p>'}</section>`,
-    `<div class="actions">${btn("Close", "close-modal", "text")}<button class="button primary" type="submit" form="profile-training-form"${available.length ? "" : " disabled"}>Assign course</button></div>`,
+    `<form id="profile-training-form"><div class="field"><label for="profile-training-course">Assign a Course</label><select id="profile-training-course" name="course" required><option value="">Choose a Course</option>${available.map((course) => `<option value="${esc(course.id)}">${esc(courseLabel(course))}</option>`).join("")}</select><p class="hint">Paid for by ${esc(voucher)}, this student’s voucher.</p></div><p class="inline-error" id="profile-training-error" role="alert"></p></form><section class="field-section"><label>Current Courses</label>${current.length ? `<ul class="training-manage-list">${current.map((item) => `<li><span class="training-main"><strong>${esc(trainingCourse(snapshot, item).code)}</strong><span>${esc(ENROLMENT_LABELS[item.status])}</span></span>${btn("Withdraw", "profile-training-withdraw", "small danger", `data-id="${esc(item.id)}"`)}</li>`).join("")}</ul>` : '<p class="training-none">No current courses to withdraw from.</p>'}</section>`,
+    `<div class="actions">${btn("Close", "close-modal", "text")}<button class="button primary" type="submit" form="profile-training-form"${available.length ? "" : " disabled"}>Assign Course</button></div>`,
   );
 }
 
@@ -166,7 +166,7 @@ function openProfileTrainingWithdraw(enrolmentId) {
     `Withdraw from ${course.code}?`,
     person.name,
     `<p>${esc(person.name)} will be withdrawn from ${esc(courseLabel(course))}. Their progress so far is kept in the activity log, and you can assign the course again later.</p>`,
-    `<div class="actions">${btn("Keep course", "profile-manage-training")} ${btn("Withdraw", "profile-training-withdraw-confirm", "danger", `data-id="${esc(enrolmentId)}"`)}</div>`,
+    `<div class="actions">${btn("Keep Course", "profile-manage-training")} ${btn("Withdraw", "profile-training-withdraw-confirm", "danger", `data-id="${esc(enrolmentId)}"`)}</div>`,
     "",
     true,
   );
@@ -235,8 +235,8 @@ function profileActivityCard(person, events) {
             `<section class="activity-day"><h3>${esc(group.label)}</h3><ul aria-label="Activity on ${esc(group.label)}">${group.events.map((event) => profileActivityEntry(event, events, filter.open.includes(event.id))).join("")}</ul></section>`,
         )
         .join("")
-    : `<div class="profile-empty activity-empty">${icon("schedule")}<h3>No activity yet</h3><p>Changes made to or by ${first} will appear here.</p></div>`;
-  return `<section class="card profile-activity" aria-labelledby="profile-activity-title"><div class="profile-card-head"><h2 id="profile-activity-title">Activity</h2><div class="activity-filter" role="group" aria-label="Show activity"><span class="activity-filter-label">Show</span>${toggle("to", `Done to ${first}`)}${toggle("by", `Done by ${first}`)}</div></div><p class="sr-only" role="status">Showing ${visible.length} of ${matching.length} ${matching.length === 1 ? "event" : "events"}</p>${body}${remaining > 0 ? `<div class="activity-more">${btn(`Show more (${remaining})`, "profile-activity-more", "small")}</div>` : ""}</section>`;
+    : `<div class="profile-empty activity-empty">${icon("schedule")}<h3>No Activity Yet</h3><p>Changes made to or by ${first} will appear here.</p></div>`;
+  return `<section class="card profile-activity" aria-labelledby="profile-activity-title"><div class="profile-card-head"><h2 id="profile-activity-title">Activity</h2><div class="activity-filter" role="group" aria-label="Show Activity"><span class="activity-filter-label">Show</span>${toggle("to", `Done to ${first}`)}${toggle("by", `Done by ${first}`)}</div></div><p class="sr-only" role="status">Showing ${visible.length} of ${matching.length} ${matching.length === 1 ? "event" : "events"}</p>${body}${remaining > 0 ? `<div class="activity-more">${btn(`Show More (${remaining})`, "profile-activity-more", "small")}</div>` : ""}</section>`;
 }
 
 profileView = function () {
@@ -264,51 +264,51 @@ profileView = function () {
     student ? profileRoleChip("Student", student.status) : "",
   ].join("");
   const account =
-    person.sansAccount === "linked" ? "Linked" : "Awaiting account";
+    person.sansAccount === "linked" ? "Linked" : "Awaiting Account";
 
   const portalCard = portal
-    ? `<section class="card profile-access-card" aria-labelledby="profile-portal-title">${profileSectionHead("Admin access", portalAction, "profile-portal-title")}${profileDetailRows(
+    ? `<section class="card profile-access-card" aria-labelledby="profile-portal-title">${profileSectionHead("Admin Access", portalAction, "profile-portal-title")}${profileDetailRows(
         [
           ["Role", portal.role],
           [
-            "Voucher access",
+            "Voucher Access",
             portal.voucherIds
               .map((id) => profileRecordName(snapshot.vouchers, id))
               .join(", "),
           ],
           [
-            "Admin groups",
+            "Admin Groups",
             portal.adminGroupIds
               .map((id) => profileRecordName(snapshot.adminGroups, id))
               .join(", "),
           ],
           [
-            "Team access",
+            "Team Access",
             portal.teamIds
               .map((id) => profileRecordName(snapshot.teams, id))
               .join(", ") || "None",
           ],
         ],
       )}${!permissions.canEditPortal && actor?.portal?.role === "Limited Admin" ? '<p class="profile-readonly">Admin access is read-only for Limited Admins.</p>' : ""}</section>`
-    : `<section class="card profile-access-card profile-empty-card" aria-labelledby="profile-portal-title">${profileSectionHead("Admin access", "", "profile-portal-title")}<div class="profile-empty">${icon("person")}<h3>No portal access</h3><p>This person cannot sign in to the enterprise portal.</p>${permissions.canAddPortal && activeRow ? btn("Invite as portal user", "invite-as-portal", "primary", `data-id="${esc(activeRow.id)}"`) : ""}</div></section>`;
+    : `<section class="card profile-access-card profile-empty-card" aria-labelledby="profile-portal-title">${profileSectionHead("Admin Access", "", "profile-portal-title")}<div class="profile-empty">${icon("person")}<h3>No Portal Access</h3><p>This person cannot sign in to the enterprise portal.</p>${permissions.canAddPortal && activeRow ? btn("Invite as Portal User", "invite-as-portal", "primary", `data-id="${esc(activeRow.id)}"`) : ""}</div></section>`;
 
   const studentCard = student
-    ? `<section class="card profile-access-card" aria-labelledby="profile-student-title">${profileSectionHead("Student details", studentAction, "profile-student-title")}${profileDetailRows(
+    ? `<section class="card profile-access-card" aria-labelledby="profile-student-title">${profileSectionHead("Student Details", studentAction, "profile-student-title")}${profileDetailRows(
         [
           ["Voucher", profileRecordName(snapshot.vouchers, student.voucherId)],
           [
-            "Admin group",
+            "Admin Group",
             profileRecordName(snapshot.adminGroups, student.adminGroupId),
           ],
           ["Team", profileRecordName(snapshot.teams, student.teamId)],
         ],
       )}${student.status === "Needs voucher" ? '<p class="profile-readonly">Invitation on hold until a voucher is assigned.</p>' : ""}${!permissions.canEditStudent && actor?.portal?.role === "Limited Admin" ? '<p class="profile-readonly">This student is outside your assigned scope.</p>' : ""}</section>`
-    : `<section class="card profile-access-card profile-empty-card" aria-labelledby="profile-student-title">${profileSectionHead("Student details", "", "profile-student-title")}<div class="profile-empty">${icon("school")}<h3>Not a student</h3><p>No training voucher or student assignments are attached.</p>${permissions.canAddStudent && activeRow ? btn("Add as student", "add-as-student", "primary", `data-id="${esc(activeRow.id)}"`) : ""}</div></section>`;
+    : `<section class="card profile-access-card profile-empty-card" aria-labelledby="profile-student-title">${profileSectionHead("Student Details", "", "profile-student-title")}<div class="profile-empty">${icon("school")}<h3>Not a student</h3><p>No training voucher or student assignments are attached.</p>${permissions.canAddStudent && activeRow ? btn("Add as Student", "add-as-student", "primary", `data-id="${esc(activeRow.id)}"`) : ""}</div></section>`;
 
-  return `<button class="back" data-action="navigate" data-view="${from}">${icon("back")}Back to ${from === "portal" ? "Portal users" : "Students"}</button>
+  return `<button class="back" data-action="navigate" data-view="${from}">${icon("back")}Back to ${from === "portal" ? "Portal Users" : "Students"}</button>
   <section class="profile-summary" aria-labelledby="profile-name">
-    <div class="profile-identity"><span class="profile-avatar">${esc(initial(person.name || person.email))}</span><div><h1 id="profile-name" tabindex="-1">${esc(person.name || person.email)}</h1><p>${esc(person.workRole || "Work role not set")}</p><a href="mailto:${esc(person.email)}">${esc(person.email)}</a></div></div>
-    <div class="profile-summary-side"><div class="profile-role-list" aria-label="Access roles and statuses">${roleChips}</div><div class="profile-account">${icon(person.sansAccount === "linked" ? "check_circle" : "schedule")}<span><small>SANS account</small><strong>${esc(account)}</strong></span></div>${permissions.canEditDetails ? btn(icon("edit") + "Edit details", "profile-edit-details") : ""}${permissions.canEditDetails || permissions.canEditStudent ? btn(icon("trash") + "Remove…", "profile-remove-person", "danger") : ""}</div>
+    <div class="profile-identity"><span class="profile-avatar">${esc(initial(person.name || person.email))}</span><div><h1 id="profile-name" tabindex="-1">${esc(person.name || person.email)}</h1><p>${esc(person.workRole || "Work Role Not Set")}</p><a href="mailto:${esc(person.email)}">${esc(person.email)}</a></div></div>
+    <div class="profile-summary-side"><div class="profile-role-list" aria-label="Access Roles and Statuses">${roleChips}</div><div class="profile-account">${icon(person.sansAccount === "linked" ? "check_circle" : "schedule")}<span><small>SANS account</small><strong>${esc(account)}</strong></span></div>${permissions.canEditDetails ? btn(icon("edit") + "Edit Details", "profile-edit-details") : ""}${permissions.canEditDetails || permissions.canEditStudent ? btn(icon("trash") + "Remove…", "profile-remove-person", "danger") : ""}</div>
   </section>
   ${profileAlertsCard(person, snapshot, actor)}
   <div class="profile-access-grid">${portalCard}${studentCard}</div>
@@ -321,10 +321,10 @@ function openProfileDetails() {
   if (!person) return;
   state.modal = "profile-details";
   openModal(
-    "Edit details",
+    "Edit Details",
     "Update the details shared across this person’s roles.",
-    `<form id="profile-details-form"><div class="form-grid"><div class="field"><label for="profile-name-input">Full name <span class="required">*</span></label><input id="profile-name-input" name="name" required value="${esc(person.name)}"></div><div class="field"><label for="profile-email-input">Email address <span class="required">*</span></label><input id="profile-email-input" name="email" type="email" required value="${esc(person.email)}"></div><div class="field profile-span"><label for="profile-work-input">Work role</label><input id="profile-work-input" name="workRole" value="${esc(person.workRole)}"></div></div><p class="inline-error" id="profile-details-error" role="alert"></p></form>`,
-    `<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="profile-details-form">Save details</button></div>`,
+    `<form id="profile-details-form"><div class="form-grid"><div class="field"><label for="profile-name-input">Full Name <span class="required">*</span></label><input id="profile-name-input" name="name" required value="${esc(person.name)}"></div><div class="field"><label for="profile-email-input">Email Address <span class="required">*</span></label><input id="profile-email-input" name="email" type="email" required value="${esc(person.email)}"></div><div class="field profile-span"><label for="profile-work-input">Work Role</label><input id="profile-work-input" name="workRole" value="${esc(person.workRole)}"></div></div><p class="inline-error" id="profile-details-error" role="alert"></p></form>`,
+    `<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="profile-details-form">Save Details</button></div>`,
   );
 }
 
@@ -344,18 +344,18 @@ function openProfilePortal() {
   );
   state.modal = "profile-portal";
   openModal(
-    "Edit admin access",
+    "Edit Admin Access",
     "Choose the role and areas this person can manage or view.",
-    `<form id="profile-portal-form"><div class="form-grid"><div class="field"><label for="profile-portal-role">Role</label><select id="profile-portal-role" name="role">${opts(person.portal.role === "SSO Admin" ? [...ROLES, "SSO Admin"] : ROLES, person.portal.role)}</select></div><div class="field"><label for="profile-portal-status">Status</label><select id="profile-portal-status" name="status">${opts(["Active", "Pending invite", "Suspended"], person.portal.status)}</select></div></div><section class="field-section"><label>Voucher access <span class="required">*</span></label><p class="hint">Choose vouchers first. Available admin groups update to match.</p>${choices(
+    `<form id="profile-portal-form"><div class="form-grid"><div class="field"><label for="profile-portal-role">Role</label><select id="profile-portal-role" name="role">${opts(person.portal.role === "SSO Admin" ? [...ROLES, "SSO Admin"] : ROLES, person.portal.role)}</select></div><div class="field"><label for="profile-portal-status">Status</label><select id="profile-portal-status" name="status">${opts(["Active", "Pending invite", "Suspended"], person.portal.status)}</select></div></div><section class="field-section"><label>Voucher Access <span class="required">*</span></label><p class="hint">Choose vouchers first. Available admin groups update to match.</p>${choices(
       "vouchers",
       snapshot.vouchers.map((record) => record.name),
       row.vouchers,
-    )}</section><section class="field-section"><label>Admin groups <span class="required">*</span></label><div id="profile-portal-groups">${profilePortalGroupChecks(row.vouchers, row.groups)}</div></section><section class="field-section"><label>Team access</label>${choices(
+    )}</section><section class="field-section"><label>Admin Groups <span class="required">*</span></label><div id="profile-portal-groups">${profilePortalGroupChecks(row.vouchers, row.groups)}</div></section><section class="field-section"><label>Team Access</label>${choices(
       "teams",
       snapshot.teams.map((record) => record.name),
       row.teams,
     )}</section><p class="inline-error" id="profile-portal-error" role="alert"></p></form>`,
-    `${btn(icon("trash") + "Remove portal access", "profile-remove-portal", "danger")}<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="profile-portal-form">Save access</button></div>`,
+    `${btn(icon("trash") + "Remove Portal Access", "profile-remove-portal", "danger")}<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="profile-portal-form">Save Access</button></div>`,
   );
 }
 
@@ -372,17 +372,17 @@ function openProfileStudent() {
   const team = profileRecordName(snapshot.teams, student.teamId, "");
   state.modal = "profile-student";
   openModal(
-    "Edit student details",
-    "Choose how this person’s training is funded and organised.",
+    "Edit Student Details",
+    "Choose how this person’s training is funded and organized.",
     `<form id="profile-student-form"><div class="form-grid"><div class="field"><label for="profile-student-voucher">Voucher <span class="required">*</span></label><select id="profile-student-voucher" name="voucher" required>${opts(
       snapshot.vouchers.map((record) => record.name),
       voucher,
-    )}</select><p class="hint">Pays for their training.</p></div><div class="field"><label for="profile-student-status">Status</label><select id="profile-student-status" name="status">${opts(["Active", "Pending invite", "Suspended"], student.status)}</select></div><div class="field"><label for="profile-student-group">Admin group</label><select id="profile-student-group" name="group">${groupOptions(voucher, group)}</select><p class="hint">Optional · filtered by voucher.</p></div><div class="field"><label for="profile-student-team">Team</label><select id="profile-student-team" name="team">${opts(
+    )}</select><p class="hint">Pays for their training.</p></div><div class="field"><label for="profile-student-status">Status</label><select id="profile-student-status" name="status">${opts(["Active", "Pending invite", "Suspended"], student.status)}</select></div><div class="field"><label for="profile-student-group">Admin Group</label><select id="profile-student-group" name="group">${groupOptions(voucher, group)}</select><p class="hint">Optional · filtered by voucher.</p></div><div class="field"><label for="profile-student-team">Team</label><select id="profile-student-team" name="team">${opts(
       snapshot.teams.map((record) => record.name),
       team,
-      "Leave unassigned",
+      "Leave Unassigned",
     )}</select><p class="hint">Optional · makes this student a team member.</p></div></div><p class="inline-error" id="profile-student-error" role="alert"></p></form>`,
-    `${btn(icon("trash") + "Remove as student", "profile-remove-student", "danger")}<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="profile-student-form">Save details</button></div>`,
+    `${btn(icon("trash") + "Remove as Student", "profile-remove-student", "danger")}<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="profile-student-form">Save Details</button></div>`,
   );
 }
 
@@ -395,7 +395,7 @@ function openProfileRemove(kind) {
     portal ? "Remove portal access?" : "Remove as student?",
     person.name,
     `<p>This removes ${portal ? "the person’s ability to sign in and their assigned admin scope" : "their voucher, admin group and team assignments"}. Their activity history will be kept.</p>`,
-    `<div class="actions">${btn("Keep role", portal ? "profile-edit-portal" : "profile-edit-student")} ${btn(portal ? "Remove portal access" : "Remove as student", `profile-confirm-remove-${kind}`, "danger")}</div>`,
+    `<div class="actions">${btn("Keep Role", portal ? "profile-edit-portal" : "profile-edit-student")} ${btn(portal ? "Remove Portal Access" : "Remove as Student", `profile-confirm-remove-${kind}`, "danger")}</div>`,
     "",
     true,
   );

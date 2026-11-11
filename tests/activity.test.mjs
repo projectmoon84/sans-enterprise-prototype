@@ -295,7 +295,7 @@ test("day labels read Today, Yesterday, then a full date", () => {
   const now = new Date(2026, 9, 16, 12, 0);
   assert.equal(dayLabel(new Date(2026, 9, 16, 0, 5).toISOString(), now), "Today");
   assert.equal(dayLabel(new Date(2026, 9, 15, 23, 55).toISOString(), now), "Yesterday");
-  assert.equal(dayLabel(new Date(2026, 9, 14, 10, 0).toISOString(), now), "14 Oct 2026");
+  assert.equal(dayLabel(new Date(2026, 9, 14, 10, 0).toISOString(), now), "Oct 14, 2026");
 });
 
 test("events group by day in the order given", () => {
@@ -329,7 +329,7 @@ test("change values are escaped and empty values read Not set", () => {
     from: "Not set",
     to: "&lt;b&gt;R&amp;D&lt;/b&gt;",
   });
-  assert.equal(describeChange({ field: "workRole", from: "A", to: "B" }).field, "Work role");
+  assert.equal(describeChange({ field: "workRole", from: "A", to: "B" }).field, "Work Role");
 });
 
 test("a portal-only person's empty work role stays empty and is not logged as a change", () => {

@@ -65,7 +65,7 @@ function paintPopover() {
             : `<button type="button" class="popover-option${index === popover.active ? " active" : ""}${item.selected ? " selected" : ""}" role="option" id="popover-option-${index}" tabindex="-1" data-index="${index}" aria-selected="${Boolean(item.selected)}" ${item.disabled ? "disabled" : ""}>${esc(item.label)}${item.hint ? `<small>${esc(item.hint)}</small>` : ""}</button>`,
         )
         .join("")
-    : '<p class="popover-empty">No matches found</p>';
+    : '<p class="popover-empty">No Matches Found</p>';
   search.setAttribute("aria-activedescendant", popover.active >= 0 ? `popover-option-${popover.active}` : "");
 }
 function placePopover() {
@@ -99,7 +99,7 @@ function openPopover(anchor, spec) {
   root.setAttribute("role", "dialog");
   root.setAttribute("aria-label", spec.title);
   const modes = spec.modes
-    ? `<fieldset class="popover-modes"><legend class="sr-only">How to apply</legend>${spec.modes.map((mode, i) => `<label><input type="radio" name="popover-mode" value="${esc(mode.value)}" ${i === 0 ? "checked" : ""}>${esc(mode.label)}</label>`).join("")}</fieldset>`
+    ? `<fieldset class="popover-modes"><legend class="sr-only">How to Apply</legend>${spec.modes.map((mode, i) => `<label><input type="radio" name="popover-mode" value="${esc(mode.value)}" ${i === 0 ? "checked" : ""}>${esc(mode.label)}</label>`).join("")}</fieldset>`
     : "";
   root.innerHTML = `<p class="popover-title">${esc(spec.title)}</p>${modes}<div class="popover-search"><input type="text" role="combobox" aria-expanded="true" aria-controls="popover-list" aria-label="${esc(spec.placeholder || "Search")}" placeholder="${esc(spec.placeholder || "Search")}" autocomplete="off"></div>${spec.note ? `<p class="popover-note">${esc(spec.note)}</p>` : ""}<div class="popover-list" id="popover-list" role="listbox" ${spec.multi ? 'aria-multiselectable="true"' : ""} aria-label="${esc(spec.title)}"></div>${spec.multi ? `<div class="popover-actions"><button type="button" class="button small text" data-popover="cancel">Cancel</button><button type="button" class="button small primary" data-popover="apply">${esc(spec.applyLabel || "Apply")}</button></div>` : ""}${spec.footer?.length ? `<div class="popover-footer">${spec.footer.map((f, i) => `<button type="button" class="button-link" data-popover-footer="${i}">${esc(f.label)}</button>`).join("")}</div>` : ""}`;
   document.body.append(root);
@@ -187,8 +187,8 @@ const STUDENT_CHIPS = [
   ["needsVoucher", "Needs voucher", (u) => u.status === "Needs voucher"],
   ["pending", "Pending invite", (u) => u.status === "Pending invite"],
   ["suspended", "Suspended", (u) => u.status === "Suspended"],
-  ["noGroup", "No admin group", (u) => !u.groups.length],
-  ["noTeam", "No team", (u) => !u.teams.length],
+  ["noGroup", "No Admin Group", (u) => !u.groups.length],
+  ["noTeam", "No Team", (u) => !u.teams.length],
 ];
 const PORTAL_CHIPS = [
   ["all", "All", () => true],
@@ -215,7 +215,7 @@ matchesFilters = function (u, imported = false) {
 };
 function chipsHtml(chips, active, label) {
   return `<div class="chip-bar" role="group" aria-label="${esc(label)}" data-spec="${state.view === "import" ? "csv.review.chips" : "people.chips"}" data-spec-label="Quick filter chips">${chips
-    .map(([key, text, count]) => `<button type="button" class="filter-chip${key === active ? " active" : ""}" data-action="chip" data-chip="${key}" aria-pressed="${key === active}">${esc(text)}<span class="chip-count">${count}</span></button>`)
+    .map(([key, text, count]) => `<button type="button" class="filter-chip${key === active ? " active" : ""}" data-action="chip" data-chip="${key}" aria-pressed="${key === active}">${esc(shown(text))}<span class="chip-count">${count}</span></button>`)
     .join("")}</div>`;
 }
 function tableChipsHtml() {
@@ -268,17 +268,17 @@ function bulkContext() {
 // ---------- Bulk bar ----------
 function moreMenuItems(ctx) {
   if (ctx.key === "import")
-    return [["team-clear", "Remove from team"], ["export", "Export selected as CSV"]];
+    return [["team-clear", "Remove From Team"], ["export", "Export Selected as CSV"]];
   if (ctx.key === "students")
-    return [["team-clear", "Remove from team"], ["resend", "Resend invitation"], ["suspend", "Suspend"], ["reactivate", "Reactivate"], ["export", "Export selected"], ["removeDialog", "Remove…", "danger"]];
-  return [["resend", "Resend invitation"], ["suspend", "Suspend"], ["reactivate", "Reactivate"], ["export", "Export selected"], ["removeDialog", "Remove…", "danger"]];
+    return [["team-clear", "Remove From Team"], ["resend", "Resend Invitation"], ["suspend", "Suspend"], ["reactivate", "Reactivate"], ["export", "Export Selected"], ["removeDialog", "Remove…", "danger"]];
+  return [["resend", "Resend Invitation"], ["suspend", "Suspend"], ["reactivate", "Reactivate"], ["export", "Export Selected"], ["removeDialog", "Remove…", "danger"]];
 }
 function mainActions(ctx) {
   if (ctx.key === "import")
-    return [["voucher", "Assign voucher"], ["adminGroup", "Assign admin group"], ["team", "Add to team"], ["workRole", "Set work role"], ["removeFromImport", "Remove from import"]];
+    return [["voucher", "Assign Voucher"], ["adminGroup", "Assign Admin Group"], ["team", "Add to Team"], ["workRole", "Set Work Role"], ["removeFromImport", "Remove From Import"]];
   if (ctx.key === "students")
-    return [["voucher", "Assign voucher"], ["adminGroup", "Assign admin group"], ["team", "Add to team"]];
-  return [["access-voucher", "Voucher access"], ["access-adminGroup", "Admin group access"], ["access-team", "Team access"], ["role", "Change role"]];
+    return [["voucher", "Assign Voucher"], ["adminGroup", "Assign Admin Group"], ["team", "Add to Team"]];
+  return [["access-voucher", "Voucher Access"], ["access-adminGroup", "Admin Group Access"], ["access-team", "Team Access"], ["role", "Change Role"]];
 }
 function bulkBarHtml(ctx) {
   const count = state.selected.length;
@@ -287,9 +287,9 @@ function bulkBarHtml(ctx) {
   const disabled = ctx.canEdit === false ? "disabled" : "";
   const visibleIds = new Set(ctx.visible.map((u) => u.id));
   const hidden = state.selected.filter((id) => !visibleIds.has(id)).length;
-  return `<div class="bulk-bar" role="region" aria-label="Bulk actions" data-spec="bulk-bar" data-spec-label="Bulk action bar"><span class="bulk-count" role="status">${count} selected${hidden ? ` · ${hidden} hidden by filters` : ""}</span><div class="bulk-actions">${mainActions(ctx)
+  return `<div class="bulk-bar" role="region" aria-label="Bulk Actions" data-spec="bulk-bar" data-spec-label="Bulk action bar"><span class="bulk-count" role="status">${count} selected${hidden ? ` · ${hidden} hidden by filters` : ""}</span><div class="bulk-actions">${mainActions(ctx)
     .map(([kind, label]) => `<button type="button" class="button small" data-action="bulk-open" data-kind="${kind}" ${disabled}>${esc(label)}</button>`)
-    .join("")}<div class="menu-anchor"><button type="button" class="button small" data-action="bulk-more" aria-haspopup="menu" aria-expanded="${Boolean(state.bulkMore)}">More${icon("chevron")}</button>${state.bulkMore ? `<div class="dropdown-menu bulk-more-menu" role="menu">${moreMenuItems(ctx).map(([kind, label, tone]) => `<button type="button" role="menuitem" data-action="bulk-more-item" data-kind="${kind}" class="${tone || ""}" ${kind !== "export" ? disabled : ""}>${esc(label)}</button>`).join("")}</div>` : ""}</div></div>${offerAll ? `<button type="button" class="button-link" data-action="bulk-select-all">Select all ${ctx.rows.length} ${ctx.key === "import" ? "rows" : ctx.noun[1]}</button>` : ""}<button type="button" class="bulk-clear" data-action="bulk-clear" aria-label="Clear selection">Clear${icon("close")}</button></div>`;
+    .join("")}<div class="menu-anchor"><button type="button" class="button small" data-action="bulk-more" aria-haspopup="menu" aria-expanded="${Boolean(state.bulkMore)}">More${icon("chevron")}</button>${state.bulkMore ? `<div class="dropdown-menu bulk-more-menu" role="menu">${moreMenuItems(ctx).map(([kind, label, tone]) => `<button type="button" role="menuitem" data-action="bulk-more-item" data-kind="${kind}" class="${tone || ""}" ${kind !== "export" ? disabled : ""}>${esc(label)}</button>`).join("")}</div>` : ""}</div></div>${offerAll ? `<button type="button" class="button-link" data-action="bulk-select-all">Select all ${ctx.rows.length} ${ctx.key === "import" ? "rows" : ctx.noun[1]}</button>` : ""}<button type="button" class="bulk-clear" data-action="bulk-clear" aria-label="Clear Selection">Clear${icon("close")}</button></div>`;
 }
 const bulkBaseToolbar = toolbar;
 toolbar = function (imported = false) {
@@ -329,31 +329,31 @@ function openBulkPicker(ctx, kind, anchor) {
   const single = (title, items, extra = {}) =>
     openPopover(anchor, { title, items: items.map((v) => (typeof v === "string" ? { value: v, label: v } : v)), returnSelector, ...extra });
   if (kind === "voucher")
-    return single("Assign voucher", voucherChoices(), { onPick: (v) => runBulkFlow(ctx, "voucher", { voucher: v }, rows) });
+    return single("Assign Voucher", voucherChoices(), { onPick: (v) => runBulkFlow(ctx, "voucher", { voucher: v }, rows) });
   if (kind === "adminGroup") {
     const { items, note } = groupChoices(ctx, rows);
-    return single("Assign admin group", items, { note, onPick: (g) => runBulkFlow(ctx, "adminGroup", { group: g }, rows) });
+    return single("Assign Admin Group", items, { note, onPick: (g) => runBulkFlow(ctx, "adminGroup", { group: g }, rows) });
   }
   if (kind === "team")
-    return single("Add to team", db.teams, {
-      footer: [{ label: "Create a new team", run: () => createTeamThen((name) => runBulkFlow(ctx, "team", { team: name }, rows)) }],
+    return single("Add to Team", db.teams, {
+      footer: [{ label: "Create a New Team", run: () => createTeamThen((name) => runBulkFlow(ctx, "team", { team: name }, rows)) }],
       onPick: (t) => runBulkFlow(ctx, "team", { team: t }, rows),
     });
   if (kind === "workRole")
-    return single("Set work role", WORK_ROLES, { custom: { label: "Use" }, placeholder: "Search or type a work role", onPick: (r) => runBulkFlow(ctx, "workRole", { workRole: r }, rows) });
+    return single("Set Work Role", WORK_ROLES, { custom: { label: "Use" }, placeholder: "Search or type a work role", onPick: (r) => runBulkFlow(ctx, "workRole", { workRole: r }, rows) });
   if (kind === "role")
-    return single("Change role", ["Admin", "Limited Admin", "Viewer"], { onPick: (r) => runBulkFlow(ctx, "role", { role: r }, rows) });
+    return single("Change Role", ["Admin", "Limited Admin", "Viewer"], { onPick: (r) => runBulkFlow(ctx, "role", { role: r }, rows) });
   if (kind.startsWith("access-")) {
     const field = kind.slice(7);
     const items = { voucher: VOUCHERS, adminGroup: db.groups, team: db.teams }[field].map((v) => ({ value: v, label: v }));
-    const titles = { voucher: "Voucher access", adminGroup: "Admin group access", team: "Team access" };
+    const titles = { voucher: "Voucher Access", adminGroup: "Admin Group Access", team: "Team Access" };
     return openPopover(anchor, {
       title: titles[field],
       items,
       multi: true,
       modes: [{ value: "add", label: "Add" }, { value: "remove", label: "Remove" }, { value: "replace", label: "Replace with" }],
       note: field === "adminGroup" ? "Only groups covered by each person's vouchers are applied. Others are skipped, with a reason." : field === "voucher" ? "Limited Admins can only have one voucher." : "",
-      applyLabel: "Review change",
+      applyLabel: "Review Change",
       returnSelector,
       onPick: (names, mode) => runBulkFlow(ctx, "portalAccess", { field, mode, names }, rows),
     });
@@ -364,10 +364,10 @@ var WORK_ROLES = ["Security Program Lead", "SOC Analyst I", "SOC Analyst II", "C
 function createTeamThen(next) {
   state.modal = "bulk-new-team";
   openModal(
-    "Create a new team",
+    "Create a New Team",
     "",
-    `<form id="bulk-team-form"><div class="field"><label for="bulk-team-name">Team name</label><input id="bulk-team-name" name="name" required autocomplete="off"><p class="inline-error" id="bulk-team-error" role="alert"></p></div></form>`,
-    `<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="bulk-team-form">Create and use</button></div>`,
+    `<form id="bulk-team-form"><div class="field"><label for="bulk-team-name">Team Name</label><input id="bulk-team-name" name="name" required autocomplete="off"><p class="inline-error" id="bulk-team-error" role="alert"></p></div></form>`,
+    `<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="bulk-team-form">Create and Use</button></div>`,
     "",
     true,
   );
@@ -417,7 +417,7 @@ function previewLines(ctx, kind, params, result) {
   }
   if (result.invitesReleased) lines.push(`${pluralize(result.invitesReleased, "invitation")} will be sent.`);
   if (kind === "status") lines.push("They will not be able to use their access until you reactivate them.");
-  if (kind === "remove") lines.push("They will be removed from your organisation. Their activity history is kept.");
+  if (kind === "remove") lines.push("They will be removed from your organization. Their activity history is kept.");
   if (kind === "removeStudent") lines.push("Anyone who also has portal access keeps it. Their activity history is kept.");
   if (kind === "removePortal") lines.push("They will no longer be able to sign in to the portal.");
   return lines;
@@ -436,7 +436,7 @@ function bulkTitle(ctx, kind, params, count) {
     adminGroup: `Assign ${noun} to ${params.group}?`,
     team: params.team ? `Add ${noun} to ${params.team}?` : `Remove ${noun} from their team?`,
     status: params.status === "Suspended" ? `Suspend ${noun}?` : `Reactivate ${noun}?`,
-    remove: `Remove ${noun} from your organisation?`,
+    remove: `Remove ${noun} from your organization?`,
     removeStudent: `Remove ${noun} from Students?`,
     removePortal: `Remove portal access for ${noun}?`,
     role: `Change ${noun} to ${params.role}?`,
@@ -444,7 +444,7 @@ function bulkTitle(ctx, kind, params, count) {
   }[kind] || `Update ${noun}?`;
 }
 function confirmLabel(kind, params) {
-  return { voucher: "Assign voucher", adminGroup: "Assign admin group", team: params.team ? "Add to team" : "Remove from team", status: params.status === "Suspended" ? "Suspend" : "Reactivate", remove: "Remove", removeStudent: "Remove as student", removePortal: "Remove access", role: "Change role", portalAccess: "Apply change" }[kind] || "Apply";
+  return { voucher: "Assign Voucher", adminGroup: "Assign Admin Group", team: params.team ? "Add to Team" : "Remove From Team", status: params.status === "Suspended" ? "Suspend" : "Reactivate", remove: "Remove", removeStudent: "Remove as Student", removePortal: "Remove Access", role: "Change Role", portalAccess: "Apply Change" }[kind] || "Apply";
 }
 
 function summaryText(ctx, kind, params, result) {
@@ -477,7 +477,7 @@ function summaryText(ctx, kind, params, result) {
 function showBulkResult(ctx, kind, params, result) {
   state.modal = "bulk-result";
   openModal(
-    "What happened",
+    "What Happened",
     summaryText(ctx, kind, params, result),
     `${result.skipped.length ? `<h3 class="bulk-heading">Skipped</h3><ul class="bulk-list">${result.skipped.map((s) => `<li><strong>${esc(s.name)}</strong>: ${esc(s.reason)}</li>`).join("")}</ul>` : ""}${result.cleared.length ? `<h3 class="bulk-heading">Cleared</h3><ul class="bulk-list">${result.cleared.map((c) => `<li><strong>${esc(c.name)}</strong>: ${esc(c.field)} ${esc(c.value)}</li>`).join("")}</ul>` : ""}`,
     `<div class="actions">${btn("Close", "close-modal", "primary")}</div>`,
@@ -635,22 +635,22 @@ function openCellPicker(anchor) {
   const returnSelector = `[data-action="cell-pick"][data-kind="${kind}"][data-row="${id}"]`;
   const open = (title, items, params, extra = {}) =>
     openPopover(anchor, { title, items: items.map((v) => ({ value: v, label: v })), returnSelector, ...extra, onPick: (value) => runBulkFlow(ctx, params.kind, params.build(value), [row]) });
-  if (kind === "voucher") return open("Assign voucher", voucherChoices(), { kind: "voucher", build: (v) => ({ voucher: v }) });
+  if (kind === "voucher") return open("Assign Voucher", voucherChoices(), { kind: "voucher", build: (v) => ({ voucher: v }) });
   if (kind === "adminGroup") {
     const { items, note } = groupChoices(ctx, [row]);
-    return open("Assign admin group", items, { kind: "adminGroup", build: (g) => ({ group: g }) }, { note: items.length ? note : "Add a voucher first to see its admin groups." });
+    return open("Assign Admin Group", items, { kind: "adminGroup", build: (g) => ({ group: g }) }, { note: items.length ? note : "Add a voucher first to see its admin groups." });
   }
   if (kind === "team")
-    return open("Add to team", db.teams, { kind: "team", build: (t) => ({ team: t }) }, { footer: [{ label: "Create a new team", run: () => createTeamThen((name) => runBulkFlow(ctx, "team", { team: name }, [row])) }] });
+    return open("Add to Team", db.teams, { kind: "team", build: (t) => ({ team: t }) }, { footer: [{ label: "Create a New Team", run: () => createTeamThen((name) => runBulkFlow(ctx, "team", { team: name }, [row])) }] });
   if (kind === "workRole")
-    return open("Set work role", WORK_ROLES, { kind: "workRole", build: (r) => ({ workRole: r }) }, { custom: { label: "Use" }, placeholder: "Search or type a work role" });
+    return open("Set Work Role", WORK_ROLES, { kind: "workRole", build: (r) => ({ workRole: r }) }, { custom: { label: "Use" }, placeholder: "Search or type a work role" });
 }
 
 // ---------- Students table extras ----------
 function voucherFlag(u) {
   if (u.type !== "student" || u.status !== "Needs voucher") return "";
   if (!actorCanBulk()) return "";
-  return `<button type="button" class="inline-assignment needs-voucher-flag" data-action="cell-pick" data-kind="voucher" data-row="${esc(u.id)}"><span class="error-icon">${icon("error")}</span>Assign voucher</button>`;
+  return `<button type="button" class="inline-assignment needs-voucher-flag" data-action="cell-pick" data-kind="voucher" data-row="${esc(u.id)}"><span class="error-icon">${icon("error")}</span>Assign Voucher</button>`;
 }
 function rowHighlight(u) {
   return state.highlight?.has(u.id) ? ' class="row-highlight"' : "";
@@ -729,9 +729,9 @@ function openRemoveDialog(rowIds) {
   const detail = (count, text) => (many && count < people.length ? `${text} Applies to the ${count} of ${people.length} who ${count === 1 ? "has" : "have"} it.` : text);
   const options = [];
   if (withPortal)
-    options.push({ kind: "removePortal", label: "Remove admin access", allowed: full, note: detail(withPortal, many ? "They can no longer sign in to the portal. They stay on as students if they are one." : "They can no longer sign in to the portal. Any student record stays.") });
+    options.push({ kind: "removePortal", label: "Remove Admin Access", allowed: full, note: detail(withPortal, many ? "They can no longer sign in to the portal. They stay on as students if they are one." : "They can no longer sign in to the portal. Any student record stays.") });
   if (withStudent)
-    options.push({ kind: "removeStudent", label: "Remove as a student", allowed: true, note: detail(withStudent, many ? "They are removed from Students. Anyone who also has admin access keeps it." : "They are removed from Students. Any admin access stays.") });
+    options.push({ kind: "removeStudent", label: "Remove as a Student", allowed: true, note: detail(withStudent, many ? "They are removed from Students. Anyone who also has admin access keeps it." : "They are removed from Students. Any admin access stays.") });
   if (withBoth)
     options.push({ kind: "remove", label: `Remove both and archive the ${many ? "users" : "user"}`, allowed: full, note: detail(withBoth, "They are hidden from every list. Their activity history is kept.") });
   options.push({ kind: "deletePermanently", label: "Permanently delete all data associated with this user", allowed: full, danger: true, note: "Deletes the person, their training records and certifications. In the activity log their name is replaced with “Deleted user”. This cannot be undone." });
@@ -740,9 +740,9 @@ function openRemoveDialog(rowIds) {
   openModal(
     `Remove ${who}?`,
     "Choose what to remove.",
-    `<form id="remove-form" data-spec="people.remove-dialog" data-spec-label="Remove dialog"><fieldset class="remove-options"><legend class="sr-only">What to remove</legend>${options
+    `<form id="remove-form" data-spec="people.remove-dialog" data-spec-label="Remove dialog"><fieldset class="remove-options"><legend class="sr-only">What to Remove</legend>${options
       .map((o, i) => `<label class="remove-option${o.danger ? " danger" : ""}${o.allowed ? "" : " disabled"}"><input type="radio" name="removal" value="${o.kind}" ${o.allowed ? "" : "disabled"} ${i === 0 && o.allowed ? "" : ""}><span><strong>${esc(o.label)}</strong><small>${esc(o.allowed ? o.note : "Only Admins can do this.")}</small></span></label>`)
-      .join("")}</fieldset><div class="field remove-confirm" hidden><label for="remove-confirm-text">Type DELETE to confirm</label><input id="remove-confirm-text" autocomplete="off" aria-describedby="remove-confirm-hint"><p class="hint" id="remove-confirm-hint">This permanently erases ${esc(many ? "these people" : people[0].name)}.</p></div></form>`,
+      .join("")}</fieldset><div class="field remove-confirm" hidden><label for="remove-confirm-text">Type DELETE to Confirm</label><input id="remove-confirm-text" autocomplete="off" aria-describedby="remove-confirm-hint"><p class="hint" id="remove-confirm-hint">This permanently erases ${esc(many ? "these people" : people[0].name)}.</p></div></form>`,
     `<div class="actions">${btn("Cancel", "close-modal", "text")}${btn("Remove", "remove-confirm", "danger", "disabled id=\"remove-confirm-button\"")}</div>`,
     "",
     true,
@@ -762,7 +762,7 @@ function syncRemoveForm() {
   $(".remove-confirm").hidden = current.kind !== "deletePermanently";
   const button = $("#remove-confirm-button");
   button.disabled = !current.ready;
-  button.textContent = current.kind === "deletePermanently" ? "Permanently delete" : "Remove";
+  button.textContent = current.kind === "deletePermanently" ? "Permanently Delete" : "Remove";
 }
 document.addEventListener("change", (event) => {
   if (event.target.closest("#remove-form")) syncRemoveForm();

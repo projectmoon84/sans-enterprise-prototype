@@ -1566,7 +1566,7 @@ export function createStore({ storage = null, initialData } = {}) {
     assignCourse(id, { courseId }) {
       return transact((next) => {
         const person = findPerson(next, id);
-        if (!person.student) throw Error("Only students can be enrolled on courses.");
+        if (!person.student) throw Error("Only students can be enrolled in courses.");
         if (person.student.status === "Suspended")
           throw Error("Reactivate this student before assigning a course.");
         if (person.student.status === "Needs voucher")
@@ -1617,7 +1617,7 @@ export function createStore({ storage = null, initialData } = {}) {
         const enrolment = next.courseEnrolments.find(
           (item) => item.id === enrolmentId && item.personId === person.id,
         );
-        if (!enrolment) throw Error("Course enrolment not found.");
+        if (!enrolment) throw Error("Course enrollment not found.");
         if (!CURRENT_STATUSES.includes(enrolment.status))
           throw Error("Only current courses can be withdrawn.");
         const course = next.courses.find((item) => item.id === enrolment.courseId);

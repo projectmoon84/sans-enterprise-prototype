@@ -19,7 +19,7 @@ export const COURSES = [
   { id: "course-sec275", code: "SEC275", title: "Foundations: Computers, Technology and Security", cert: ["GFACT", "GIAC Foundational Cybersecurity Technologies"] },
   { id: "course-sec401", code: "SEC401", title: "Security Essentials: Network, Endpoint and Cloud", cert: ["GSEC", "GIAC Security Essentials"] },
   { id: "course-sec504", code: "SEC504", title: "Hacker Tools, Techniques and Incident Handling", cert: ["GCIH", "GIAC Certified Incident Handler"] },
-  { id: "course-sec510", code: "SEC510", title: "Multicloud Security Assessment and Defence", cert: ["GMCS", "GIAC Multicloud Security"] },
+  { id: "course-sec510", code: "SEC510", title: "Multicloud Security Assessment and Defense", cert: ["GMCS", "GIAC Multicloud Security"] },
   { id: "course-sec540", code: "SEC540", title: "Cloud Security and DevSecOps Automation", cert: ["GCSA", "GIAC Cloud Security Automation"] },
   { id: "course-sec560", code: "SEC560", title: "Enterprise Penetration Testing", cert: ["GPEN", "GIAC Penetration Tester"] },
   { id: "course-for508", code: "FOR508", title: "Advanced Incident Response and Threat Hunting", cert: ["GCFA", "GIAC Certified Forensic Analyst"] },
@@ -38,7 +38,7 @@ export function certificationStatus(cert, now = new Date()) {
   const days = Math.ceil((Date.parse(cert.expiresAt) - now.getTime()) / DAY);
   if (days < 0) return { key: "expired", label: "Expired", days };
   if (days <= CERT_WARNING_DAYS)
-    return { key: "expiring", label: "Expiring soon", days };
+    return { key: "expiring", label: "Expiring Soon", days };
   return { key: "valid", label: "Valid", days };
 }
 
