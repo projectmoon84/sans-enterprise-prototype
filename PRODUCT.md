@@ -8,13 +8,13 @@ web
 
 ## Users
 
-Security training managers at organisations that buy SANS training. They sign in to the SANS Enterprise Portal as portal users with one of three roles (Admin, Limited Admin, Viewer) and manage their organisation's students: inviting people, assigning vouchers, admin groups and teams, approving training requests and tracking courses and GIAC certifications. Portal users also view reporting dashboards.
+Security training managers at organizations that buy SANS training. They sign in to the SANS Enterprise Portal as portal users with one of three roles (Admin, Limited Admin, Viewer) and manage their organization's students: inviting people, assigning vouchers, admin groups and teams, approving training requests and tracking courses and GIAC certifications. Portal users also view reporting dashboards.
 
 They work at a desk on a laptop or desktop, often on many records at once (CSV imports, bulk changes).
 
 ## Product Purpose
 
-The Enterprise Portal is where an organisation administers its SANS training: who has portal access, who is a student, which vouchers fund them, and how they are grouped. Success is an admin getting people onboarded, funded and organised quickly and correctly, and being able to see how their training programme is going.
+The Enterprise Portal is where an organization administers its SANS training: who has portal access, who is a student, which vouchers fund them, and how they are grouped. Success is an admin getting people onboarded, funded and organized quickly and correctly, and being able to see how their training programme is going.
 
 This repository is a browser-only prototype of the portal. It is used for three things:
 
@@ -57,7 +57,7 @@ Longer term, the portal will add reporting tools and training pathways that prom
 2. Never lose work or surprise people: preview side effects, offer Undo, and explain skipped rows.
 3. Funding drives structure: vouchers decide what else can be assigned.
 4. Show what needs attention without making the admin hunt for it.
-5. Prototype as specification: behaviour should be precise enough for engineers to build from.
+5. Prototype as specification: behavior should be precise enough for engineers to build from.
 
 ## Accessibility & Inclusion
 

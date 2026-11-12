@@ -1,11 +1,11 @@
 // Internal Users: SANS staff who work in the portal on behalf of customers.
 // A list (search, role filter, quick chips), a profile per person (details and
-// organisation access), and three dialogs: Add SANS employee, Edit access and
+// organization access), and three dialogs: Add SANS employee, Edit access and
 // Deactivate (type-to-confirm). Decisions from the 4 Nov 2026 review:
-//   - the list drops email, the organisation list, per-org last access and "Why?";
-//   - access is changed from the profile's access table (Add to organisation, row menus), and Deactivate sits on the profile, not the list;
-//   - organisations link to their Customer Organizations page;
-//   - organisations are a multiselect that defaults to SANS, with no "All organisations";
+//   - the list drops email, the organization list, per-org last access and "Why?";
+//   - access is changed from the profile's access table (Add to organization, row menus), and Deactivate sits on the profile, not the list;
+//   - organizations link to their Customer Organizations page;
+//   - organizations are a multiselect that defaults to SANS, with no "All Organizations";
 //   - roles offered: Global Admin, SANS Account Admin, SANS Account Viewer, System Admin.
 // SANS staff are a separate directory from the customer's people, so this layer keeps
 // its own small dataset in browser storage rather than in store.js.
@@ -40,13 +40,13 @@ const IU_ORGS = [
 const IU_ALL = "*";
 const IU_TEST = "sandbox";
 
-// `scope` says how a role reaches organisations: picked one by one, every organisation, or the test account only.
+// `scope` says how a role reaches organizations: picked one by one, every organization, or the test account only.
 const IU_ROLES = [
-  { id: "global", name: "Global Admin", scope: "all", offered: true, blurb: "Runs the portal. Reaches every customer organisation." },
-  { id: "acctadmin", name: "SANS Account Admin", scope: "pick", offered: true, blurb: "Manages members, roles and teams for chosen organisations. Never approves training or moves funds." },
-  { id: "acctviewer", name: "SANS Account Viewer", scope: "pick", offered: true, blurb: "Read-only access to chosen organisations." },
+  { id: "global", name: "Global Admin", scope: "all", offered: true, blurb: "Runs the portal. Reaches every customer organization." },
+  { id: "acctadmin", name: "SANS Account Admin", scope: "pick", offered: true, blurb: "Manages members, roles and teams for chosen organizations. Never approves training or moves funds." },
+  { id: "acctviewer", name: "SANS Account Viewer", scope: "pick", offered: true, blurb: "Read-only access to chosen organizations." },
   { id: "sysadmin", name: "System Admin", scope: "test", offered: true, blurb: "Configuration and environments. SANS Test Account only, so no customer data." },
-  { id: "curation", name: "Content Curation", scope: "all", offered: false, blurb: "Assigns dashboards and content to organisations." },
+  { id: "curation", name: "Content Curation", scope: "all", offered: false, blurb: "Assigns dashboards and content to organizations." },
 ];
 
 // ---------- Data ----------
@@ -67,7 +67,7 @@ function iuSeed() {
     { id: "iu-priyanka", name: "Priyanka Rao", email: "prao@sans.example", job: "Sales", status: "active", lastAccess: iuDaysAgo(58, 9, 30), access: sf(["globex", "dra", "mer", "nor", "oak", "pin", "qua", "red", "lum", "har"], "acctviewer") },
     { id: "iu-noor", name: "Noor Balewa", email: "nbalewa@sans.example", job: "Customer Success Manager", status: "pending", invitedAt: iuDaysAgo(8), lastAccess: null, access: sf(["arc", "eas", "fai"], "acctadmin", 8) },
     { id: "iu-bram", name: "Bram Nielsen", email: "bnielsen@sans.example", job: "Platform Engineering", status: "active", lastAccess: iuDaysAgo(0, 7, 12), access: [hand(IU_TEST, "sysadmin", "Søren Vik", 307, "Platform engineering, sandbox only.")] },
-    { id: "iu-elena", name: "Elena Fischer", email: "efischer@sans.example", job: "Content Operations", status: "active", lastAccess: iuDaysAgo(60, 10, 47), access: [hand(IU_ALL, "curation", "Søren Vik", 237, "Content operations, every organisation by function.")] },
+    { id: "iu-elena", name: "Elena Fischer", email: "efischer@sans.example", job: "Content Operations", status: "active", lastAccess: iuDaysAgo(60, 10, 47), access: [hand(IU_ALL, "curation", "Søren Vik", 237, "Content operations, every organization by function.")] },
   ];
 }
 var iuPeople = (() => {
@@ -84,6 +84,10 @@ function iuSave() {
     toast("Changes could not be saved. Allow browser storage to keep them.");
   }
 }
+// Whoever is signed in as SANS staff is recorded as granting access.
+function iuActor() {
+  return (typeof signedInSansStaff === "function" && signedInSansStaff()?.name) || "SANS";
+}
 function iuPerson(id) {
   return iuPeople.find((p) => p.id === id);
 }
@@ -91,36 +95,36 @@ function iuRole(id) {
   return IU_ROLES.find((r) => r.id === id) || { id, name: id, scope: "pick" };
 }
 function iuOrgName(id) {
-  if (id === IU_ALL) return "All organisations";
+  if (id === IU_ALL) return "All Organizations";
   if (id === IU_TEST) return "SANS Test Account";
   return IU_ORGS.find((o) => o.id === id)?.name || id;
 }
 function iuCount(n, word) {
   return `${n} ${word}${n === 1 ? "" : "s"}`;
 }
-// One line per role: "SANS Account Admin" with "6 organisations", "All organisations" or "SANS Test Account".
+// One line per role: "SANS Account Admin" with "6 organizations", "All Organizations" or "SANS Test Account".
 function iuRoleLines(person) {
   const byRole = new Map();
   person.access.forEach((a) => byRole.set(a.role, [...(byRole.get(a.role) || []), a.orgId]));
   return [...byRole].map(([role, orgs]) => ({
     role: iuRole(role).name,
-    reach: orgs.includes(IU_ALL) ? "All organisations" : orgs.includes(IU_TEST) ? "SANS Test Account only" : iuCount(orgs.length, "organisation"),
+    reach: orgs.includes(IU_ALL) ? "All Organizations" : orgs.includes(IU_TEST) ? "SANS Test Account Only" : iuCount(orgs.length, "organization"),
   }));
 }
 function iuOrgTotal(person) {
-  return person.access.some((a) => a.orgId === IU_ALL) ? "All organisations" : iuCount(new Set(person.access.map((a) => a.orgId)).size, "organisation");
+  return person.access.some((a) => a.orgId === IU_ALL) ? "All Organizations" : iuCount(new Set(person.access.map((a) => a.orgId)).size, "organization");
 }
 function iuDays(iso) {
   return iso ? Math.floor((Date.now() - new Date(iso).getTime()) / 86400000) : null;
 }
 function iuDate(iso) {
-  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  return new Date(iso).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" });
 }
 function iuWhen(iso) {
   if (!iso) return "Never signed in";
   const d = new Date(iso);
   const today = new Date().toDateString() === d.toDateString();
-  return today ? `Today at ${d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}` : iuDate(iso);
+  return today ? `Today at ${d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}` : iuDate(iso);
 }
 function iuPendingFor(person) {
   const days = iuDays(person.invitedAt);
@@ -130,11 +134,11 @@ function iuUnused(person) {
   return person.status === "active" && iuDays(person.lastAccess) >= IU_STALE_DAYS;
 }
 function iuStatusLabel(person) {
-  return person.status === "pending" ? "Pending invite" : person.status === "deactivated" ? "Deactivated" : "Active";
+  return person.status === "pending" ? "Pending Invite" : person.status === "deactivated" ? "Deactivated" : "Active";
 }
 function iuStatusBadge(person) {
   const s = iuStatusLabel(person);
-  return `<span class="badge ${s === "Pending invite" ? "pending" : s === "Deactivated" ? "suspended" : ""}">${s}</span>`;
+  return `<span class="badge ${s === "Pending Invite" ? "pending" : s === "Deactivated" ? "suspended" : ""}">${s}</span>`;
 }
 // Who added this person: the oldest access entry.
 function iuAddedBy(person) {
@@ -151,19 +155,22 @@ state.iuId = null;
 const IU_CHIPS = [
   ["all", "All", () => true],
   ["active", "Active", (p) => p.status === "active"],
-  ["pending", "Pending invite", (p) => p.status === "pending"],
-  ["unused", `Unused ${IU_STALE_DAYS}+ days`, iuUnused],
+  ["pending", "Pending Invite", (p) => p.status === "pending"],
+  ["unused", `Unused ${IU_STALE_DAYS}+ Days`, iuUnused],
   ["deactivated", "Deactivated", (p) => p.status === "deactivated"],
 ];
 function iuVisible() {
   const q = state.iuSearch.trim().toLowerCase();
   const chip = IU_CHIPS.find(([key]) => key === state.iuChip) || IU_CHIPS[0];
-  return iuPeople.filter(
+  const rows = iuPeople.filter(
     (p) =>
       (!q || `${p.name} ${p.email} ${p.job}`.toLowerCase().includes(q)) &&
       (!state.iuRole || p.access.some((a) => iuRole(a.role).name === state.iuRole)) &&
       chip[2](p),
   );
+  // Newly added people sit at the top while their "new" tint shows.
+  const fresh = state.newRows?.ids;
+  return fresh?.size ? [...rows.filter((p) => fresh.has(p.id)), ...rows.filter((p) => !fresh.has(p.id))] : rows;
 }
 function iuListView() {
   const rows = iuVisible();
@@ -177,20 +184,20 @@ function iuListView() {
         .map((p) => {
           const [by, byMeta] = iuAddedBy(p);
           const pending = p.status === "pending" ? iuPendingFor(p) : iuWhen(p.lastAccess);
-          return `<tr tabindex="0" class="clickable-row" data-iu-row="${esc(p.id)}" title="Open profile"><td><div class="person-name">${esc(p.name)}</div><div class="secondary">${esc(p.job)}</div></td><td class="iu-roles">${iuRoleLines(p)
+          return `<tr tabindex="0"${newRowAttrs(p.id, ["clickable-row"])} data-iu-row="${esc(p.id)}" title="Open profile"><td><div class="person-name">${esc(p.name)}</div><div class="secondary">${esc(p.job)}</div></td><td class="iu-roles">${iuRoleLines(p)
             .map((r) => `<div class="iu-role-line"><span>${esc(r.role)}</span><span class="secondary">${esc(r.reach)}</span></div>`)
-            .join("")}</td><td class="modifier"><span>${esc(by)}</span><span class="secondary">${esc(byMeta)}</span></td><td class="status-cell">${iuStatusBadge(p)}<span class="secondary">${esc(pending)}</span>${iuUnused(p) ? `<span class="iu-flag">${icon("schedule")}Unused ${IU_STALE_DAYS}+ days</span>` : ""}</td></tr>`;
+            .join("")}</td><td class="modifier"><span>${esc(by)}</span><span class="secondary">${esc(byMeta)}</span></td><td class="status-cell">${iuStatusBadge(p)}<span class="secondary">${esc(pending)}</span>${iuUnused(p) ? `<span class="iu-flag">${icon("schedule")}Unused ${IU_STALE_DAYS}+ Days</span>` : ""}</td></tr>`;
         })
         .join("")
-    : `<tr><td colspan="4"><div class="empty">${icon("search")}<h2>No SANS staff found</h2><p>Try another name or clear your filters.</p>${btn("Clear filters", "iu-clear")}</div></td></tr>`;
-  return `${heading("Internal Users", `${iuCount(iuPeople.filter((p) => p.status !== "deactivated").length, "SANS employee")} can access this portal on behalf of customers.`, btn(icon("plus") + "Add SANS employee", "iu-add", "primary", 'data-spec="internal-users.add-button" data-spec-label="Add SANS employee button"'))}<section class="card people-card iu-card" aria-label="Internal users list" data-spec="internal-users.table" data-spec-label="Internal users table">${toolbar}${chips}<div class="table-wrap"><table class="people-table iu-table"><colgroup><col style="width:30%"><col style="width:28%"><col style="width:24%"><col style="width:18%"></colgroup><thead><tr><th>Name</th><th>Role</th><th>Added by</th><th>Status / Last access</th></tr></thead><tbody>${body}</tbody></table></div></section>`;
+    : `<tr><td colspan="4"><div class="empty">${icon("search")}<h2>No SANS Staff Found</h2><p>Try another name or clear your filters.</p>${btn("Clear Filters", "iu-clear")}</div></td></tr>`;
+  return `${heading("Internal Users", `${iuCount(iuPeople.filter((p) => p.status !== "deactivated").length, "SANS employee")} can access this portal on behalf of customers.`, btn(icon("plus") + "Add SANS Employee", "iu-add", "primary", 'data-spec="internal-users.add-button" data-spec-label="Add SANS employee button"'))}<section class="card people-card iu-card" aria-label="Internal users list" data-spec="internal-users.table" data-spec-label="Internal users table">${toolbar}${chips}<div class="table-wrap"><table class="people-table iu-table"><colgroup><col style="width:30%"><col style="width:28%"><col style="width:24%"><col style="width:18%"></colgroup><thead><tr><th>Name</th><th>Role</th><th>Added By</th><th>Status / Last Access</th></tr></thead><tbody>${body}</tbody></table></div></section>`;
 }
 
 // ---------- Profile ----------
 function iuProfileView() {
   const p = iuPerson(state.iuId);
-  const back = `<button class="back" data-action="iu-back">${icon("back")}Back to Internal users</button>`;
-  if (!p) return `${back}${heading("Person not found", "This record may have been removed.")}`;
+  const back = `<button class="back" data-action="iu-back">${icon("back")}Back to Internal Users</button>`;
+  if (!p) return `${back}${heading("Person Not Found", "This record may have been removed.")}`;
   const [by, byMeta] = iuAddedBy(p);
   const actions =
     p.status === "deactivated"
@@ -198,9 +205,11 @@ function iuProfileView() {
       : btn(icon("trash") + "Deactivate…", "iu-deactivate", "danger", 'data-spec="internal-users.deactivate" data-spec-label="Deactivate button"');
   const pending =
     p.status === "pending"
-      ? `<section class="card iu-notice" aria-label="Invitation">${icon("schedule")}<div><h2>Invitation pending · ${iuPendingFor(p).replace(" pending", "")}</h2><p>The access below is what ${esc(p.name.split(" ")[0])} will hold. Until they accept, they cannot reach any organisation.</p></div>${btn(icon("mail") + "Resend invitation", "iu-resend")}</section>`
+      ? `<section class="card iu-notice" aria-label="Invitation">${icon("schedule")}<div><h2>Invitation Pending</h2><p>${p.invitedAt && iuDays(p.invitedAt) >= 1 ? `Sent ${iuCount(iuDays(p.invitedAt), "day")} ago. ` : "Sent today. "}The access below is what ${esc(p.name.split(" ")[0])} will hold. Until they accept, they cannot reach any organization.</p></div>${btn(icon("mail") + "Resend Invitation", "iu-resend")}</section>`
       : p.status === "deactivated"
-        ? `<section class="card iu-notice iu-notice-off" aria-label="Deactivated">${icon("info")}<div><h2>Deactivated</h2><p>${esc(p.name)} cannot sign in. The record is kept so past activity still names them.</p></div></section>`
+        ? `<section class="card iu-notice iu-notice-off" aria-label="Deactivated">${icon("info")}<div><h2>Deactivated</h2><p>${esc(p.name)} cannot sign in. The record is kept so past activity still names them.</p>${
+          p.deactivation ? `<p class="iu-reason-note"><strong>Reason:</strong> ${esc(p.deactivation.reason)} <span class="secondary">${esc(p.deactivation.by)} · ${iuDate(p.deactivation.at)}</span></p>` : ""
+        }</div></section>`
         : "";
   const rows = [...p.access].sort((a, b) => iuOrgName(a.orgId).localeCompare(iuOrgName(b.orgId)));
   const orgCell = (a) =>
@@ -212,38 +221,38 @@ function iuProfileView() {
       ? `<span>Salesforce account team</span><span class="secondary">Automated · ${iuDate(a.at)}</span>`
       : `<span>${esc(a.by || "SANS")}</span><span class="secondary">Granted by hand · ${iuDate(a.at)}</span>${a.note ? `<span class="secondary iu-note">${esc(a.note)}</span>` : ""}`;
   const editable = p.status !== "deactivated";
-  const accessCard = `<section class="card iu-access-card" aria-labelledby="iu-access-title" data-spec="internal-users.org-access" data-spec-label="Organisation access"><div class="profile-card-head"><div class="iu-head-title"><h2 id="iu-access-title">Organisation access</h2><span class="iu-count">${esc(iuOrgTotal(p))}</span></div>${editable ? btn(icon("plus") + "Add to organisation", "iu-grant", "", 'data-spec="internal-users.add-to-org" data-spec-label="Add to organisation button"') : ""}</div><div class="table-wrap"><table class="people-table iu-access-table"><colgroup>${editable ? '<col style="width:36%"><col style="width:24%"><col style="width:34%"><col style="width:6%">' : '<col style="width:38%"><col style="width:24%"><col style="width:38%">'}</colgroup><thead><tr><th>Organisation</th><th>Role</th><th>Added by</th>${editable ? '<th><span class="sr-only">Actions</span></th>' : ""}</tr></thead><tbody>${rows
+  const accessCard = `<section class="card iu-access-card" aria-labelledby="iu-access-title" data-spec="internal-users.org-access" data-spec-label="Organization access"><div class="profile-card-head"><div class="iu-head-title"><h2 id="iu-access-title">Organization Access</h2><span class="iu-count">${esc(iuOrgTotal(p))}</span></div>${editable ? btn(icon("plus") + "Add to Organization", "iu-grant", "", 'data-spec="internal-users.add-to-org" data-spec-label="Add to organization button"') : ""}</div><div class="table-wrap"><table class="people-table iu-access-table"><colgroup>${editable ? '<col style="width:36%"><col style="width:24%"><col style="width:34%"><col style="width:6%">' : '<col style="width:38%"><col style="width:24%"><col style="width:38%">'}</colgroup><thead><tr><th>Organization</th><th>Role</th><th>Added By</th>${editable ? '<th><span class="sr-only">Actions</span></th>' : ""}</tr></thead><tbody>${rows
     .map((a) => `<tr><td>${orgCell(a)}</td><td>${esc(iuRole(a.role).name)}</td><td class="modifier">${source(a)}</td>${editable ? `<td class="menu-cell iu-menu-cell">${iuAccessMenu(p, a)}</td>` : ""}</tr>`)
     .join("")}</tbody></table></div></section>`;
   return `${back}
   <section class="profile-summary" aria-labelledby="iu-name">
     <div class="profile-identity"><span class="profile-avatar">${esc(initial(p.name))}</span><div><h1 id="iu-name" tabindex="-1">${esc(p.name)}</h1><p>${esc(p.job)}</p><a href="mailto:${esc(p.email)}">${esc(p.email)}</a></div></div>
-    <div class="profile-summary-side"><div class="profile-role-list" aria-label="Status">${iuStatusBadge(p)}${iuUnused(p) ? `<span class="iu-flag">${icon("schedule")}Unused ${IU_STALE_DAYS}+ days</span>` : ""}</div>${actions}</div>
+    <div class="profile-summary-side"><div class="profile-role-list" aria-label="Status">${iuStatusBadge(p)}${iuUnused(p) ? `<span class="iu-flag">${icon("schedule")}Unused ${IU_STALE_DAYS}+ Days</span>` : ""}</div>${actions}</div>
   </section>
   ${pending}
   <section class="card profile-access-card iu-details-card" aria-labelledby="iu-details-title">${profileSectionHead("Details", "", "iu-details-title")}${profileDetailRows([
     ["Email", p.email],
-    ["Job function", p.job],
-    ["Last access", p.status === "pending" ? "Not signed in yet" : iuWhen(p.lastAccess)],
-    ["Added by", `${by} · ${byMeta}`],
+    ["Job Function", p.job],
+    ["Last Access", p.status === "pending" ? "Not signed in yet" : iuWhen(p.lastAccess)],
+    ["Added By", `${by} · ${byMeta}`],
   ])}</section>
   ${accessCard}`;
 }
 
-// Row menu on the profile's Organisation access table: Edit access or Remove access for one organisation.
+// Row menu on the profile's Organization access table: Edit access or Remove access for one organization.
 function iuAccessMenu(person, a) {
   const i = person.access.indexOf(a);
   const key = `iu-access-${i}`;
   const open = state.rowMenu === key;
   const org = iuOrgName(a.orgId);
-  return `<div class="menu-anchor row-menu-anchor" data-spec="internal-users.access-menu" data-spec-label="Organisation access row menu"><button type="button" class="icon-btn kebab" data-action="iu-access-menu" data-index="${i}" aria-label="Actions for ${esc(org)}" aria-haspopup="menu" aria-expanded="${open}">${menuIcon()}</button>${
-    open ? `<div class="dropdown-menu row-dropdown" role="menu">${btn("Edit access", "iu-row-edit", "", `role="menuitem" data-index="${i}"`)}${btn("Remove access…", "iu-row-remove", "danger", `role="menuitem" data-index="${i}"`)}</div>` : ""
+  return `<div class="menu-anchor row-menu-anchor" data-spec="internal-users.access-menu" data-spec-label="Organization access row menu"><button type="button" class="icon-btn kebab" data-action="iu-access-menu" data-index="${i}" aria-label="Actions for ${esc(org)}" aria-haspopup="menu" aria-expanded="${open}">${menuIcon()}</button>${
+    open ? `<div class="dropdown-menu row-dropdown" role="menu">${btn("Edit Access", "iu-row-edit", "", `role="menuitem" data-index="${i}"`)}${btn("Remove Access…", "iu-row-remove", "danger", `role="menuitem" data-index="${i}"`)}</div>` : ""
   }</div>`;
 }
 
 const iuBaseContent = content;
 content = function () {
-  if (state.view === "internal-users") return state.iuId ? iuProfileView() : iuListView();
+  if (state.view === "internal-users" && signedInSansStaff()) return state.iuId ? iuProfileView() : iuListView();
   return iuBaseContent();
 };
 function iuOpen(id) {
@@ -259,29 +268,29 @@ function iuLeave() {
   document.querySelector(`[data-iu-row="${from}"]`)?.focus({ preventScroll: true });
 }
 
-// ---------- Organisation picker (shared by Add and Edit access) ----------
+// ---------- Organization picker (shared by Add and Edit access) ----------
 // `form` holds: role, orgs (picked ids), q (search) and, for Edit, the existing rows.
 function iuScopeHtml(form, taken = []) {
   const role = iuRole(form.role);
   if (role.scope === "all")
-    return `<div class="iu-scope-note">${icon("info")}<span>${esc(role.name)}s reach every organisation, so there is nothing to choose. Only give this role to people who run the portal.</span></div>`;
+    return `<div class="iu-scope-note">${icon("info")}<span>${esc(role.name)}s reach every organization, so there is nothing to choose. Only give this role to people who run the portal.</span></div>`;
   if (role.scope === "test") return `<div class="iu-scope-note">${icon("info")}<span>System Admins work in the SANS Test Account only. They never see customer data.</span></div>`;
   const q = (form.q || "").trim().toLowerCase();
   const choices = IU_ORGS.filter((o) => !taken.includes(o.id));
   const shown = choices.filter((o) => !q || o.name.toLowerCase().includes(q));
   const picked = form.orgs.filter((id) => choices.some((o) => o.id === id));
-  return `<div class="iu-picked" aria-live="polite">${picked.length ? picked.map((id) => `<span class="iu-pill">${esc(iuOrgName(id))}<button type="button" class="icon-btn" data-action="iu-unpick" data-org="${esc(id)}" aria-label="Remove ${esc(iuOrgName(id))}">${icon("close")}</button></span>`).join("") : '<span class="hint">No organisations selected</span>'}</div><div class="search scope-search">${icon("search")}<input id="iu-org-search" placeholder="Search organisations" aria-label="Search organisations" value="${esc(form.q || "")}" autocomplete="off"></div><div class="scope-options checks iu-org-list" role="group" aria-label="Organisations">${
+  return `<div class="iu-picked" aria-live="polite">${picked.length ? picked.map((id) => `<span class="iu-pill">${esc(iuOrgName(id))}<button type="button" class="icon-btn" data-action="iu-unpick" data-org="${esc(id)}" aria-label="Remove ${esc(iuOrgName(id))}">${icon("close")}</button></span>`).join("") : '<span class="hint">No organizations selected</span>'}</div><div class="search scope-search">${icon("search")}<input id="iu-org-search" placeholder="Search organizations" aria-label="Search organizations" value="${esc(form.q || "")}" autocomplete="off"></div><div class="scope-options checks iu-org-list" role="group" aria-label="Organizations">${
     shown.length
       ? shown.map((o) => `<label class="check scope-choice"><input type="checkbox" name="iu-org" value="${esc(o.id)}" ${form.orgs.includes(o.id) ? "checked" : ""}><span>${esc(o.name)}</span>${o.id === "sans" ? "<small>Default</small>" : ""}</label>`).join("")
-      : `<p class="hint">No organisations match “${esc(form.q)}”.</p>`
-  }</div><p class="hint">${iuCount(picked.length, "organisation")} selected. Pick as many as this person covers. Each one is invited once.</p>`;
+      : `<p class="hint">No organizations match “${esc(form.q)}”.</p>`
+  }</div><p class="hint">${iuCount(picked.length, "organization")} selected. Pick as many as this person covers. Each one is invited once.</p>`;
 }
 function iuRolePicker(name, value, roles) {
   return `<div class="role-picker iu-role-picker">${roles
     .map((r) => `<label class="role-option"><input type="radio" name="${name}" value="${r.id}" ${value === r.id ? "checked" : ""}><strong>${esc(r.name)}</strong><small>${esc(r.blurb)}</small></label>`)
     .join("")}</div>`;
 }
-// Role changes swap the organisation area for a note (or back), so ease the height
+// Role changes swap the organization area for a note (or back), so ease the height
 // change and fade the new content in rather than letting the dialog jump.
 function iuAnimateSwap(box, paint) {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches || !box.animate) return paint();
@@ -321,29 +330,43 @@ function iuAddForm() {
   state.iuForm = { mode: "add", name: "", email: "", job: "", role: "acctadmin", orgs: ["sans"], q: "", reason: "" };
   state.modal = "iu-add";
   openModal(
-    "Add SANS employee",
-    "Give a SANS employee access to the portal. They get an email invitation and show as Pending invite until they accept.",
-    `<form id="iu-add-form" class="iu-form" novalidate><section class="field-section"><h3 class="iu-section-title">Person</h3><div class="form-grid iu-person-grid"><div class="field"><label for="iu-name-input">Full name <span class="required">*</span></label><input id="iu-name-input" name="name" required autocomplete="off"></div><div class="field"><label for="iu-email-input">SANS email <span class="required">*</span></label><input id="iu-email-input" name="email" type="email" required placeholder="name@sans.example" autocomplete="off"></div><div class="field"><label for="iu-job-input">Job function</label><input id="iu-job-input" name="job" placeholder="Customer Success Manager" autocomplete="off"></div></div></section><section class="field-section"><label>Role <span class="required">*</span></label>${iuRolePicker("iu-role", "acctadmin", IU_ROLES.filter((r) => r.offered))}</section><section class="field-section"><label>Organisations <span class="required">*</span> ${helpMark("Choose every organisation this person works on. SANS is selected by default.")}</label><div id="iu-scope">${iuScopeHtml(state.iuForm)}</div></section><section class="field-section"><div class="field"><label for="iu-reason-input">Reason for access <span class="required">*</span></label><input id="iu-reason-input" name="reason" required placeholder="For example, new CSM for this book of business" autocomplete="off"></div></section><p class="inline-error" id="iu-form-error" role="alert"></p></form>`,
-    `<span class="secondary">Demo invitation · no email will be sent</span><div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="iu-add-form">Add and send invitation</button></div>`,
+    "Add SANS Employee",
+    "Give a SANS employee access to the portal. They get an email invitation and show as Pending Invite until they accept.",
+    `<form id="iu-add-form" class="iu-form" novalidate><section class="field-section"><div class="field iu-email-field"><label for="iu-email-input">SANS Email <span class="required">*</span></label><input id="iu-email-input" name="email" type="email" required placeholder="name@sans.example" autocomplete="off"></div></section><section class="field-section"><label>Role <span class="required">*</span></label>${iuRolePicker("iu-role", "acctadmin", IU_ROLES.filter((r) => r.offered))}</section><section class="field-section"><label>Organizations <span class="required">*</span> ${helpMark("Choose every organization this person works on. SANS is selected by default.")}</label><div id="iu-scope">${iuScopeHtml(state.iuForm)}</div></section><section class="field-section"><div class="field"><label for="iu-reason-input">Reason for Access <span class="required">*</span></label><input id="iu-reason-input" name="reason" required placeholder="For example, new CSM for this book of business" autocomplete="off"></div></section><p class="inline-error" id="iu-form-error" role="alert"></p></form>`,
+    `<span class="secondary">Demo invitation · no email will be sent</span><div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="iu-add-form">Add and Send Invitation</button></div>`,
   );
   $("#modal").classList.add("fidelity-modal", "iu-modal");
+}
+// Name and job function come from the SANS account linked to the email. In the demo,
+// a few known accounts resolve fully; any other address gets a name from its first part.
+const IU_ACCOUNTS = {
+  "jdoe@sans.example": ["Jordan Doe", "Customer Success Manager"],
+  "mchen@sans.example": ["Mei Chen", "Sales Support"],
+  "okafor@sans.example": ["Chidi Okafor", "Platform Engineering"],
+};
+function iuAccountFor(email) {
+  const known = IU_ACCOUNTS[email];
+  if (known) return { name: known[0], job: known[1] };
+  const local = email.split("@")[0];
+  const name = local
+    .split(/[._-]+/)
+    .filter(Boolean)
+    .map((part) => part[0].toUpperCase() + part.slice(1))
+    .join(" ");
+  return { name: name || email, job: "Not set" };
 }
 function iuSubmitAdd(formEl) {
   const f = state.iuForm;
   const fd = new FormData(formEl);
-  const name = String(fd.get("name") || "").trim();
   const email = String(fd.get("email") || "").trim().toLowerCase();
-  const job = String(fd.get("job") || "").trim();
   const reason = String(fd.get("reason") || "").trim();
   const role = iuRole(f.role);
-  const error = !name
-    ? ["Enter their full name.", "#iu-name-input"]
-    : !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)
+  const error = !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)
       ? ["Enter a valid SANS email address.", "#iu-email-input"]
       : iuPeople.some((p) => p.email === email)
         ? [`${email} is already an internal user.`, "#iu-email-input"]
         : role.scope === "pick" && !f.orgs.length
-          ? ["Choose at least one organisation.", "#iu-org-search"]
+          ? ["Choose at least one organization.", "#iu-org-search"]
           : !reason
             ? ["Give a reason for this access. It is kept with the record.", "#iu-reason-input"]
             : null;
@@ -354,23 +377,28 @@ function iuSubmitAdd(formEl) {
   }
   const at = new Date().toISOString();
   const orgIds = role.scope === "all" ? [IU_ALL] : role.scope === "test" ? [IU_TEST] : f.orgs;
+  const { name, job } = iuAccountFor(email);
   const person = {
     id: "iu-" + Date.now().toString(36),
     name,
     email,
-    job: job || "Not set",
+    job,
     status: "pending",
     invitedAt: at,
     lastAccess: null,
-    access: orgIds.map((orgId) => ({ orgId, role: role.id, source: "hand", by: "Ada Whitfield", at, note: reason })),
+    access: orgIds.map((orgId) => ({ orgId, role: role.id, source: "hand", by: iuActor(), at, note: reason })),
   };
   iuPeople.push(person);
   iuSave();
   $("#modal").close();
   state.modal = null;
   state.iuForm = null;
-  toast(`Invitation sent to ${email}. They show as Pending invite until they accept.`);
-  iuOpen(person.id);
+  // Back to the list, where the new person is tinted and slides in.
+  state.iuId = null;
+  state.iuChip = "all";
+  markNewRows([person.id]);
+  toast(`Invitation sent to ${email}. They show as Pending Invite until they accept.`);
+  render();
 }
 
 // ---------- Edit access ----------
@@ -397,14 +425,14 @@ function iuPaintEdit() {
     return `<tr><td>${esc(iuOrgName(a.orgId))}${a.source === "salesforce" ? '<span class="secondary">Automated</span>' : ""}</td><td>${select}</td><td class="iu-remove-cell"><button type="button" class="button text small" data-action="iu-remove-access" data-index="${i}">Remove</button></td></tr>`;
   };
   openModal(
-    "Edit access",
+    "Edit Access",
     `${esc(p.name)} · ${esc(p.job)}`,
-    `<form id="iu-edit-form" class="iu-form" novalidate><section class="field-section"><h3 class="iu-section-title">Current access</h3>${
+    `<form id="iu-edit-form" class="iu-form" novalidate><section class="field-section"><h3 class="iu-section-title">Current Access</h3>${
       kept.length
-        ? `<table class="people-table iu-edit-table"><thead><tr><th>Organisation</th><th>Role</th><th><span class="sr-only">Remove</span></th></tr></thead><tbody>${kept.map(row).join("")}</tbody></table>`
-        : '<p class="hint">No access left. Add an organisation below, or deactivate this person instead.</p>'
-    }${autoRemoved ? `<div class="iu-scope-note iu-warn">${icon("error")}<span>Some removed access comes from the Salesforce account team. It returns at the next sync unless the account team changes too.</span></div>` : ""}${f.removed.length ? `<p class="hint">${iuCount(f.removed.length, "organisation")} will be removed when you save. ${btn("Undo", "iu-undo-remove", "text small")}</p>` : ""}</section><section class="field-section"><h3 class="iu-section-title">Give access to more organisations</h3><label>Role</label>${iuRolePicker("iu-edit-role", f.role, pickRoles)}<div id="iu-scope">${iuScopeHtml(f, kept.map((a) => a.orgId))}</div></section><p class="inline-error" id="iu-form-error" role="alert"></p></form>`,
-    `<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="iu-edit-form">Save access</button></div>`,
+        ? `<table class="people-table iu-edit-table"><thead><tr><th>Organization</th><th>Role</th><th><span class="sr-only">Remove</span></th></tr></thead><tbody>${kept.map(row).join("")}</tbody></table>`
+        : '<p class="hint">No access left. Add an organization below, or deactivate this person instead.</p>'
+    }${autoRemoved ? `<div class="iu-scope-note iu-warn">${icon("error")}<span>Some removed access comes from the Salesforce account team. It returns at the next sync unless the account team changes too.</span></div>` : ""}${f.removed.length ? `<p class="hint">${iuCount(f.removed.length, "organization")} will be removed when you save. ${btn("Undo", "iu-undo-remove", "text small")}</p>` : ""}</section><section class="field-section"><h3 class="iu-section-title">Give Access to More Organizations</h3><label>Role</label>${iuRolePicker("iu-edit-role", f.role, pickRoles)}<div id="iu-scope">${iuScopeHtml(f, kept.map((a) => a.orgId))}</div></section><p class="inline-error" id="iu-form-error" role="alert"></p></form>`,
+    `<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="iu-edit-form">Save Access</button></div>`,
   );
   $("#modal").classList.add("fidelity-modal", "iu-modal");
 }
@@ -416,13 +444,13 @@ function iuSubmitEdit() {
     .filter((a) => !f.removed.includes(a))
     .map((a) => {
       const role = f.roles.get(a);
-      return role && role !== a.role ? { ...a, role, source: "hand", by: "Ada Whitfield", at, note: "" } : a;
+      return role && role !== a.role ? { ...a, role, source: "hand", by: iuActor(), at, note: "" } : a;
     });
   const taken = kept.map((a) => a.orgId);
-  const added = f.orgs.filter((id) => !taken.includes(id)).map((orgId) => ({ orgId, role: f.role, source: "hand", by: "Ada Whitfield", at, note: "" }));
+  const added = f.orgs.filter((id) => !taken.includes(id)).map((orgId) => ({ orgId, role: f.role, source: "hand", by: iuActor(), at, note: "" }));
   const next = [...kept, ...added];
   if (!next.length) {
-    $("#iu-form-error").textContent = "Someone with no organisation access cannot use the portal. Deactivate them instead.";
+    $("#iu-form-error").textContent = "Someone with no organization access cannot use the portal. Deactivate them instead.";
     return;
   }
   const changed = f.removed.length || added.length || [...f.roles].some(([a, role]) => role !== a.role && !f.removed.includes(a));
@@ -435,7 +463,7 @@ function iuSubmitEdit() {
   render();
 }
 
-// ---------- Edit or remove one organisation (from the access table row menu) ----------
+// ---------- Edit or remove one organization (from the access table row menu) ----------
 function iuRowAccess(index) {
   const p = iuPerson(state.iuId);
   return p ? [p, p.access[Number(index)]] : [];
@@ -443,20 +471,20 @@ function iuRowAccess(index) {
 function iuRowEditForm(index) {
   const [p, a] = iuRowAccess(index);
   if (!a) return;
-  // Role-wide access (every organisation, or the test account) is changed in the full Edit access dialog.
+  // Role-wide access (every organization, or the test account) is changed in the full Edit access dialog.
   if (iuRole(a.role).scope !== "pick") return iuEditForm();
   state.iuForm = { mode: "row", id: p.id, index: Number(index), role: a.role };
   state.modal = "iu-row-edit";
   const org = iuOrgName(a.orgId);
   openModal(
-    `Edit access to ${esc(org)}`,
+    `Edit Access to ${esc(org)}`,
     `${esc(p.name)} · ${esc(p.job)}`,
     `<form id="iu-row-edit-form" class="iu-form" novalidate><section class="field-section"><label>Role for ${esc(org)}</label>${iuRolePicker("iu-row-role", a.role, IU_ROLES.filter((r) => r.scope === "pick"))}${
       a.source === "salesforce"
         ? `<div class="iu-scope-note iu-warn">${icon("error")}<span>This access comes from the Salesforce account team. A change here is kept as a manual grant and overrides the sync for ${esc(org)}.</span></div>`
         : ""
-    }</section><section class="field-section"><div class="field"><label for="iu-row-reason">Reason for change</label><input id="iu-row-reason" name="reason" placeholder="For example, now leads this account" autocomplete="off"></div></section><p class="inline-error" id="iu-form-error" role="alert"></p></form>`,
-    `<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="iu-row-edit-form">Save access</button></div>`,
+    }</section><section class="field-section"><div class="field"><label for="iu-row-reason">Reason for Change</label><input id="iu-row-reason" name="reason" placeholder="For example, now leads this account" autocomplete="off"></div></section><p class="inline-error" id="iu-form-error" role="alert"></p></form>`,
+    `<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="iu-row-edit-form">Save Access</button></div>`,
   );
   $("#modal").classList.add("fidelity-modal", "iu-modal");
 }
@@ -468,7 +496,7 @@ function iuSubmitRowEdit(formEl) {
   const note = String(new FormData(formEl).get("reason") || "").trim();
   iuCloseModal();
   if (role === a.role) return toast("No changes to save");
-  p.access[f.index] = { ...a, role, source: "hand", by: "Ada Whitfield", at: new Date().toISOString(), note };
+  p.access[f.index] = { ...a, role, source: "hand", by: iuActor(), at: new Date().toISOString(), note };
   iuSave();
   toast(`${p.name} is now ${iuRole(role).name} for ${iuOrgName(a.orgId)}`);
   render();
@@ -482,39 +510,39 @@ function iuRowRemoveForm(index) {
   const last = p.access.length === 1;
   const first = esc(p.name.split(" ")[0]);
   const body = last
-    ? `<p>${esc(org)} is ${first}’s only organisation. Someone with no organisation access cannot use the portal, so deactivate them instead.</p>`
-    : `<p>${esc(p.name)} loses ${esc(iuRole(a.role).name)} access to ${esc(org)} straight away. Their access to other organisations is not affected.</p>${
+    ? `<p>${esc(org)} is ${first}’s only organization. Someone with no organization access cannot use the portal, so deactivate them instead.</p>`
+    : `<p>${esc(p.name)} loses ${esc(iuRole(a.role).name)} access to ${esc(org)} straight away. Their access to other organizations is not affected.</p>${
         a.source === "salesforce"
           ? `<div class="iu-scope-note iu-warn">${icon("error")}<span>This access comes from the Salesforce account team. It returns at the next sync unless the account team changes too.</span></div>`
           : ""
       }`;
   openModal(
-    `Remove access to ${esc(org)}?`,
+    `Remove Access to ${esc(org)}?`,
     "",
-    `<form id="iu-row-remove-form" novalidate>${body}</form>`,
+    `<form id="iu-row-remove-form" novalidate>${body}${last ? "" : `${iuReasonField("iu-remove-reason", "Reason for Removing Access", "For example, no longer on this account team")}<p class="inline-error" id="iu-form-error" role="alert"></p>`}</form>`,
     `<div class="actions">${btn("Cancel", "close-modal", "text")}${
-      last ? btn("Deactivate instead…", "iu-deactivate", "danger") : `<button class="button danger" type="submit" form="iu-row-remove-form">Remove access</button>`
+      last ? btn("Deactivate Instead…", "iu-deactivate", "danger") : `<button class="button danger" type="submit" form="iu-row-remove-form">Remove Access</button>`
     }</div>`,
     "",
     true,
   );
   $("#modal").classList.add("fidelity-modal", "iu-modal", "iu-confirm-modal");
 }
-// "Add to organisation" above the access table: one role, any organisations this person does not have yet.
+// "Add to Organization" above the access table: one role, any organizations this person does not have yet.
 function iuGrantForm() {
   const p = iuPerson(state.iuId);
   if (!p) return;
   if (p.access.some((a) => a.orgId === IU_ALL)) {
-    toast(`${p.name} already reaches every organisation through their role`);
+    toast(`${p.name} already reaches every organization through their role`);
     return;
   }
   state.iuForm = { mode: "grant", id: p.id, role: "acctadmin", orgs: [], q: "", removed: [] };
   state.modal = "iu-grant";
   openModal(
-    "Add to organisation",
+    "Add to Organization",
     `${esc(p.name)} · ${esc(p.job)}`,
-    `<form id="iu-grant-form" class="iu-form" novalidate><section class="field-section"><label>Role <span class="required">*</span></label>${iuRolePicker("iu-edit-role", "acctadmin", IU_ROLES.filter((r) => r.scope === "pick"))}</section><section class="field-section"><label>Organisations <span class="required">*</span></label><div id="iu-scope">${iuScopeHtml(state.iuForm, iuGrantTaken(p))}</div></section><section class="field-section"><div class="field"><label for="iu-grant-reason">Reason for access <span class="required">*</span></label><input id="iu-grant-reason" name="reason" required placeholder="For example, covering this account while its CSM is away" autocomplete="off"></div></section><p class="inline-error" id="iu-form-error" role="alert"></p></form>`,
-    `<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="iu-grant-form">Add access</button></div>`,
+    `<form id="iu-grant-form" class="iu-form" novalidate><section class="field-section"><label>Role <span class="required">*</span></label>${iuRolePicker("iu-edit-role", "acctadmin", IU_ROLES.filter((r) => r.scope === "pick"))}</section><section class="field-section"><label>Organizations <span class="required">*</span></label><div id="iu-scope">${iuScopeHtml(state.iuForm, iuGrantTaken(p))}</div></section><section class="field-section"><div class="field"><label for="iu-grant-reason">Reason for Access <span class="required">*</span></label><input id="iu-grant-reason" name="reason" required placeholder="For example, covering this account while its CSM is away" autocomplete="off"></div></section><p class="inline-error" id="iu-form-error" role="alert"></p></form>`,
+    `<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="iu-grant-form">Add Access</button></div>`,
   );
   $("#modal").classList.add("fidelity-modal", "iu-modal");
 }
@@ -527,23 +555,30 @@ function iuSubmitGrant(formEl) {
   const taken = iuGrantTaken(p);
   const orgs = f.orgs.filter((id) => !taken.includes(id));
   const note = String(new FormData(formEl).get("reason") || "").trim();
-  const error = !orgs.length ? ["Choose at least one organisation.", "#iu-org-search"] : !note ? ["Give a reason for this access. It is kept with the record.", "#iu-grant-reason"] : null;
+  const error = !orgs.length ? ["Choose at least one organization.", "#iu-org-search"] : !note ? ["Give a reason for this access. It is kept with the record.", "#iu-grant-reason"] : null;
   if (error) {
     $("#iu-form-error").textContent = error[0];
     $(error[1])?.focus();
     return;
   }
   const at = new Date().toISOString();
-  p.access.push(...orgs.map((orgId) => ({ orgId, role: f.role, source: "hand", by: "Ada Whitfield", at, note })));
+  p.access.push(...orgs.map((orgId) => ({ orgId, role: f.role, source: "hand", by: iuActor(), at, note })));
   iuSave();
   iuCloseModal();
-  toast(orgs.length === 1 ? `${p.name} added to ${iuOrgName(orgs[0])} as ${iuRole(f.role).name}` : `${p.name} added to ${iuCount(orgs.length, "organisation")} as ${iuRole(f.role).name}`);
+  toast(orgs.length === 1 ? `${p.name} added to ${iuOrgName(orgs[0])} as ${iuRole(f.role).name}` : `${p.name} added to ${iuCount(orgs.length, "organization")} as ${iuRole(f.role).name}`);
   render();
 }
 function iuSubmitRowRemove() {
   const f = state.iuForm;
   const p = iuPerson(f.id);
+  const reason = iuReason("iu-remove-reason");
+  if (!reason) {
+    $("#iu-form-error").textContent = "Give a reason for removing this access. It is kept with the record.";
+    $("#iu-remove-reason")?.focus();
+    return;
+  }
   const [a] = p.access.splice(f.index, 1);
+  p.removedAccess = [...(p.removedAccess || []), { ...a, removedBy: iuActor(), removedAt: new Date().toISOString(), reason }];
   iuSave();
   iuCloseModal();
   toast(`${p.name} no longer has access to ${iuOrgName(a.orgId)}`);
@@ -556,7 +591,7 @@ function iuCloseModal() {
 }
 
 // ---------- Deactivate ----------
-var IU_CONFIRM_WORD = "deactivate";
+var IU_CONFIRM_WORD = "DEACTIVATE";
 function iuDeactivateForm() {
   const p = iuPerson(state.iuId);
   if (!p) return;
@@ -564,15 +599,22 @@ function iuDeactivateForm() {
   openModal(
     `Deactivate ${esc(p.name)}?`,
     "",
-    `<form id="iu-deactivate-form" novalidate><p>Access stops straight away across ${esc(iuOrgTotal(p).toLowerCase())}. The record stays, so everything ${esc(p.name.split(" ")[0])} has done keeps their name. You can reactivate them later.</p><div class="field"><label for="iu-confirm-input">Type <strong>${IU_CONFIRM_WORD}</strong> to confirm</label><input id="iu-confirm-input" autocomplete="off" spellcheck="false" aria-describedby="iu-confirm-hint"><p class="hint" id="iu-confirm-hint">This stops ${esc(p.name)} signing in to the portal.</p></div></form>`,
+    `<form id="iu-deactivate-form" novalidate><p>Access stops straight away across ${esc(iuOrgTotal(p).toLowerCase())}. The record stays, so everything ${esc(p.name.split(" ")[0])} has done keeps their name. You can reactivate them later.</p>${iuReasonField("iu-deactivate-reason", "Reason for Deactivating", "For example, left SANS on Nov 7")}<div class="field"><label for="iu-confirm-input" class="type-confirm-label">Type <strong>“${IU_CONFIRM_WORD}”</strong> to confirm</label><input id="iu-confirm-input" class="type-confirm-input" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="iu-confirm-hint"><p class="hint" id="iu-confirm-hint">This stops ${esc(p.name)} signing in to the portal.</p></div></form>`,
     `<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button danger" type="submit" form="iu-deactivate-form" id="iu-confirm-button" disabled>Deactivate</button></div>`,
     "",
     true,
   );
   $("#modal").classList.add("fidelity-modal", "iu-modal", "iu-confirm-modal");
 }
+// Required free-text reason for removing access or deactivating; kept with the record.
+function iuReasonField(id, label, placeholder) {
+  return `<div class="field iu-reason-field"><label for="${id}">${label} <span class="required">*</span></label><textarea id="${id}" name="reason" rows="3" required placeholder="${esc(placeholder)}"></textarea></div>`;
+}
+function iuReason(id) {
+  return ($(`#${id}`)?.value || "").trim();
+}
 function iuConfirmMatches() {
-  return ($("#iu-confirm-input")?.value || "").trim().toLowerCase() === IU_CONFIRM_WORD;
+  return ($("#iu-confirm-input")?.value || "").trim().toUpperCase() === IU_CONFIRM_WORD;
 }
 
 // ---------- Events ----------
@@ -646,6 +688,7 @@ document.addEventListener(
       case "iu-reactivate": {
         const p = iuPerson(state.iuId);
         p.status = "active";
+        delete p.deactivation;
         iuSave();
         toast(`${p.name} reactivated. Their access is restored.`);
         render();
@@ -694,8 +737,11 @@ document.addEventListener("input", (event) => {
   } else if (el.id === "iu-org-search" && state.iuForm) {
     state.iuForm.q = el.value;
     iuPaintScope();
-  } else if (el.id === "iu-confirm-input") {
-    $("#iu-confirm-button").disabled = !iuConfirmMatches();
+  } else if (el.id === "iu-remove-reason") {
+    const error = $("#iu-form-error");
+    if (error) error.textContent = "";
+  } else if (el.id === "iu-confirm-input" || el.id === "iu-deactivate-reason") {
+    $("#iu-confirm-button").disabled = !iuConfirmMatches() || !iuReason("iu-deactivate-reason");
   }
 });
 document.addEventListener(
@@ -738,9 +784,10 @@ document.addEventListener(
     if (id === "iu-row-edit-form") return iuSubmitRowEdit(event.target);
     if (id === "iu-row-remove-form") return iuSubmitRowRemove();
     if (id === "iu-grant-form") return iuSubmitGrant(event.target);
-    if (!iuConfirmMatches()) return;
+    if (!iuConfirmMatches() || !iuReason("iu-deactivate-reason")) return;
     const p = iuPerson(state.iuId);
     p.status = "deactivated";
+    p.deactivation = { reason: iuReason("iu-deactivate-reason"), by: iuActor(), at: new Date().toISOString() };
     iuSave();
     $("#modal").close();
     state.modal = null;
@@ -749,7 +796,7 @@ document.addEventListener(
   },
   true,
 );
-// Enter in the organisation search would submit the form; keep it in the list instead.
+// Enter in the organization search would submit the form; keep it in the list instead.
 document.addEventListener(
   "keydown",
   (event) => {

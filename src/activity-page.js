@@ -1,4 +1,4 @@
-// Global Activity page: every event across the organisation, filterable and
+// Global Activity page: every event across the organization, filterable and
 // exportable. Loads last. Entries reuse the profile's entry markup.
 
 var ACTIVITY_PAGE_SIZE = 25;

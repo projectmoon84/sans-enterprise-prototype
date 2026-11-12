@@ -288,7 +288,7 @@ function directory() {
     heading(
       teams ? "Teams" : "Admin Groups",
       teams
-        ? "Organise students around the work they do."
+        ? "Organize students around the work they do."
         : "Define the organizational reach of portal access.",
       teams ? btn(icon("plus") + "Create Team", "create-team", "primary") : "",
       "Groups",
@@ -1102,7 +1102,7 @@ document.addEventListener("click", (event) => {
         state.modal = "team";
         openModal(
           "Create Team",
-          "Organise students around a shared area of work.",
+          "Organize students around a shared area of work.",
           `<form id="team-form"><div class="field"><label for="team-name">Team Name</label><input id="team-name" name="name" required placeholder="e.g. Incident Response"></div><p class="inline-error" id="team-error" role="alert"></p></form>`,
           `<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="team-form">Create Team</button></div>`,
           "",

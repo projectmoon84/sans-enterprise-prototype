@@ -153,7 +153,7 @@ function accessLine(t) {
   return `${pluralize(t.access.length, "person", "people")} can see this team`;
 }
 // Each team gets a two-letter tile in one of a few soft tints. Tints follow the order teams were created in,
-// so neighbours differ and a team keeps its colour when the list is sorted or filtered.
+// so neighbors differ and a team keeps its color when the list is sorted or filtered.
 var TEAM_TINTS = [
   ["#e2f3f7", "#00627a"],
   ["#e8ecfb", "#3843a3"],

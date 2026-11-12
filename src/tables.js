@@ -1,4 +1,4 @@
-// Table behaviour — loaded last.
+// Table behavior — loaded last.
 // 1. Name + checkbox columns are frozen while the rest scrolls sideways; the ⋮ menu column is frozen on the right.
 // 2. The header row sticks under the top bar while the page scrolls (it lives in its own table, kept in step sideways).
 // 3. Right-click a row to open its ⋮ menu at the pointer.

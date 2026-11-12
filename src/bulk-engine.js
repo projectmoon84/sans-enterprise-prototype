@@ -38,7 +38,7 @@ function coveredGroups(next, voucherIds) {
 
 const nameOf = (records, id) => records.find((item) => item.id === id)?.name;
 
-// The organisation must always keep at least one active Admin.
+// The organization must always keep at least one active Admin.
 const ADMIN_ROLES = ["Admin", "SSO Admin"];
 function isActiveAdmin(person) {
   return Boolean(person.portal) && !person.archivedAt && person.portal.status === "Active" && ADMIN_ROLES.includes(person.portal.role);
@@ -246,7 +246,7 @@ const HANDLERS = {
   },
 
   // Erasure. The person, their training records and certifications are deleted.
-  // Activity history stays (it is a record of what the organisation did), but
+  // Activity history stays (it is a record of what the organization did), but
   // everything that identifies them is replaced with "Deleted user". Cannot be undone.
   deletePermanently: {
     role: "row",
