@@ -4844,7 +4844,7 @@ aside.sidebar {
 .profile-card-head .iu-count {
   margin-left: 0;
 }
-/* Only the name column freezes here: there is no checkbox column, and the arrow column is narrow. */
+/* Only the name column freezes here: there is no checkbox column. */
 .iu-table tr > :nth-child(2),
 .iu-table tr > :last-child,
 .iu-access-table tr > *,
@@ -4863,16 +4863,15 @@ aside.sidebar {
 .iu-role-line > span:first-child {
   font-weight: 500;
 }
-.iu-open-cell {
+.iu-menu-cell {
   text-align: right;
 }
-.iu-chevron {
-  color: #61758e;
-  display: inline-flex;
+.iu-menu-cell .row-menu-anchor {
+  position: relative;
+  display: inline-block;
 }
-.iu-table tr:hover .iu-chevron,
-.iu-table tr:focus-visible .iu-chevron {
-  color: #0b6e8f;
+.iu-menu-cell .row-dropdown {
+  position: absolute;
 }
 .iu-flag {
   display: inline-flex;
@@ -4946,7 +4945,11 @@ aside.sidebar {
   padding-bottom: 8px;
 }
 .iu-access-card .profile-card-head {
-  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+.iu-head-title {
+  display: flex;
+  align-items: baseline;
   gap: 12px;
 }
 .iu-access-table {
