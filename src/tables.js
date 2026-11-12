@@ -150,25 +150,25 @@ function profileView() {
         ["Email", u.email],
         ["Role", u.role],
         ["Status", labelStatus(u.status), true],
-        ["Voucher access", u.vouchers.join(", ") || "None"],
+        ["Voucher Access", u.vouchers.join(", ") || "None"],
         ["Admin Groups", u.groups.join(", ") || "None"],
-        ["Team access", u.teams.join(", ") || "None"],
+        ["Team Access", u.teams.join(", ") || "None"],
       ]
     : [
         ["Email", u.email],
-        ["Work role", u.workRole || "—"],
+        ["Work Role", u.workRole || "—"],
         ["Status", labelStatus(u.status), true],
         ["Voucher", u.vouchers[0] || "None"],
         ["Admin Group", u.groups[0] || "Unassigned"],
         ["Team", u.teams[0] || "Unassigned"],
       ];
   if (u.accountSetup && u.status === "Pending invite")
-    rows.push(["SANS account", "Awaiting account creation"]);
-  return `<button class="back" data-action="navigate" data-view="${from}">${icon("back")}Back to ${from === "portal" ? "Portal users" : "Students"}</button>
- <div class="page-head profile-head"><div class="profile-title"><span class="profile-avatar">${esc(initial(u.name || u.email))}</span><div><p class="eyebrow">${portal ? "Portal user" : "Student"}</p><h1>${esc(u.name || u.email)}</h1><p class="muted">${esc(portal ? u.role : u.workRole || "Student")} · ${esc(u.email)}</p></div></div><div class="head-actions">${btn(icon("edit") + "Edit details", "edit-user", "", 'data-id="' + esc(u.id) + '"')}</div></div>
+    rows.push(["SANS account", "Awaiting Account Creation"]);
+  return `<button class="back" data-action="navigate" data-view="${from}">${icon("back")}Back to ${from === "portal" ? "Portal Users" : "Students"}</button>
+ <div class="page-head profile-head"><div class="profile-title"><span class="profile-avatar">${esc(initial(u.name || u.email))}</span><div><p class="eyebrow">${portal ? "Portal User" : "Student"}</p><h1>${esc(u.name || u.email)}</h1><p class="muted">${esc(portal ? u.role : u.workRole || "Student")} · ${esc(u.email)}</p></div></div><div class="head-actions">${btn(icon("edit") + "Edit Details", "edit-user", "", 'data-id="' + esc(u.id) + '"')}</div></div>
  <div class="note profile-placeholder">${icon("info")}<span>Profile page placeholder. The full profile is still to be specced. This shows the record’s current details.</span></div>
  <div class="profile-grid"><section class="card"><h2>Details</h2><dl class="profile-details">${rows.map(([l, v, html]) => `<div><dt>${l}</dt><dd>${html ? v : esc(v)}</dd></div>`).join("")}</dl></section>
- <section class="card"><h2>Roles</h2>${other ? `<p>${esc(u.name)} is also ${other.type === "student" ? "a <strong>student</strong>" : "a <strong>portal user</strong>"}.</p>${btn((other.type === "student" ? "View student profile" : "View portal user profile") + icon("arrow"), "open-profile", "", 'data-id="' + esc(other.id) + '"')}` : `<p class="muted">${portal ? "Not a student." : "Not a portal user."}</p>${btn(portal ? "Add as student" : "Invite as portal user", portal ? "add-as-student" : "invite-as-portal", "", 'data-id="' + esc(u.id) + '"')}`}</section></div>`;
+ <section class="card"><h2>Roles</h2>${other ? `<p>${esc(u.name)} is also ${other.type === "student" ? "a <strong>student</strong>" : "a <strong>portal user</strong>"}.</p>${btn((other.type === "student" ? "View Student Profile" : "View Portal User Profile") + icon("arrow"), "open-profile", "", 'data-id="' + esc(other.id) + '"')}` : `<p class="muted">${portal ? "Not a student." : "Not a portal user."}</p>${btn(portal ? "Add as Student" : "Invite as Portal User", portal ? "add-as-student" : "invite-as-portal", "", 'data-id="' + esc(u.id) + '"')}`}</section></div>`;
 }
 function openProfile(id) {
   const u = db.users.find((x) => x.id === id);
@@ -272,7 +272,7 @@ const tablesRowAttr = new MutationObserver(() =>
     if (rowId(tr) && !tr.hasAttribute("tabindex")) {
       tr.tabIndex = 0;
       tr.classList.add("clickable-row");
-      tr.title = "Open profile";
+      tr.title = "Open Profile";
     }
   }),
 );

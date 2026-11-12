@@ -174,7 +174,7 @@ const HANDLERS = {
       if (access.status === params.status) return { unchanged: true };
       if (role === "portal" && params.status === "Suspended") {
         if (person.id === next.session.actorId) return { skip: "You cannot suspend yourself" };
-        if (isLastActiveAdmin(next, person)) return { skip: "The organisation needs at least one active Admin" };
+        if (isLastActiveAdmin(next, person)) return { skip: "The organization needs at least one active Admin" };
       }
       const previous = access.status;
       const previousAccount = person.sansAccount;
@@ -213,12 +213,12 @@ const HANDLERS = {
   remove: {
     role: "row",
     once: true,
-    label: () => "removing from the organisation",
+    label: () => "removing from the organization",
     apply({ next, h, batchId }, person) {
       if (person.id === next.session.actorId)
         return { skip: "You cannot remove yourself" };
       if (isLastActiveAdmin(next, person))
-        return { skip: "The organisation needs at least one active Admin" };
+        return { skip: "The organization needs at least one active Admin" };
       person.archivedAt = h.isoNow();
       h.logEvent(next, { action: "person.archived", subjectId: person.id, batchId, via: "bulk" });
       return {};
@@ -256,7 +256,7 @@ const HANDLERS = {
       if (person.id === next.session.actorId)
         return { skip: "You cannot delete yourself" };
       if (isLastActiveAdmin(next, person))
-        return { skip: "The organisation needs at least one active Admin" };
+        return { skip: "The organization needs at least one active Admin" };
       const alias = `deleted-${h.uid().slice(0, 8)}`;
       const identifiers = [person.name, person.email].filter(Boolean);
       const scrub = (value) =>
@@ -299,7 +299,7 @@ const HANDLERS = {
       if (person.id === next.session.actorId)
         return { skip: "You cannot remove your own portal access" };
       if (isLastActiveAdmin(next, person))
-        return { skip: "The organisation needs at least one active Admin" };
+        return { skip: "The organization needs at least one active Admin" };
       const role = person.portal.role;
       delete person.portal;
       person.updatedAt = h.isoNow();
@@ -376,7 +376,7 @@ const HANDLERS = {
       if (access.role === params.role) return { unchanged: true };
       if (person.id === next.session.actorId) return { skip: "You cannot change your own role" };
       if (ADMIN_ROLES.includes(access.role) && !ADMIN_ROLES.includes(params.role) && isLastActiveAdmin(next, person))
-        return { skip: "The organisation needs at least one active Admin" };
+        return { skip: "The organization needs at least one active Admin" };
       const before = structuredClone(access);
       const proposed = { ...access, role: params.role };
       if (params.role === "Limited Admin" && access.voucherIds.length > 1) {

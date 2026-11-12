@@ -117,7 +117,7 @@ export function describeEvent(event) {
     case "person.deleted":
       return `${actor} permanently deleted a person and their data`;
     case "person.archived":
-      return `${actor} removed ${subject} from the organisation`;
+      return `${actor} removed ${subject} from the organization`;
     case "training.requested":
       return `${subject} requested ${target(event)}`;
     case "training.approved":
@@ -127,7 +127,7 @@ export function describeEvent(event) {
     case "training.withdrawn":
       return `${actor} withdrew ${subject} from ${target(event)}`;
     case "training.assigned":
-      return `${actor} enrolled ${subject} on ${target(event)}`;
+      return `${actor} enrolled ${subject} in ${target(event)}`;
     case "training.completed":
       return `${subject} completed ${target(event)}`;
     case "certification.earned":
@@ -168,7 +168,7 @@ export function dayLabel(iso, now = new Date()) {
   const days = Math.round((startOfDay(now) - startOfDay(date)) / 86400000);
   if (days === 0) return "Today";
   if (days === 1) return "Yesterday";
-  return date.toLocaleDateString("en-GB", {
+  return date.toLocaleDateString("en-US", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -176,7 +176,7 @@ export function dayLabel(iso, now = new Date()) {
 }
 
 export function timeLabel(iso) {
-  return new Date(iso).toLocaleTimeString("en-GB", {
+  return new Date(iso).toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -217,10 +217,10 @@ export function batchSummary(events, event) {
 }
 
 const FIELD_LABELS = {
-  adminGroup: "Admin group",
-  workRole: "Work role",
-  student: "Student status",
-  portal: "Portal status",
+  adminGroup: "Admin Group",
+  workRole: "Work Role",
+  student: "Student Status",
+  portal: "Portal Status",
 };
 
 export function describeChange(item) {
@@ -237,7 +237,7 @@ export function describeChange(item) {
 
 // ---------- Global activity log ----------
 export const ACTION_CATEGORIES = [
-  { key: "portal", label: "Portal access", prefixes: ["portal."] },
+  { key: "portal", label: "Portal Access", prefixes: ["portal."] },
   { key: "student", label: "Students", prefixes: ["student."] },
   { key: "person", label: "People", prefixes: ["person."] },
   { key: "training", label: "Training", prefixes: ["training.", "certification."] },

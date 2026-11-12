@@ -80,10 +80,13 @@ const icon = (name) => {
 };
 const btn = (label, action, kind = "", extra = "") =>
   `<button class="button ${kind}" data-action="${action}" ${extra}>${label}</button>`;
+// Some stored values, such as statuses, are in sentence case. Show them in the client's title case.
+const DISPLAY_LABELS = { "Pending invite": "Pending Invite", "Needs voucher": "Needs Voucher" };
+const shown = (value) => DISPLAY_LABELS[value] || value;
 const opts = (arr, value = "", blank = "Choose") =>
   `<option value="">${blank}</option>` +
   arr
-    .map((x) => `<option ${x === value ? "selected" : ""}>${esc(x)}</option>`)
+    .map((x) => `<option value="${esc(x)}" ${x === value ? "selected" : ""}>${esc(shown(x))}</option>`)
     .join("");
 let store,
   db,
@@ -143,7 +146,7 @@ function initial(name) {
     .toUpperCase();
 }
 function labelStatus(s) {
-  return `<span class="badge ${s === "Pending invite" ? "pending" : s === "Suspended" ? "suspended" : s === "Needs voucher" ? "needs-voucher" : ""}">${esc(s)}</span>`;
+  return `<span class="badge ${s === "Pending invite" ? "pending" : s === "Suspended" ? "suspended" : s === "Needs voucher" ? "needs-voucher" : ""}">${esc(shown(s))}</span>`;
 }
 function navigate(view) {
   state.view = view;
@@ -162,7 +165,7 @@ function render() {
   const focus = document.activeElement?.id,
     position = document.activeElement?.selectionStart;
   $("#app").innerHTML =
-    `<header class="topbar"><button class="icon-btn mobile-menu" data-action="mobile-menu" aria-label="Toggle navigation">${icon("menu")}</button><div class="logo" aria-label="SANS">SANS</div><span class="org">Organization name</span><div class="right"><span class="demo-label"><span class="dot"></span>Interactive prototype</span>${btn(icon("database") + "Demo data", "data")}<span class="avatar" title="Demo administrator">MS</span></div></header><aside class="sidebar" aria-label="Main navigation">${nav("Home", "home", "home")}${nav("Learning", "learning", "book")}${nav("Account & Finance", "finance", "building")}<div class="nav-divider"></div><div class="nav-section">ADMIN</div><div class="nav-btn">${icon("users")}People</div>${nav("Portal users", "portal", "", true)}${nav("Students", "students", "", true)}<div class="nav-divider"></div><div class="nav-section">GROUPS</div>${nav("Admin Groups", "groups", "grid")}${nav("Teams", "teams", "users")}<div class="sidebar-bottom">${nav("Help & Support", "help", "help")}<div class="sidebar-note">Demo environment<br>Changes stay in this browser.</div></div></aside><main class="page" id="main">${storageError ? `<div class="note warning">${icon("info")}${esc(storageError)}</div>` : ""}${content()}</main>`;
+    `<header class="topbar"><button class="icon-btn mobile-menu" data-action="mobile-menu" aria-label="Toggle navigation">${icon("menu")}</button><div class="logo" aria-label="SANS">SANS</div><span class="org">Organization Name</span><div class="right"><span class="demo-label"><span class="dot"></span>Interactive prototype</span>${btn(icon("database") + "Demo Data", "data")}<span class="avatar" title="Demo administrator">MS</span></div></header><aside class="sidebar" aria-label="Main navigation">${nav("Home", "home", "home")}${nav("Learning", "learning", "book")}${nav("Account & Finance", "finance", "building")}<div class="nav-divider"></div><div class="nav-section">ADMIN</div><div class="nav-btn">${icon("users")}People</div>${nav("Portal Users", "portal", "", true)}${nav("Students", "students", "", true)}<div class="nav-divider"></div><div class="nav-section">GROUPS</div>${nav("Admin Groups", "groups", "grid")}${nav("Teams", "teams", "users")}<div class="sidebar-bottom">${nav("Help & Support", "help", "help")}<div class="sidebar-note">Demo environment<br>Changes stay in this browser.</div></div></aside><main class="page" id="main">${storageError ? `<div class="note warning">${icon("info")}${esc(storageError)}</div>` : ""}${content()}</main>`;
   if (focus && document.getElementById(focus)) {
     const el = document.getElementById(focus);
     el.focus();
@@ -195,8 +198,8 @@ function peopleView() {
       (!state.team || u.teams.includes(state.team)),
   );
   const actions = portal
-    ? btn(icon("plus") + "Invite Portal user", "invite", "primary")
-    : `<div class="menu-anchor">${btn("Add students" + icon("chevron"), "student-menu", "primary", 'aria-expanded="' + state.menu + '"')}${state.menu ? `<div class="dropdown-menu"> <button data-action="add-student">${icon("users")} &nbsp; Individuals</button><button data-action="upload">${icon("upload")} &nbsp; Upload a CSV</button></div>` : ""}</div>`;
+    ? btn(icon("plus") + "Invite Portal User", "invite", "primary")
+    : `<div class="menu-anchor">${btn("Add Students" + icon("chevron"), "student-menu", "primary", 'aria-expanded="' + state.menu + '"')}${state.menu ? `<div class="dropdown-menu"> <button data-action="add-student">${icon("users")} &nbsp; Individuals</button><button data-action="upload">${icon("upload")} &nbsp; Upload a CSV</button></div>` : ""}</div>`;
   return (
     heading(
       portal ? "Portal Users" : "Students",
@@ -205,7 +208,7 @@ function peopleView() {
         : "Manage training records. Students do not have access to this portal.",
       actions,
     ) +
-    `<section class="card" aria-label="${portal ? "Portal users" : "Students"} list"><div class="toolbar">${btn(icon("download") + "Export CSV", "export-csv", "small")}<span class="filter-label">Filter</span>${portal ? `<select id="role-filter" data-filter="role" aria-label="Filter by role">${opts(ROLES, state.role, "All roles")}</select>` : `<select id="team-filter" data-filter="team" aria-label="Filter by team">${opts(db.teams, state.team, "All teams")}</select>`}<select id="status-filter" data-filter="status" aria-label="Filter by status">${opts(["Active", "Pending invite", "Suspended"], state.status, "All statuses")}</select><div class="search">${icon("search")}<input id="people-search" placeholder="Search name or email" aria-label="Search name or email" value="${esc(state.search)}"></div></div><div class="table-wrap"><table><thead><tr><th>Name</th>${portal ? "<th>Access</th>" : "<th>Admin Groups</th><th>Team</th>"}<th>Last modified</th><th>Status</th><th><span class="secondary">Manage</span></th></tr></thead><tbody>${users.length ? users.map((u) => `<tr><td><div class="person"><span class="initials">${esc(initial(u.name || u.email))}</span><div><div class="person-name">${esc(u.name || u.email)}</div><div class="secondary">${esc(portal ? u.role : u.workRole)}</div><div class="secondary">${esc(u.email)}</div></div></div></td>${portal ? `<td class="scope">${u.vouchers.length} ${u.vouchers.length === 1 ? "Voucher" : "Vouchers"} &bull; ${u.groups.length} Admin ${u.groups.length === 1 ? "Group" : "Groups"} &bull; ${u.teams.length} ${u.teams.length === 1 ? "Team" : "Teams"}<div class="secondary">${esc(u.groups.join(", ") || "No admin groups")}</div></td>` : `<td class="scope">${esc(u.groups.join(", ") || "Unassigned")}</td><td class="scope">${esc(u.teams.join(", ") || "Unassigned")}</td>`}<td><div>Demo administrator</div><div class="secondary">${new Date(u.updatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</div></td><td>${labelStatus(u.status)}</td><td><button class="icon-btn" data-action="edit-user" data-id="${esc(u.id)}" aria-label="Edit ${esc(u.name || u.email)}">${icon("edit")}</button></td></tr>`).join("") : `<tr><td colspan="6"><div class="empty">${icon("search")}<h2>No people found</h2><p>Try another name or clear your filters.</p>${btn("Clear filters", "clear-filters")}</div></td></tr>`}</tbody></table></div><div class="table-foot"><span>Showing ${users.length} of ${all.length} ${portal ? "portal users" : "students"}</span><span>Saved locally &bull; Demo data</span></div></section>`
+    `<section class="card" aria-label="${portal ? "Portal Users" : "Students"} list"><div class="toolbar">${btn(icon("download") + "Export CSV", "export-csv", "small")}<span class="filter-label">Filter</span>${portal ? `<select id="role-filter" data-filter="role" aria-label="Filter by role">${opts(ROLES, state.role, "All Roles")}</select>` : `<select id="team-filter" data-filter="team" aria-label="Filter by team">${opts(db.teams, state.team, "All Teams")}</select>`}<select id="status-filter" data-filter="status" aria-label="Filter by status">${opts(["Active", "Pending invite", "Suspended"], state.status, "All Statuses")}</select><div class="search">${icon("search")}<input id="people-search" placeholder="Search name or email" aria-label="Search name or email" value="${esc(state.search)}"></div></div><div class="table-wrap"><table><thead><tr><th>Name</th>${portal ? "<th>Access</th>" : "<th>Admin Groups</th><th>Team</th>"}<th>Last Modified</th><th>Status</th><th><span class="secondary">Manage</span></th></tr></thead><tbody>${users.length ? users.map((u) => `<tr><td><div class="person"><span class="initials">${esc(initial(u.name || u.email))}</span><div><div class="person-name">${esc(u.name || u.email)}</div><div class="secondary">${esc(portal ? u.role : u.workRole)}</div><div class="secondary">${esc(u.email)}</div></div></div></td>${portal ? `<td class="scope">${u.vouchers.length} ${u.vouchers.length === 1 ? "Voucher" : "Vouchers"} &bull; ${u.groups.length} Admin ${u.groups.length === 1 ? "Group" : "Groups"} &bull; ${u.teams.length} ${u.teams.length === 1 ? "Team" : "Teams"}<div class="secondary">${esc(u.groups.join(", ") || "No admin groups")}</div></td>` : `<td class="scope">${esc(u.groups.join(", ") || "Unassigned")}</td><td class="scope">${esc(u.teams.join(", ") || "Unassigned")}</td>`}<td><div>Demo administrator</div><div class="secondary">${new Date(u.updatedAt).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}</div></td><td>${labelStatus(u.status)}</td><td><button class="icon-btn" data-action="edit-user" data-id="${esc(u.id)}" aria-label="Edit ${esc(u.name || u.email)}">${icon("edit")}</button></td></tr>`).join("") : `<tr><td colspan="6"><div class="empty">${icon("search")}<h2>No People Found</h2><p>Try another name or clear your filters.</p>${btn("Clear Filters", "clear-filters")}</div></td></tr>`}</tbody></table></div><div class="table-foot"><span>Showing ${users.length} of ${all.length} ${portal ? "portal users" : "students"}</span><span>Saved locally &bull; Demo data</span></div></section>`
   );
 }
 function home() {
@@ -214,13 +217,13 @@ function home() {
   return (
     heading(
       "A clear view of your people",
-      "Manage access, organise teams, and keep training moving.",
-      btn(icon("plus") + "Invite Portal user", "invite", "primary"),
+      "Manage access, organize teams, and keep training moving.",
+      btn(icon("plus") + "Invite Portal User", "invite", "primary"),
       "Enterprise portal",
     ) +
     `<div class="stats">${[
       [
-        "Portal users",
+        "Portal Users",
         portal.length,
         "People with access to the portal",
         "users",
@@ -228,13 +231,13 @@ function home() {
       [
         "Students",
         students.length,
-        "Training records in your organisation",
+        "Training records in your organization",
         "book",
       ],
       [
-        "Pending invitations",
+        "Pending Invitations",
         db.users.filter((u) => u.status === "Pending invite").length,
-        "Awaiting acceptance",
+        "Awaiting Acceptance",
         "mail",
       ],
     ]
@@ -244,30 +247,30 @@ function home() {
       )
       .join(
         "",
-      )}</div><div class="overview-grid"><section class="card"><h2>Recent activity</h2><p class="secondary">Changes made in this demo</p>${
+      )}</div><div class="overview-grid"><section class="card"><h2>Recent Activity</h2><p class="secondary">Changes Made in This Demo</p>${
       db.events.length
         ? db.events
             .slice(0, 6)
             .map(
               (event) =>
-                `<div class="activity-row"><span class="activity-icon">${icon("clock")}</span><div>${describeEvent(event)}<p class="secondary">${new Date(event.at).toLocaleString("en-GB")}</p></div></div>`,
+                `<div class="activity-row"><span class="activity-icon">${icon("clock")}</span><div>${describeEvent(event)}<p class="secondary">${new Date(event.at).toLocaleString("en-US")}</p></div></div>`,
             )
             .join("")
-        : `<div class="empty">${icon("clock")}<h2>Your next step starts here</h2><p>Invite a portal user or add students. Changes will appear in this activity feed.</p></div>`
-    }</section><section class="card"><h2>People & access</h2>${[
+        : `<div class="empty">${icon("clock")}<h2>Your Next Step Starts Here</h2><p>Invite a portal user or add students. Changes will appear in this activity feed.</p></div>`
+    }</section><section class="card"><h2>People & Access</h2>${[
       [
-        "Manage portal users",
+        "Manage Portal Users",
         "Control who can sign in and what they can access",
         "portal",
       ],
       [
-        "Manage students",
-        "Add and organise people receiving training",
+        "Manage Students",
+        "Add and organize people receiving training",
         "students",
       ],
       [
-        "Explore teams",
-        "See how people are grouped across your organisation",
+        "Explore Teams",
+        "See how people are grouped across your organization",
         "teams",
       ],
     ]
@@ -286,8 +289,8 @@ function directory() {
       teams ? "Teams" : "Admin Groups",
       teams
         ? "Organise students around the work they do."
-        : "Define the organisational reach of portal access.",
-      teams ? btn(icon("plus") + "Create team", "create-team", "primary") : "",
+        : "Define the organizational reach of portal access.",
+      teams ? btn(icon("plus") + "Create Team", "create-team", "primary") : "",
       "Groups",
     ) +
     `<div class="directory">${items
@@ -295,7 +298,7 @@ function directory() {
         const members = db.users.filter((u) =>
           (teams ? u.teams : u.groups).includes(name),
         );
-        return `<section class="card"><div class="directory-icon">${icon(teams ? "users" : "grid")}</div><h2>${esc(name)}</h2><p>${members.filter((u) => u.type === "student").length} students &bull; ${members.filter((u) => u.type === "portal").length} portal users</p>${btn("View people" + icon("arrow"), "directory-members", "", 'data-name="' + esc(name) + '"')}</section>`;
+        return `<section class="card"><div class="directory-icon">${icon(teams ? "users" : "grid")}</div><h2>${esc(name)}</h2><p>${members.filter((u) => u.type === "student").length} students &bull; ${members.filter((u) => u.type === "portal").length} portal users</p>${btn("View People" + icon("arrow"), "directory-members", "", 'data-name="' + esc(name) + '"')}</section>`;
       })
       .join("")}</div>`
   );
@@ -304,12 +307,12 @@ function supportingView() {
   if (state.view === "help")
     return (
       heading(
-        "Make the most of this prototype",
+        "Make the Most of This Prototype",
         "A safe place to explore the admin workflows.",
         "",
-        "Help & support",
+        "Help & Support",
       ) +
-      `<section class="card"><h2>Try the main flows</h2><ol class="help-list"><li>Invite a portal user, choose a role and access, confirm, then send.</li><li>Open Students → Add students → Individuals. Add one or several students, review, and send.</li><li>Open Students → Add students → Upload a CSV. Use the sample or upload the template.</li><li>Correct invalid import rows before adding them to your mock database.</li><li>Edit a person to change their details, suspend access, or simulate invitation acceptance.</li></ol><div class="note">${icon("info")}No emails are sent. There is no connection to SANS systems. Records are saved in this browser, and each recipient of the package gets an independent demo.</div>${btn("Manage demo data", "data", "primary")}</section>`
+      `<section class="card"><h2>Try the Main Flows</h2><ol class="help-list"><li>Invite a portal user, choose a role and access, confirm, then send.</li><li>Open Students → Add students → Individuals. Add one or several students, review, and send.</li><li>Open Students → Add students → Upload a CSV. Use the sample or upload the template.</li><li>Correct invalid import rows before adding them to your mock database.</li><li>Edit a person to change their details, suspend access, or simulate invitation acceptance.</li></ol><div class="note">${icon("info")}No emails are sent. There is no connection to SANS systems. Records are saved in this browser, and each recipient of the package gets an independent demo.</div>${btn("Manage Demo Data", "data", "primary")}</section>`
     );
   const learning = state.view === "learning";
   return (
@@ -319,9 +322,9 @@ function supportingView() {
         ? "Training is managed through your student records."
         : "Demo voucher balances for stakeholder walkthroughs.",
       "",
-      learning ? "Training" : "Organisation",
+      learning ? "Training" : "Organization",
     ) +
-    `<section class="card"><h2>${learning ? "Training overview" : "Training vouchers"}</h2>${learning ? `<p class="muted">This prototype focuses on people and access. Open a student record to view their training voucher and team.</p><br>${btn("View students", "navigate", "primary", 'data-view="students"')}` : `<div class="table-wrap"><table><thead><tr><th>Voucher</th><th>Assigned students</th><th>Status</th></tr></thead><tbody>${VOUCHERS.map((v) => `<tr><td>${v}</td><td>${db.users.filter((u) => u.type === "student" && u.vouchers.includes(v)).length}</td><td>${labelStatus("Active")}</td></tr>`).join("")}</tbody></table></div>`}</section>`
+    `<section class="card"><h2>${learning ? "Training Overview" : "Training Vouchers"}</h2>${learning ? `<p class="muted">This prototype focuses on people and access. Open a student record to view their training voucher and team.</p><br>${btn("View Students", "navigate", "primary", 'data-view="students"')}` : `<div class="table-wrap"><table><thead><tr><th>Voucher</th><th>Assigned Students</th><th>Status</th></tr></thead><tbody>${VOUCHERS.map((v) => `<tr><td>${v}</td><td>${db.users.filter((u) => u.type === "student" && u.vouchers.includes(v)).length}</td><td>${labelStatus("Active")}</td></tr>`).join("")}</tbody></table></div>`}</section>`
   );
 }
 function openModal(
@@ -350,7 +353,7 @@ function closeModal() {
         "Discard this draft?",
         "These students have not been added yet.",
         `<p class="muted">Your saved student records will be kept. Only this unsent draft will be discarded.</p>`,
-        `<div class="actions">${btn("Keep editing", "keep-draft")}${btn("Discard draft", "discard-draft", "danger")}</div>`,
+        `<div class="actions">${btn("Keep Editing", "keep-draft")}${btn("Discard Draft", "discard-draft", "danger")}</div>`,
         "",
         true,
       );
@@ -398,14 +401,14 @@ function permissionCopy(role) {
         ];
 }
 function summary(p) {
-  return `<div class="summary-panel"><h3>Access summary</h3><p class="secondary">${p.role === "Viewer" ? "Read-only visibility" : p.role === "Admin" ? "Full management" : "Training administration"} within the selected area.</p><br>${[
+  return `<div class="summary-panel"><h3>Access Summary</h3><p class="secondary">${p.role === "Viewer" ? "Read-only visibility" : p.role === "Admin" ? "Full Management" : "Training Administration"} within the selected area.</p><br>${[
     ["Admin Groups", p.groups],
-    ["Voucher access", p.vouchers],
-    ["Team access", p.teams],
+    ["Voucher Access", p.vouchers],
+    ["Team Access", p.teams],
   ]
     .map(
       ([l, a]) =>
-        `<div class="summary-block"><span>${l}</span>${esc(a.join(", ") || "None selected")}</div>`,
+        `<div class="summary-block"><span>${l}</span>${esc(a.join(", ") || "None Selected")}</div>`,
     )
     .join("")}<div class="permissions"><h3>Permissions</h3>${permissionCopy(
     p.role,
@@ -421,10 +424,10 @@ function portalForm() {
   openModal(
     "Invite Portal User",
     "Choose what this person can access. They will be able to sign in to the portal.",
-    `<form id="portal-form"><div class="two-column"><div class="form-panel"><div class="field"><label for="portal-name">Full name <span class="required">*</span></label><input id="portal-name" name="name" required value="${esc(p.name)}" placeholder="e.g. Samira Khan" autocomplete="off"></div><div class="field"><label for="portal-email">Email address <span class="required">*</span></label><input id="portal-email" type="email" name="email" required value="${esc(p.email)}" placeholder="name@company.com" autocomplete="off"></div><div class="field"><label>Choose role <span class="required">*</span></label><div class="role-picker">${ROLES.map((r, i) => `<label class="role-option"><input type="radio" name="role" value="${r}" ${p.role === r ? "checked" : ""}><strong>${r}</strong><small>${["Full management in their assigned area", "Day-to-day training administration", "Read-only reporting and activity"][i]}</small></label>`).join("")}</div></div>${[
+    `<form id="portal-form"><div class="two-column"><div class="form-panel"><div class="field"><label for="portal-name">Full Name <span class="required">*</span></label><input id="portal-name" name="name" required value="${esc(p.name)}" placeholder="e.g. Samira Khan" autocomplete="off"></div><div class="field"><label for="portal-email">Email Address <span class="required">*</span></label><input id="portal-email" type="email" name="email" required value="${esc(p.email)}" placeholder="name@company.com" autocomplete="off"></div><div class="field"><label>Choose Role <span class="required">*</span></label><div class="role-picker">${ROLES.map((r, i) => `<label class="role-option"><input type="radio" name="role" value="${r}" ${p.role === r ? "checked" : ""}><strong>${r}</strong><small>${["Full management in their assigned area", "Day-to-day training administration", "Read-only reporting and activity"][i]}</small></label>`).join("")}</div></div>${[
       ["Admin Groups", "groups", db.groups],
-      ["Voucher access", "vouchers", VOUCHERS],
-      ["Team access", "teams", db.teams],
+      ["Voucher Access", "vouchers", VOUCHERS],
+      ["Team Access", "teams", db.teams],
     ]
       .map(
         ([l, n, a]) =>
@@ -433,7 +436,7 @@ function portalForm() {
       .join(
         "",
       )}<p class="inline-error" id="portal-error" role="alert"></p></div><div id="permission-preview">${summary(p)}</div></div></form>`,
-    `<span class="secondary">Demo invitation · no email will be sent</span><div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="portal-form">Review invitation</button></div>`,
+    `<span class="secondary">Demo invitation · no email will be sent</span><div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="portal-form">Review Invitation</button></div>`,
     steps("Role and Access", "Review & Send", 1),
   );
 }
@@ -460,8 +463,8 @@ function portalReview() {
       ["Email", p.email],
       ["Role", p.role],
       ["Admin Groups", p.groups.join(", ")],
-      ["Voucher access", p.vouchers.join(", ") || "None selected"],
-      ["Team access", p.teams.join(", ") || "None selected"],
+      ["Voucher Access", p.vouchers.join(", ") || "None Selected"],
+      ["Team Access", p.teams.join(", ") || "None Selected"],
     ]
       .map(
         ([l, v]) =>
@@ -470,7 +473,7 @@ function portalReview() {
       .join(
         "",
       )}</div>${summary(p)}</div><label class="check consent"><input id="send-consent" type="checkbox">I confirm this person may be granted portal access with the role and scope shown above.</label>`,
-    `<span class="secondary">An invitation will be recorded in this demo.</span><div class="actions">${btn("Back to Role and Access", "portal-back", "text")}${btn("Send invitation", "portal-send", "primary", 'id="send-button" disabled')}</div>`,
+    `<span class="secondary">An invitation will be recorded in this demo.</span><div class="actions">${btn("Back to Role and Access", "portal-back", "text")}${btn("Send Invitation", "portal-send", "primary", 'id="send-button" disabled')}</div>`,
     steps("Role and Access", "Review & Send", 2),
   );
 }
@@ -501,7 +504,7 @@ function portalSend() {
     openModal(
       "Invitation recorded",
       "",
-      `<div class="success-body"><div class="success-icon">${icon("check")}</div><h2>Invite sent</h2><p>${esc(p.name)} appears in Portal users as <strong>Pending invite</strong>.</p><p class="hint">This is a simulated invitation. No email was sent.</p></div>`,
+      `<div class="success-body"><div class="success-icon">${icon("check")}</div><h2>Invite Sent</h2><p>${esc(p.name)} appears in Portal users as <strong>Pending invite</strong>.</p><p class="hint">This is a simulated invitation. No email was sent.</p></div>`,
       `<div class="actions">${btn("Done", "finish-portal", "primary")}</div>`,
       "",
       true,
@@ -513,11 +516,11 @@ function studentForm(editIndex = null) {
   state.editing = editIndex;
   const s = editIndex === null ? {} : state.drafts[editIndex];
   openModal(
-    "Add students",
+    "Add Students",
     "Add each student and choose where their training is funded and managed.",
-    `<div class="note">${icon("info")}Students receive a simulated invitation and do not get access to this portal.</div>${state.drafts.map((d, i) => `<div class="student-draft"><span class="success-icon" style="width:26px;height:26px;margin:0">${icon("check")}</span><div class="details"><strong>${esc(d.email)}</strong><div class="secondary">${esc(d.voucher)} &bull; ${esc(d.group || "No admin group")} &bull; ${esc(d.team || "Unassigned")}</div></div><button class="icon-btn" data-action="draft-edit" data-index="${i}" aria-label="Edit ${esc(d.email)}">${icon("edit")}</button><button class="icon-btn" data-action="draft-delete" data-index="${i}" aria-label="Remove ${esc(d.email)}">${icon("trash")}</button></div>`).join("")}<form id="student-form" class="form-panel"><div class="form-grid"><div class="field"><label for="student-name">Full name <span class="required">*</span></label><input id="student-name" name="name" required value="${esc(s.name || "")}" placeholder="e.g. Alex Chen"></div><div class="field"><label for="student-email">Email address <span class="required">*</span></label><input id="student-email" name="email" type="email" required value="${esc(s.email || "")}" placeholder="name@company.com"></div><div class="field"><label for="student-voucher">Voucher <span class="required">*</span></label><select id="student-voucher" name="voucher" required>${opts(VOUCHERS, s.voucher)}</select><p class="hint">Pays for their training.</p></div><div class="field"><label for="student-group">Admin Group</label><select id="student-group" name="group">${opts(db.groups, s.group, "Leave unassigned")}</select><p class="hint">Routes approvals and requests.</p></div><div class="field"><label for="student-team">Team</label><select id="student-team" name="team">${opts(db.teams, s.team, "Leave unassigned")}</select></div><div class="field"><label for="student-work">Work role</label><input id="student-work" name="workRole" value="${esc(s.workRole || "SOC Analyst I")}"></div></div><p class="inline-error" id="student-error" role="alert"></p><div style="text-align:right"><button class="button" type="submit">${editIndex === null ? "Save student" : "Update student"}</button></div></form>`,
-    `<span class="secondary">${state.drafts.length} ${state.drafts.length === 1 ? "student" : "students"} ready to review</span><div class="actions">${btn("Cancel", "close-modal", "text")}${btn("Review students", "student-review", "primary", state.drafts.length ? "" : "disabled")}</div>`,
-    steps("Add student details", "Review & Send", 1),
+    `<div class="note">${icon("info")}Students receive a simulated invitation and do not get access to this portal.</div>${state.drafts.map((d, i) => `<div class="student-draft"><span class="success-icon" style="width:26px;height:26px;margin:0">${icon("check")}</span><div class="details"><strong>${esc(d.email)}</strong><div class="secondary">${esc(d.voucher)} &bull; ${esc(d.group || "No Admin Group")} &bull; ${esc(d.team || "Unassigned")}</div></div><button class="icon-btn" data-action="draft-edit" data-index="${i}" aria-label="Edit ${esc(d.email)}">${icon("edit")}</button><button class="icon-btn" data-action="draft-delete" data-index="${i}" aria-label="Remove ${esc(d.email)}">${icon("trash")}</button></div>`).join("")}<form id="student-form" class="form-panel"><div class="form-grid"><div class="field"><label for="student-name">Full Name <span class="required">*</span></label><input id="student-name" name="name" required value="${esc(s.name || "")}" placeholder="e.g. Alex Chen"></div><div class="field"><label for="student-email">Email Address <span class="required">*</span></label><input id="student-email" name="email" type="email" required value="${esc(s.email || "")}" placeholder="name@company.com"></div><div class="field"><label for="student-voucher">Voucher <span class="required">*</span></label><select id="student-voucher" name="voucher" required>${opts(VOUCHERS, s.voucher)}</select><p class="hint">Pays for their training.</p></div><div class="field"><label for="student-group">Admin Group</label><select id="student-group" name="group">${opts(db.groups, s.group, "Leave Unassigned")}</select><p class="hint">Routes approvals and requests.</p></div><div class="field"><label for="student-team">Team</label><select id="student-team" name="team">${opts(db.teams, s.team, "Leave Unassigned")}</select></div><div class="field"><label for="student-work">Work Role</label><input id="student-work" name="workRole" value="${esc(s.workRole || "SOC Analyst I")}"></div></div><p class="inline-error" id="student-error" role="alert"></p><div style="text-align:right"><button class="button" type="submit">${editIndex === null ? "Save Student" : "Update Student"}</button></div></form>`,
+    `<span class="secondary">${state.drafts.length} ${state.drafts.length === 1 ? "student" : "students"} ready to review</span><div class="actions">${btn("Cancel", "close-modal", "text")}${btn("Review Students", "student-review", "primary", state.drafts.length ? "" : "disabled")}</div>`,
+    steps("Add Student Details", "Review & Send", 1),
   );
 }
 function saveStudent() {
@@ -547,11 +550,11 @@ function saveStudent() {
 function studentReview() {
   state.modal = "student-review";
   openModal(
-    "Add students",
+    "Add Students",
     "Check each student before sending. You can return to make changes without losing your work.",
-    `<div class="table-wrap"><table><thead><tr><th>Name / Email</th><th>Voucher</th><th>Admin Group</th><th>Team</th><th></th></tr></thead><tbody>${state.drafts.map((d, i) => `<tr><td>${esc(d.name)}<div class="secondary">${esc(d.email)}</div></td><td class="scope">${esc(d.voucher)}</td><td>${esc(d.group || "Unassigned")}</td><td>${esc(d.team || "Unassigned")}</td><td><button class="button-link" data-action="draft-edit" data-index="${i}">Edit</button></td></tr>`).join("")}</tbody></table></div><label class="check consent"><input id="send-consent" type="checkbox">I confirm these people are employees or contractors of our organisation and may be invited for training.</label>`,
-    `<span class="secondary">${state.drafts.length} ${state.drafts.length === 1 ? "student will" : "students will"} receive a simulated invitation</span><div class="actions">${btn("Back", "student-back", "text")}${btn("Send invitations", "student-send", "primary", 'id="send-button" disabled')}</div>`,
-    steps("Add student details", "Review & Send", 2),
+    `<div class="table-wrap"><table><thead><tr><th>Name / Email</th><th>Voucher</th><th>Admin Group</th><th>Team</th><th></th></tr></thead><tbody>${state.drafts.map((d, i) => `<tr><td>${esc(d.name)}<div class="secondary">${esc(d.email)}</div></td><td class="scope">${esc(d.voucher)}</td><td>${esc(d.group || "Unassigned")}</td><td>${esc(d.team || "Unassigned")}</td><td><button class="button-link" data-action="draft-edit" data-index="${i}">Edit</button></td></tr>`).join("")}</tbody></table></div><label class="check consent"><input id="send-consent" type="checkbox">I confirm these people are employees or contractors of our organization and may be invited for training.</label>`,
+    `<span class="secondary">${state.drafts.length} ${state.drafts.length === 1 ? "student will" : "students will"} receive a simulated invitation</span><div class="actions">${btn("Back", "student-back", "text")}${btn("Send Invitations", "student-send", "primary", 'id="send-button" disabled')}</div>`,
+    steps("Add Student Details", "Review & Send", 2),
   );
 }
 function toStudentInput(d) {
@@ -588,7 +591,7 @@ function studentSend() {
       "Students added",
       "",
       `<div class="success-body"><div class="success-icon">${icon("check")}</div><h2>${count} of ${count} invitations recorded</h2><p>Your students are now listed with a Pending invite status.</p><p class="hint">No email was sent. You can simulate acceptance from a student’s edit dialog.</p></div>`,
-      `<div class="actions">${btn("View students", "finish-students", "primary")}</div>`,
+      `<div class="actions">${btn("View Students", "finish-students", "primary")}</div>`,
       "",
       true,
     );
@@ -613,10 +616,10 @@ function uploadForm(error = "") {
   state.menu = false;
   render();
   openModal(
-    "Import students via CSV",
+    "Import Students via CSV",
     "Add multiple students, review their assignments, and resolve any issues before importing.",
-    `<div class="note">${icon("info")}<div>1. <button class="button-link" data-action="csv-template">Download the CSV template</button><br>2. Add student details<br>3. Choose your file below</div></div>${error ? `<p class="inline-error" role="alert">${esc(error)}</p>` : ""}<div class="upload-zone">${icon("upload")}<label for="csv-file">Choose a CSV file</label><input type="file" id="csv-file" accept=".csv,text/csv"><p>CSV files only · up to 500 rows · 2 MB maximum</p></div><p class="hint" style="margin-top:16px">Want to walk through the flow without a file? The sample includes two valid students and two rows to correct.</p>`,
-    `<div class="actions">${btn("Cancel", "close-modal", "text")}${btn("Use sample CSV", "sample-csv", "primary")}</div>`,
+    `<div class="note">${icon("info")}<div>1. <button class="button-link" data-action="csv-template">Download the CSV Template</button><br>2. Add student details<br>3. Choose your file below</div></div>${error ? `<p class="inline-error" role="alert">${esc(error)}</p>` : ""}<div class="upload-zone">${icon("upload")}<label for="csv-file">Choose a CSV File</label><input type="file" id="csv-file" accept=".csv,text/csv"><p>CSV files only · up to 500 rows · 2 MB maximum</p></div><p class="hint" style="margin-top:16px">Want to walk through the flow without a file? The sample includes two valid students and two rows to correct.</p>`,
+    `<div class="actions">${btn("Cancel", "close-modal", "text")}${btn("Use Sample CSV", "sample-csv", "primary")}</div>`,
   );
 }
 function stageCSV(text, name) {
@@ -628,7 +631,7 @@ function stageCSV(text, name) {
   }
   state.modal = "uploading";
   openModal(
-    "Import students via CSV",
+    "Import Students via CSV",
     "Checking student records and assignments.",
     `<div class="file-row">${icon("upload")}<div style="flex:1"><strong>${esc(name)}</strong><p class="hint">${state.staged.length} records found</p><div class="progress-track"><div></div></div></div></div>`,
   );
@@ -649,7 +652,7 @@ function importView() {
     `<button class="back" data-action="import-cancel">${icon("back")}Back to Students</button>` +
     heading(
       "Review Students",
-      "Check the imported details before adding people to your organisation.",
+      "Check the imported details before adding people to your organization.",
       btn(
         `Add ${valid} valid ${valid === 1 ? "student" : "students"}`,
         "import-commit",
@@ -658,14 +661,14 @@ function importView() {
       ),
       "CSV import",
     ) +
-    `<section class="card">${invalid.length ? `<div class="note warning">${icon("info")}<div><strong>${invalid.length} ${invalid.length === 1 ? "row needs" : "rows need"} attention</strong><p>Correct the highlighted records using Edit. You can also import valid rows now and keep working on the remaining rows.</p></div></div>` : `<div class="note success">${icon("check")}All ${valid} students are ready to add.</div>`}<div class="table-wrap"><table><thead><tr><th>Name / Email</th><th>Work role</th><th>Voucher</th><th>Admin Group / Team</th><th>Status</th><th>Manage</th></tr></thead><tbody>${state.staged
+    `<section class="card">${invalid.length ? `<div class="note warning">${icon("info")}<div><strong>${invalid.length} ${invalid.length === 1 ? "row needs" : "rows need"} attention</strong><p>Correct the highlighted records using Edit. You can also import valid rows now and keep working on the remaining rows.</p></div></div>` : `<div class="note success">${icon("check")}All ${valid} students are ready to add.</div>`}<div class="table-wrap"><table><thead><tr><th>Name / Email</th><th>Work Role</th><th>Voucher</th><th>Admin Group / Team</th><th>Status</th><th>Manage</th></tr></thead><tbody>${state.staged
       .map((r, i) => {
         const e = importErrors(r);
-        return `<tr><td><div class="person-name">${esc(r.name || "Name not provided")}</div><span class="secondary">${esc(r.email)}</span></td><td>${esc(r.workRole)}</td><td class="scope">${esc(r.voucher || "Not assigned")}</td><td class="scope">${esc(r.group || "Unassigned")}<div class="secondary">${esc(r.team || "No team")}</div></td><td>${e.length ? `<div class="row-error">${e.map(esc).join("<br>")}</div>` : '<span class="badge">Ready</span>'}</td><td><div class="table-row-actions"><button class="icon-btn" data-action="edit-import" data-index="${i}" aria-label="Edit import row ${i + 1}">${icon("edit")}</button><button class="icon-btn" data-action="remove-import" data-index="${i}" aria-label="Remove import row ${i + 1}">${icon("trash")}</button></div></td></tr>`;
+        return `<tr><td><div class="person-name">${esc(r.name || "Name not provided")}</div><span class="secondary">${esc(r.email)}</span></td><td>${esc(r.workRole)}</td><td class="scope">${esc(r.voucher || "Not Assigned")}</td><td class="scope">${esc(r.group || "Unassigned")}<div class="secondary">${esc(r.team || "No Team")}</div></td><td>${e.length ? `<div class="row-error">${e.map(esc).join("<br>")}</div>` : '<span class="badge">Ready</span>'}</td><td><div class="table-row-actions"><button class="icon-btn" data-action="edit-import" data-index="${i}" aria-label="Edit import row ${i + 1}">${icon("edit")}</button><button class="icon-btn" data-action="remove-import" data-index="${i}" aria-label="Remove import row ${i + 1}">${icon("trash")}</button></div></td></tr>`;
       })
       .join(
         "",
-      )}</tbody></table></div><div class="table-foot"><span>${valid} ready &bull; ${invalid.length} to correct &bull; ${state.staged.length} total</span>${btn("Cancel import", "import-cancel", "text small")}</div></section>`
+      )}</tbody></table></div><div class="table-foot"><span>${valid} ready &bull; ${invalid.length} to correct &bull; ${state.staged.length} total</span>${btn("Cancel Import", "import-cancel", "text small")}</div></section>`
   );
 }
 function editForm(id, index = null) {
@@ -678,13 +681,13 @@ function editForm(id, index = null) {
     portal = u.type === "portal";
   openModal(
     isImport
-      ? "Correct student details"
-      : "Edit " + (portal ? "portal user" : "student"),
+      ? "Correct Student Details"
+      : "Edit " + (portal ? "Portal User" : "Student"),
     isImport
       ? "Fix the record before adding it to your mock database."
       : "Changes are saved to the mock database in this browser.",
-    `<form id="edit-form"><div class="form-grid"><div class="field"><label for="edit-name">Full name <span class="required">*</span></label><input id="edit-name" name="name" required value="${esc(u.name)}"></div><div class="field"><label for="edit-email">Email address <span class="required">*</span></label><input id="edit-email" type="email" name="email" required value="${esc(u.email)}"></div>${portal ? `<div class="field"><label for="edit-role">Role</label><select id="edit-role" name="role">${opts(u.role === "SSO Admin" ? [...ROLES, "SSO Admin"] : ROLES, u.role)}</select></div>` : `<div class="field"><label for="edit-voucher">Voucher <span class="required">*</span></label><select id="edit-voucher" name="voucher" required>${opts(VOUCHERS, isImport ? u.voucher : u.vouchers[0])}</select></div><div class="field"><label for="edit-work">Work role</label><input id="edit-work" name="workRole" value="${esc(u.workRole)}"></div>`}${portal ? `<div class="field"><label>Admin Groups</label>${choices("groups", db.groups, u.groups)}</div><div class="field"><label>Teams</label>${choices("teams", db.teams, u.teams)}</div><div class="field"><label>Voucher access</label>${choices("vouchers", VOUCHERS, u.vouchers)}</div>` : `<div class="field"><label for="edit-group">Admin Group</label><select id="edit-group" name="group">${opts(db.groups, isImport ? u.group : u.groups[0], "Leave unassigned")}</select></div><div class="field"><label for="edit-team">Team</label><select id="edit-team" name="team">${opts(db.teams, isImport ? u.team : u.teams[0], "Leave unassigned")}</select></div>`}${!isImport ? `<div class="field"><label for="edit-status">Status</label><select id="edit-status" name="status">${opts(["Active", "Pending invite", "Suspended"], u.status)}</select><p class="hint">Choose Active to simulate accepting an invitation.</p></div>` : ""}</div><p class="inline-error" id="edit-error" role="alert"></p></form>`,
-    `${!isImport ? btn(icon("trash") + "Remove…", "delete-user", "danger", 'data-id="' + esc(u.id) + '"') : ""}<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="edit-form">Save changes</button></div>`,
+    `<form id="edit-form"><div class="form-grid"><div class="field"><label for="edit-name">Full Name <span class="required">*</span></label><input id="edit-name" name="name" required value="${esc(u.name)}"></div><div class="field"><label for="edit-email">Email Address <span class="required">*</span></label><input id="edit-email" type="email" name="email" required value="${esc(u.email)}"></div>${portal ? `<div class="field"><label for="edit-role">Role</label><select id="edit-role" name="role">${opts(u.role === "SSO Admin" ? [...ROLES, "SSO Admin"] : ROLES, u.role)}</select></div>` : `<div class="field"><label for="edit-voucher">Voucher <span class="required">*</span></label><select id="edit-voucher" name="voucher" required>${opts(VOUCHERS, isImport ? u.voucher : u.vouchers[0])}</select></div><div class="field"><label for="edit-work">Work Role</label><input id="edit-work" name="workRole" value="${esc(u.workRole)}"></div>`}${portal ? `<div class="field"><label>Admin Groups</label>${choices("groups", db.groups, u.groups)}</div><div class="field"><label>Teams</label>${choices("teams", db.teams, u.teams)}</div><div class="field"><label>Voucher Access</label>${choices("vouchers", VOUCHERS, u.vouchers)}</div>` : `<div class="field"><label for="edit-group">Admin Group</label><select id="edit-group" name="group">${opts(db.groups, isImport ? u.group : u.groups[0], "Leave Unassigned")}</select></div><div class="field"><label for="edit-team">Team</label><select id="edit-team" name="team">${opts(db.teams, isImport ? u.team : u.teams[0], "Leave Unassigned")}</select></div>`}${!isImport ? `<div class="field"><label for="edit-status">Status</label><select id="edit-status" name="status">${opts(["Active", "Pending invite", "Suspended"], u.status)}</select><p class="hint">Choose Active to simulate accepting an invitation.</p></div>` : ""}</div><p class="inline-error" id="edit-error" role="alert"></p></form>`,
+    `${!isImport ? btn(icon("trash") + "Remove…", "delete-user", "danger", 'data-id="' + esc(u.id) + '"') : ""}<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="edit-form">Save Changes</button></div>`,
   );
 }
 function saveEdit() {
@@ -786,9 +789,9 @@ function importCommit() {
 function dataModal() {
   state.modal = "data";
   openModal(
-    "Demo data",
+    "Demo Data",
     "Your own resettable dataset, stored in this browser.",
-    `<div class="note">${icon("database")}This package runs locally. Each person has a separate copy of the mock data. Export a snapshot to share an exact dataset with someone else.</div><div class="data-grid"><div><strong>${db.users.filter((u) => u.type === "portal").length}</strong>Portal users</div><div><strong>${db.users.filter((u) => u.type === "student").length}</strong>Students</div><div><strong>${db.teams.length}</strong>Teams</div></div><div class="data-actions">${btn(icon("download") + "Export database snapshot", "export-db")}<label class="button" for="db-file">${icon("upload")}Import database snapshot<input hidden type="file" id="db-file" accept=".json,application/json"></label>${btn(icon("refresh") + "Reset to original demo data", "reset-db", "danger")}</div><p class="hint">Demo records only. Browser storage is not an authenticated production database.</p>`,
+    `<div class="note">${icon("database")}This package runs locally. Each person has a separate copy of the mock data. Export a snapshot to share an exact dataset with someone else.</div><div class="data-grid"><div><strong>${db.users.filter((u) => u.type === "portal").length}</strong>Portal Users</div><div><strong>${db.users.filter((u) => u.type === "student").length}</strong>Students</div><div><strong>${db.teams.length}</strong>Teams</div></div><div class="data-actions">${btn(icon("download") + "Export Database Snapshot", "export-db")}<label class="button" for="db-file">${icon("upload")}Import database snapshot<input hidden type="file" id="db-file" accept=".json,application/json"></label>${btn(icon("refresh") + "Reset to original demo data", "reset-db", "danger")}</div><p class="hint">Demo records only. Browser storage is not an authenticated production database.</p>`,
     `<div class="actions">${btn("Done", "close-modal", "primary")}</div>`,
     "",
     true,
@@ -877,7 +880,7 @@ document.addEventListener("change", async (e) => {
         "Replace your demo database?",
         "This replaces the data saved in this browser.",
         `<p class="muted">The snapshot contains ${imported.people.length} people and ${imported.teams.length} teams. Export your current database first if you want to keep it.</p>`,
-        `<div class="actions">${btn("Cancel", "data")}${btn("Replace database", "confirm-import-db", "primary")}</div>`,
+        `<div class="actions">${btn("Cancel", "data")}${btn("Replace Database", "confirm-import-db", "primary")}</div>`,
         "",
         true,
       );
@@ -986,7 +989,7 @@ document.addEventListener("click", (event) => {
           "Cancel this import?",
           "These rows have not yet been added.",
           `<p class="muted">Any students you already imported will remain in the database.</p>`,
-          `<div class="actions">${btn("Keep reviewing", "close-modal")}${btn("Cancel import", "confirm-cancel-import", "danger")}</div>`,
+          `<div class="actions">${btn("Keep Reviewing", "close-modal")}${btn("Cancel Import", "confirm-cancel-import", "danger")}</div>`,
           "",
           true,
         );
@@ -1007,7 +1010,7 @@ document.addEventListener("click", (event) => {
           "Delete this demo record?",
           u.name,
           `<p class="muted">This removes ${esc(u.email)} from your local mock database. You can restore the original sample data using Demo data → Reset.</p>`,
-          `<div class="actions">${btn("Cancel", "edit-user", "", 'data-id="' + esc(id) + '"')}${btn("Delete record", "confirm-delete", "danger", 'data-id="' + esc(id) + '"')}</div>`,
+          `<div class="actions">${btn("Cancel", "edit-user", "", 'data-id="' + esc(id) + '"')}${btn("Delete Record", "confirm-delete", "danger", 'data-id="' + esc(id) + '"')}</div>`,
           "",
           true,
         );
@@ -1050,7 +1053,7 @@ document.addEventListener("click", (event) => {
           "Reset the demo database?",
           "Return to the original demo portal users and students.",
           `<p class="muted">This clears records and activity you added in this browser. Export a snapshot first if you want to keep them.</p>`,
-          `<div class="actions">${btn("Cancel", "data")}${btn("Reset demo data", "confirm-reset", "danger")}</div>`,
+          `<div class="actions">${btn("Cancel", "data")}${btn("Reset Demo Data", "confirm-reset", "danger")}</div>`,
           "",
           true,
         );
@@ -1098,10 +1101,10 @@ document.addEventListener("click", (event) => {
       case "create-team":
         state.modal = "team";
         openModal(
-          "Create team",
+          "Create Team",
           "Organise students around a shared area of work.",
-          `<form id="team-form"><div class="field"><label for="team-name">Team name</label><input id="team-name" name="name" required placeholder="e.g. Incident Response"></div><p class="inline-error" id="team-error" role="alert"></p></form>`,
-          `<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="team-form">Create team</button></div>`,
+          `<form id="team-form"><div class="field"><label for="team-name">Team Name</label><input id="team-name" name="name" required placeholder="e.g. Incident Response"></div><p class="inline-error" id="team-error" role="alert"></p></form>`,
+          `<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="team-form">Create Team</button></div>`,
           "",
           true,
         );
@@ -1122,7 +1125,7 @@ document.addEventListener("click", (event) => {
                     `<div class="student-draft"><span class="initials">${esc(initial(u.name))}</span><div class="details"><strong>${esc(u.name)}</strong><p class="secondary">${esc(u.email)} &bull; ${u.type === "portal" ? esc(u.role) : "Student"}</p></div>${labelStatus(u.status)}</div>`,
                 )
                 .join("")
-            : '<div class="empty"><h2>No people assigned yet</h2><p>Edit a person to assign them to this group.</p></div>',
+            : '<div class="empty"><h2>No People Assigned Yet</h2><p>Edit a person to assign them to this group.</p></div>',
           `<div class="actions">${btn("Done", "close-modal", "primary")}</div>`,
         );
         break;

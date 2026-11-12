@@ -70,7 +70,7 @@ test("assigning a course funds it from the student's voucher and logs an event",
   const event = after.events[0];
   assert.equal(event.action, "training.assigned");
   assert.equal(event.subjectId, student.id);
-  assert.match(describeEvent(event), /enrolled .* on ICS410/);
+  assert.match(describeEvent(event), /enrolled .* in ICS410/);
 });
 
 test("the same course cannot be assigned twice while current, but can be retaken after withdrawing", () => {

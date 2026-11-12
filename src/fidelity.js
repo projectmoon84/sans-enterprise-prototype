@@ -44,19 +44,19 @@ const csvIcon = () =>
 const termLink =
   '<button type="button" class="button-link" data-action="terms">terms and conditions</button>';
 const metaDate = (iso) =>
-  new Date(iso).toLocaleDateString("en-GB", {
+  new Date(iso).toLocaleDateString("en-US", {
     day: "numeric",
     month: "short",
     year: "numeric",
   });
-// "Last modified by" is read from the newest activity event for the person.
+// "Last Modified By" is read from the newest activity event for the person.
 const metaFor = (u) => ({
-  name: u.lastModifiedBy || "No changes yet",
+  name: u.lastModifiedBy || "No Changes Yet",
   detail: u.lastModifiedAt
     ? `${u.lastModifiedRole ? `Portal ${u.lastModifiedRole} · ` : ""}${metaDate(u.lastModifiedAt)}`
     : "",
   last:
-    u.lastAccess || (u.status === "Pending invite" ? "Just invited" : "Today"),
+    u.lastAccess || (u.status === "Pending invite" ? "Just Invited" : "Today"),
   ...u.meta,
 });
 function chooseLabel(items, current, placeholder) {
@@ -69,15 +69,15 @@ function checkRow(id, checked, label) {
   return `<input class="row-check" type="checkbox" data-select="${esc(id)}" aria-label="${esc(label)}" ${checked ? "checked" : ""}>`;
 }
 function rowActions(u) {
-  return `<div class="menu-anchor row-menu-anchor" data-spec="people.row-menu" data-spec-label="Row menu"><button class="icon-btn kebab" aria-label="Actions for ${esc(u.name || u.email)}" aria-expanded="${state.rowMenu === u.id}" data-action="row-menu" data-id="${esc(u.id)}">${menuIcon()}</button>${state.rowMenu === u.id ? `<div class="dropdown-menu row-dropdown">${btn("Edit details", "edit-user", "", 'data-id="' + esc(u.id) + '"')}${u.status === "Pending invite" ? btn("Resend invitation", "resend-user", "", 'data-id="' + esc(u.id) + '"') : btn(u.status === "Suspended" ? "Activate user" : "Suspend user", "set-user-status", "", 'data-id="' + esc(u.id) + '" data-status="' + (u.status === "Suspended" ? "Active" : "Suspended") + '"')}${roleShortcut(u)}${btn("Remove…", "delete-user", "danger", 'data-id="' + esc(u.id) + '"')}</div>` : ""}</div>`;
+  return `<div class="menu-anchor row-menu-anchor" data-spec="people.row-menu" data-spec-label="Row menu"><button class="icon-btn kebab" aria-label="Actions for ${esc(u.name || u.email)}" aria-expanded="${state.rowMenu === u.id}" data-action="row-menu" data-id="${esc(u.id)}">${menuIcon()}</button>${state.rowMenu === u.id ? `<div class="dropdown-menu row-dropdown">${btn("Edit Details", "edit-user", "", 'data-id="' + esc(u.id) + '"')}${u.status === "Pending invite" ? btn("Resend Invitation", "resend-user", "", 'data-id="' + esc(u.id) + '"') : btn(u.status === "Suspended" ? "Activate User" : "Suspend User", "set-user-status", "", 'data-id="' + esc(u.id) + '" data-status="' + (u.status === "Suspended" ? "Active" : "Suspended") + '"')}${roleShortcut(u)}${btn("Remove…", "delete-user", "danger", 'data-id="' + esc(u.id) + '"')}</div>` : ""}</div>`;
 }
 function actionsMenu(imported = false) {
   const n = state.selected.length;
-  return `<div class="menu-anchor">${btn("Actions" + icon("chevron"), "toggle-actions", "", 'aria-expanded="' + state.actionsOpen + '"')}${state.actionsOpen ? `<div class="dropdown-menu actions-dropdown">${btn("Export CSV", "export-csv")}${imported ? `${btn("Assign voucher", "bulk-picker", "", 'data-kind="voucher" ' + (!n ? "disabled" : ""))}${btn("Assign admin group", "bulk-picker", "", 'data-kind="group" ' + (!n ? "disabled" : ""))}${btn("Assign team", "bulk-picker", "", 'data-kind="team" ' + (!n ? "disabled" : ""))}${btn("Remove selected rows", "remove-selected-import", "danger", !n ? "disabled" : "")}` : `${btn("Activate selected", "bulk-status", "", 'data-status="Active" ' + (!n ? "disabled" : ""))}${btn("Suspend selected", "bulk-status", "", 'data-status="Suspended" ' + (!n ? "disabled" : ""))}${btn("Resend invitations", "bulk-resend", "", !n ? "disabled" : "")}${btn("Delete selected", "bulk-delete", "danger", !n ? "disabled" : "")}`}</div>` : ""}</div>`;
+  return `<div class="menu-anchor">${btn("Actions" + icon("chevron"), "toggle-actions", "", 'aria-expanded="' + state.actionsOpen + '"')}${state.actionsOpen ? `<div class="dropdown-menu actions-dropdown">${btn("Export CSV", "export-csv")}${imported ? `${btn("Assign Voucher", "bulk-picker", "", 'data-kind="voucher" ' + (!n ? "disabled" : ""))}${btn("Assign Admin Group", "bulk-picker", "", 'data-kind="group" ' + (!n ? "disabled" : ""))}${btn("Assign Team", "bulk-picker", "", 'data-kind="team" ' + (!n ? "disabled" : ""))}${btn("Remove Selected Rows", "remove-selected-import", "danger", !n ? "disabled" : "")}` : `${btn("Activate Selected", "bulk-status", "", 'data-status="Active" ' + (!n ? "disabled" : ""))}${btn("Suspend Selected", "bulk-status", "", 'data-status="Suspended" ' + (!n ? "disabled" : ""))}${btn("Resend Invitations", "bulk-resend", "", !n ? "disabled" : "")}${btn("Delete Selected", "bulk-delete", "danger", !n ? "disabled" : "")}`}</div>` : ""}</div>`;
 }
 function toolbar(imported = false) {
   const portal = state.view === "portal";
-  return `<div class="toolbar fidelity-toolbar" data-spec="people.toolbar" data-spec-label="Filters, search and Actions">${actionsMenu(imported)}<span class="filter-label">Filter</span>${portal ? filterSelect("role", [...ROLES, "SSO Admin"], state.role, "Role") : `${filterSelect("voucher", VOUCHERS, state.voucher, "Voucher")}${filterSelect("group", db.groups, state.group, "Admin Group")}${filterSelect("team", db.teams, state.team, "Team")}`}${portal || imported ? filterSelect("status", imported ? ["Ready", "Needs attention", "Added"] : ["Active", "Pending invite", "Suspended"], state.status, "Status") : ""}<div class="search">${icon("search")}<input id="people-search" placeholder="Search name or email" aria-label="Search name or email" value="${esc(state.search)}"></div>${state.selected.length ? `<span class="selection-count">${state.selected.length} selected</span>` : ""}</div>`;
+  return `<div class="toolbar fidelity-toolbar" data-spec="people.toolbar" data-spec-label="Filters, search and Actions">${actionsMenu(imported)}<span class="filter-label">Filter</span>${portal ? filterSelect("role", [...ROLES, "SSO Admin"], state.role, "Role") : `${filterSelect("voucher", VOUCHERS, state.voucher, "Voucher")}${filterSelect("group", db.groups, state.group, "Admin Group")}${filterSelect("team", db.teams, state.team, "Team")}`}${portal || imported ? filterSelect("status", imported ? ["Ready", "Needs Attention", "Added"] : ["Active", "Pending invite", "Suspended"], state.status, "Status") : ""}<div class="search">${icon("search")}<input id="people-search" placeholder="Search name or email" aria-label="Search name or email" value="${esc(state.search)}"></div>${state.selected.length ? `<span class="selection-count">${state.selected.length} selected</span>` : ""}</div>`;
 }
 function matchesFilters(u, imported = false) {
   const groups = imported ? (u.group ? [u.group] : []) : u.groups;
@@ -87,7 +87,7 @@ function matchesFilters(u, imported = false) {
     ? u.saved
       ? "Added"
       : importErrors(u).length
-        ? "Needs attention"
+        ? "Needs Attention"
         : "Ready"
     : u.status;
   return (
@@ -134,10 +134,42 @@ function signedInPortalUser() {
     ) || db.users.find((user) => user.type === "portal")
   );
 }
+// SANS staff who look after customer organizations. They are not people in this organization, so they
+// live outside the database; who is signed in is remembered in this browser. Only SANS staff see the
+// SANS Administration section of the sidebar.
+const SANS_STAFF = [
+  { id: "sans-morgan-hale", name: "Morgan Hale", role: "SANS Administrator" },
+  { id: "sans-jordan-ellis", name: "Jordan Ellis", role: "SANS Administrator" },
+];
+const SANS_VIEWS = ["customer-organizations", "internal-users", "dashboard-configuration"];
+const SANS_STAFF_KEY = "sans-enterprise-staff-session";
+state.sansStaffId = (() => {
+  try {
+    const id = localStorage.getItem(SANS_STAFF_KEY);
+    return SANS_STAFF.some((staff) => staff.id === id) ? id : null;
+  } catch {
+    return null;
+  }
+})();
+function signedInSansStaff() {
+  return SANS_STAFF.find((staff) => staff.id === state.sansStaffId) || null;
+}
+function setSansStaff(id) {
+  state.sansStaffId = id;
+  try {
+    if (id) localStorage.setItem(SANS_STAFF_KEY, id);
+    else localStorage.removeItem(SANS_STAFF_KEY);
+  } catch {}
+}
+function signedInName() {
+  return signedInSansStaff()?.name || signedInPortalUser()?.name || "Portal User";
+}
 function profileMenuContents() {
+  const staff = signedInSansStaff();
   const actor = signedInPortalUser();
+  const current = staff || actor;
   const users = db.users.filter((user) => user.type === "portal");
-  return `<div class="profile-menu-current"><span class="secondary">Signed in as</span><strong>${esc(actor?.name || "Portal user")}</strong><span class="secondary">${esc(actor?.role || "")}</span></div><div class="dropdown-divider"></div><span class="dropdown-label">Sign in as…</span>${users.map((user) => `<button data-action="sign-in-as" data-person-id="${esc(user.personId)}" ${user.personId === actor?.personId ? 'aria-current="true"' : ""}>${esc(user.name)}<span class="secondary">${esc(user.role)}</span></button>`).join("")}<div class="dropdown-divider"></div>${btn(icon("database") + "Demo data", "data")}${btn("Use sample CSV", "demo-sample")}${btn("About this prototype", "navigate", "", 'data-view="help"')}`;
+  return `<div class="profile-menu-current"><span class="secondary">Signed In As</span><strong>${esc(current?.name || "Portal User")}</strong><span class="secondary">${esc(current?.role || "")}</span></div><div class="dropdown-divider"></div><span class="dropdown-label">Organization Users</span>${users.map((user) => `<button data-action="sign-in-as" data-person-id="${esc(user.personId)}" ${!staff && user.personId === actor?.personId ? 'aria-current="true"' : ""}>${esc(user.name)}<span class="secondary">${esc(user.role)}</span></button>`).join("")}<div class="dropdown-divider"></div><span class="dropdown-label">SANS Staff</span>${SANS_STAFF.map((member) => `<button data-action="sign-in-as-sans" data-staff-id="${esc(member.id)}" ${member.id === staff?.id ? 'aria-current="true"' : ""}>${esc(member.name)}<span class="secondary">${esc(member.role)}</span></button>`).join("")}<div class="dropdown-divider"></div>${btn(icon("database") + "Demo Data", "data")}${btn("Use Sample CSV", "demo-sample")}${btn("About This Prototype", "navigate", "", 'data-view="help"')}`;
 }
 // ---------- Sidebar (Figma 3195:27193) ----------
 // Parent groups start closed; people open the ones they want. A closed group that holds the current page is
@@ -167,12 +199,12 @@ function sideGroup(key) {
   return `<div class="nav-group"><button class="nav-btn nav-parent${!open && holdsCurrent ? " active" : ""}" data-action="toggle-nav-group" data-group="${key}" aria-expanded="${open}" aria-controls="nav-group-${key}">${icon(group.icon)}<span class="nav-label">${group.label}</span>${icon("chevron")}</button><div class="nav-children-wrap" id="nav-group-${key}" data-open="${open}"${open ? "" : " inert"}><div class="nav-children">${group.children.map(([label, view]) => sideLink(label, view, "", open)).join("")}</div></div></div>`;
 }
 function sidebarNav() {
-  return `<div class="nav-main">${sideLink("Home", "home", "home")}${sideGroup("learner")}${sideGroup("training")}${sideGroup("finance")}<div class="nav-divider"></div><div class="nav-section">Your Organization</div>${sideGroup("people")}${sideGroup("groups")}${sideLink("Activity", "activity", "schedule")}<div class="nav-divider"></div><div class="nav-section nav-section-split"><span>SANS Administration</span><span class="nav-section-note">Internal Only</span></div>${sideLink("Customer Organizations", "customer-organizations", "groups")}${sideLink("Internal Users", "internal-users", "person")}${sideLink("Default Dashboard Configuration", "dashboard-configuration", "insights")}</div><div class="nav-foot"><div class="nav-divider"></div>${sideLink("Help & Support", "help", "help")}</div>`;
+  return `<div class="nav-main">${sideLink("Home", "home", "home")}${sideGroup("learner")}${sideGroup("training")}${sideGroup("finance")}<div class="nav-divider"></div><div class="nav-section">Your Organization</div>${sideGroup("people")}${sideGroup("groups")}${sideLink("Activity", "activity", "schedule")}${signedInSansStaff() ? `<div class="nav-divider"></div><div class="nav-section nav-section-split"><span>SANS Administration</span><span class="nav-section-note">Internal Only</span></div>${sideLink("Customer Organizations", "customer-organizations", "groups")}${sideLink("Internal Users", "internal-users", "person")}${sideLink("Default Dashboard Configuration", "dashboard-configuration", "insights")}` : ""}</div><div class="nav-foot"><div class="nav-divider"></div>${sideLink("Help & Support", "help", "help")}</div>`;
 }
 // Pages the new navigation names but the prototype does not cover yet. Home, Spend and Admin Groups had
 // earlier stand-in screens; they are blank here until their designs are ready.
 const PLANNED_VIEWS = {
-  home: ["Home", "Home", "Your organization's training at a glance."],
+  home: ["Home", "Home", "Your Organization's training at a glance."],
   finance: ["Spend", "Finance", "See how your organization's training budget is being used."],
   groups: ["Admin Groups", "Your Organization", "Manage the Admin Groups that vouchers cover."],
   "training-progress": ["Training Progress", "Learner Activity", "See how students are moving through their courses."],
@@ -183,6 +215,7 @@ const PLANNED_VIEWS = {
 };
 const navBaseContent = content;
 content = function () {
+  if (SANS_VIEWS.includes(state.view) && !signedInSansStaff()) state.view = "home";
   const planned = PLANNED_VIEWS[state.view];
   if (!planned) return navBaseContent();
   const [title, area, description] = planned;
@@ -192,7 +225,7 @@ render = function () {
   const focus = document.activeElement?.id,
     position = document.activeElement?.selectionStart;
   $("#app").innerHTML =
-    `<header class="topbar"><button class="icon-btn mobile-menu" data-action="mobile-menu" aria-label="Toggle navigation">${icon("menu")}</button><div class="logo" aria-label="SANS">${SANS_LOGO}</div><span class="org">Organization name</span><div class="right"><div class="menu-anchor"><button class="profile-button" data-action="profile-menu" aria-label="Open profile and demo tools" aria-expanded="${state.profileOpen}"><span class="avatar">${esc(initial(signedInPortalUser()?.name || "Portal user"))}</span>${icon("chevron")}</button>${state.profileOpen ? `<div class="dropdown-menu profile-dropdown">${profileMenuContents()}</div>` : ""}</div></div></header><aside class="sidebar" aria-label="Main navigation" data-spec="nav.sidebar" data-spec-label="Sidebar navigation">${sidebarNav()}</aside><main class="page view-${state.view}" id="main">${storageError ? `<div class="note warning">${icon("info")}${esc(storageError)}</div>` : ""}${content()}</main>`;
+    `<header class="topbar"><button class="icon-btn mobile-menu" data-action="mobile-menu" aria-label="Toggle navigation">${icon("menu")}</button><div class="logo" aria-label="SANS">${SANS_LOGO}</div><span class="org">Organization Name</span><div class="right"><div class="menu-anchor"><button class="profile-button" data-action="profile-menu" aria-label="Open profile and demo tools" aria-expanded="${state.profileOpen}"><span class="avatar">${esc(initial(signedInName()))}</span>${icon("chevron")}</button>${state.profileOpen ? `<div class="dropdown-menu profile-dropdown">${profileMenuContents()}</div>` : ""}</div></div></header><aside class="sidebar" aria-label="Main navigation" data-spec="nav.sidebar" data-spec-label="Sidebar navigation">${sidebarNav()}</aside><main class="page view-${state.view}" id="main">${storageError ? `<div class="note warning">${icon("info")}${esc(storageError)}</div>` : ""}${content()}</main>`;
   if (focus && document.getElementById(focus)) {
     const el = document.getElementById(focus);
     el.focus();
@@ -209,18 +242,18 @@ peopleView = function () {
   const all = db.users.filter((u) => u.type === type),
     users = ordered(all.filter((u) => matchesFilters(u)));
   const actions = portal
-    ? btn(icon("plus") + "Invite Portal user", "invite", "primary", 'data-spec="portal.invite-button" data-spec-label="Invite Portal user button"')
-    : `<div class="menu-anchor" data-spec="students.add-menu" data-spec-label="Add students menu">${btn("Add students" + icon("chevron"), "student-menu", "primary", 'aria-expanded="' + state.menu + '"')}${state.menu ? `<div class="dropdown-menu"><button data-action="add-student">Individuals</button><button data-action="upload">Upload a CSV</button></div>` : ""}</div>`;
+    ? btn(icon("plus") + "Invite Portal User", "invite", "primary", 'data-spec="portal.invite-button" data-spec-label="Invite Portal user button"')
+    : `<div class="menu-anchor" data-spec="students.add-menu" data-spec-label="Add students menu">${btn("Add Students" + icon("chevron"), "student-menu", "primary", 'aria-expanded="' + state.menu + '"')}${state.menu ? `<div class="dropdown-menu"><button data-action="add-student">Individuals</button><button data-action="upload">Upload a CSV</button></div>` : ""}</div>`;
   const checks = `<th class="selection-col">${checkRow("all", allSelected(users), "Select all visible people")}</th>`;
-  return `${heading(portal ? "Portal Users" : "Students", portal ? `${all.length} people can access this portal.` : "Students do not have access to this portal", actions)}<section class="card people-card" aria-label="${portal ? "Portal users" : "Students"} list" data-spec="people.table" data-spec-label="People table">${toolbar()}<div class="table-wrap"><table class="people-table ${portal ? "portal-table" : "students-table"}"><colgroup>${portal ? '<col class="col-check"><col class="col-person"><col class="col-access"><col class="col-modifier"><col class="col-status"><col class="col-menu">' : '<col class="col-check"><col class="col-person"><col class="col-group"><col class="col-team"><col class="col-modifier"><col class="col-status"><col class="col-menu">'}</colgroup><thead><tr>${checks}${tableHead("Name", "name", !portal)}${portal ? tableHead("Access", "access", false) : tableHead("Admin Groups", "groups") + tableHead("Team", "teams")}${tableHead("Last modified by", "updatedAt")}${tableHead(portal ? "Status / Last access" : "Status", "status", !portal)}<th></th></tr></thead><tbody>${
+  return `${heading(portal ? "Portal Users" : "Students", portal ? `${all.length} people can access this portal.` : "Students do not have access to this portal", actions)}<section class="card people-card" aria-label="${portal ? "Portal Users" : "Students"} list" data-spec="people.table" data-spec-label="People table">${toolbar()}<div class="table-wrap"><table class="people-table ${portal ? "portal-table" : "students-table"}"><colgroup>${portal ? '<col class="col-check"><col class="col-person"><col class="col-access"><col class="col-modifier"><col class="col-status"><col class="col-menu">' : '<col class="col-check"><col class="col-person"><col class="col-group"><col class="col-team"><col class="col-modifier"><col class="col-status"><col class="col-menu">'}</colgroup><thead><tr>${checks}${tableHead("Name", "name", !portal)}${portal ? tableHead("Access", "access", false) : tableHead("Admin Groups", "groups") + tableHead("Team", "teams")}${tableHead("Last Modified By", "updatedAt")}${tableHead(portal ? "Status / Last Access" : "Status", "status", !portal)}<th></th></tr></thead><tbody>${
     users.length
       ? users
           .map((u) => {
             const meta = metaFor(u);
-            return `<tr${rowHighlight(u)}>${`<td class="selection-col">${checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email))}</td>`}<td><div class="person-name">${esc(u.name || u.email)}</div>${personMeta(u, portal ? u.role : u.workRole || u.email, "person-role")}</td>${portal ? `<td class="scope">${u.accessLabel ? esc(u.accessLabel) : `${u.vouchers.length} ${u.vouchers.length === 1 ? "Voucher" : "Vouchers"} • ${u.groups.length} Admin ${u.groups.length === 1 ? "Group" : "Groups"} • ${u.teams.length} Teams`}</td>` : `<td class="scope ${u.groups.length ? "" : "unassigned"}">${esc(u.groups.join(", ") || "Unassigned")}</td><td class="scope ${u.teams.length ? "" : "unassigned"}">${esc(u.teams.join(", ") || "Unassigned")}</td>`}<td class="modifier"><span>${esc(meta.name)}</span><span class="secondary">${esc(meta.detail)}</span></td><td class="status-cell">${labelStatus(u.status)}${voucherFlag(u)}${u.accountSetup && u.status === "Pending invite" ? `<span class="secondary account-pending">Awaiting SANS account</span>` : portal ? `<span class="secondary">${esc(meta.last)}</span>` : ""}</td><td class="menu-cell">${rowActions(u)}</td></tr>`;
+            return `<tr${rowHighlight(u)}>${`<td class="selection-col">${checkRow(u.id, state.selected.includes(u.id), "Select " + (u.name || u.email))}</td>`}<td><div class="person-name">${esc(u.name || u.email)}</div>${personMeta(u, portal ? u.role : u.workRole || u.email, "person-role")}</td>${portal ? `<td class="scope">${u.accessLabel ? esc(u.accessLabel) : `${u.vouchers.length} ${u.vouchers.length === 1 ? "Voucher" : "Vouchers"} • ${u.groups.length} Admin ${u.groups.length === 1 ? "Group" : "Groups"} • ${u.teams.length} Teams`}</td>` : `<td class="scope ${u.groups.length ? "" : "unassigned"}">${esc(u.groups.join(", ") || "Unassigned")}</td><td class="scope ${u.teams.length ? "" : "unassigned"}">${esc(u.teams.join(", ") || "Unassigned")}</td>`}<td class="modifier"><span>${esc(meta.name)}</span><span class="secondary">${esc(meta.detail)}</span></td><td class="status-cell">${labelStatus(u.status)}${voucherFlag(u)}${u.accountSetup && u.status === "Pending invite" ? `<span class="secondary account-pending">Awaiting SANS Account</span>` : portal ? `<span class="secondary">${esc(meta.last)}</span>` : ""}</td><td class="menu-cell">${rowActions(u)}</td></tr>`;
           })
           .join("")
-      : `<tr><td colspan="${portal ? 6 : 7}"><div class="empty">${icon("search")}<h2>No people found</h2><p>Try another name or clear your filters.</p>${btn("Clear filters", "all-filters-clear")}</div></td></tr>`
+      : `<tr><td colspan="${portal ? 6 : 7}"><div class="empty">${icon("search")}<h2>No People Found</h2><p>Try another name or clear your filters.</p>${btn("Clear Filters", "all-filters-clear")}</div></td></tr>`
   }</tbody></table></div></section>`;
 };
 const baseOpenModal = openModal;
@@ -275,7 +308,7 @@ function permissionLists(role, groups) {
             "Create, edit or delete records.",
             "Manage portal users, teams or vouchers.",
           ];
-  return `<div class="permissions"><h3>They can</h3>${can
+  return `<div class="permissions"><h3>They Can</h3>${can
     .filter((t) => !t.startsWith("Cannot"))
     .map(
       (t) =>
@@ -283,7 +316,7 @@ function permissionLists(role, groups) {
     )
     .join(
       "",
-    )}<h3>They cannot</h3>${cannot.map((t) => `<div class="permission"><span class="permission-icon negative">${icon("close")}</span><span>${esc(t)}</span></div>`).join("")}</div>`;
+    )}<h3>They Cannot</h3>${cannot.map((t) => `<div class="permission"><span class="permission-icon negative">${icon("close")}</span><span>${esc(t)}</span></div>`).join("")}</div>`;
 }
 function reachSentence(p) {
   const v = p.vouchers.length ? p.vouchers.join(", ") : "the selected vouchers";
@@ -292,13 +325,13 @@ function reachSentence(p) {
 }
 summary = function (p) {
   return `<div class="summary-panel"><h3>Summary</h3><p>${esc(reachSentence(p))}</p><div class="summary-fields">${[
-    ["Voucher access", p.vouchers],
+    ["Voucher Access", p.vouchers],
     ["Admin Groups", p.groups],
-    ["Team access", p.teams],
+    ["Team Access", p.teams],
   ]
     .map(
       ([l, a]) =>
-        `<div class="summary-block"><span>${l}</span><strong>${a.length ? a.map(esc).join("<br>") : "None selected"}</strong></div>`,
+        `<div class="summary-block"><span>${l}</span><strong>${a.length ? a.map(esc).join("<br>") : "None Selected"}</strong></div>`,
     )
     .join("")}</div>${permissionLists(p.role, p.groups)}</div>`;
 };
@@ -311,7 +344,7 @@ portalForm = function () {
   openModal(
     "Invite Portal User",
     "Choose what this person can access. They will be able to sign in to the portal.",
-    `<form id="portal-form"><div class="two-column"><div class="form-panel"><div class="field email-field"><label for="portal-email">Email Address <span class="required">*</span></label><input id="portal-email" type="email" name="email" required value="${esc(p.email)}" autocomplete="off"></div><section class="field-section role-section"><label>Choose role <span class="required">*</span> ${helpMark("Choose the level of access this user will have.")}</label><p class="hint">Manage your team members here.</p><div class="role-picker">${ROLES.map((r, i) => `<label class="role-option"><input type="radio" name="role" value="${r}" ${p.role === r ? "checked" : ""}><strong>${r}</strong><small>${["Full management in their assigned area", "Day-to-day training administration", "Read-only reporting and activity"][i]}</small></label>`).join("")}</div></section><section class="field-section"><label>Access levels <span class="required">*</span> ${helpMark("Access is limited to the groups, vouchers and teams you select.")}</label><div class="group-label"><label>Admin Groups <span class="required">*</span> ${helpMark("Select the organisational reach.")}</label><label class="check"><input type="checkbox" id="all-groups" ${db.groups.every((g) => p.groups.includes(g)) ? "checked" : ""}>All Groups</label></div>${scopeChoices("groups", db.groups, p.groups)}</section><section class="field-section"><label>Voucher access <span class="required">*</span> ${helpMark("Choose training vouchers this user can access.")}</label><p class="hint">Showing Vouchers within the selected Admin Groups.<br>They can view reporting and activity for the selected vouchers.</p><label class="search-label" for="voucher-scope-search">Search <span class="required">*</span> ${helpMark("Search the available vouchers.")}</label><div class="search scope-search">${icon("search")}<input id="voucher-scope-search" placeholder="Search Vouchers" data-scope-search="vouchers"></div>${scopeChoices("vouchers", [VOUCHERS[1], VOUCHERS[0], VOUCHERS[3], VOUCHERS[2]], p.vouchers)}</section><section class="field-section team-access-section"><label>Team access <span class="required">*</span> ${helpMark("Choose teams this user can access.")}</label><label class="search-label" for="team-scope-search">Search <span class="required">*</span> ${helpMark("Search the available teams.")}</label><div class="team-search-row"><div class="search scope-search">${icon("search")}<input id="team-scope-search" placeholder="Search Teams" data-scope-search="teams"></div><label class="check"><input type="checkbox" id="all-teams" ${db.teams.every((t) => p.teams.includes(t)) ? "checked" : ""}>Select all</label></div>${scopeChoices("teams", db.teams, p.teams)}</section><p class="inline-error" id="portal-error" role="alert"></p></div><div id="permission-preview">${summary(p)}</div></div></form>`,
+    `<form id="portal-form"><div class="two-column"><div class="form-panel"><div class="field email-field"><label for="portal-email">Email Address <span class="required">*</span></label><input id="portal-email" type="email" name="email" required value="${esc(p.email)}" autocomplete="off"></div><section class="field-section role-section"><label>Choose Role <span class="required">*</span> ${helpMark("Choose the level of access this user will have.")}</label><p class="hint">Manage your team members here.</p><div class="role-picker">${ROLES.map((r, i) => `<label class="role-option"><input type="radio" name="role" value="${r}" ${p.role === r ? "checked" : ""}><strong>${r}</strong><small>${["Full management in their assigned area", "Day-to-day training administration", "Read-only reporting and activity"][i]}</small></label>`).join("")}</div></section><section class="field-section"><label>Access Levels <span class="required">*</span> ${helpMark("Access is limited to the groups, vouchers and teams you select.")}</label><div class="group-label"><label>Admin Groups <span class="required">*</span> ${helpMark("Select the organizational reach.")}</label><label class="check"><input type="checkbox" id="all-groups" ${db.groups.every((g) => p.groups.includes(g)) ? "checked" : ""}>All Groups</label></div>${scopeChoices("groups", db.groups, p.groups)}</section><section class="field-section"><label>Voucher Access <span class="required">*</span> ${helpMark("Choose training vouchers this user can access.")}</label><p class="hint">Showing Vouchers within the selected Admin Groups.<br>They can view reporting and activity for the selected vouchers.</p><label class="search-label" for="voucher-scope-search">Search <span class="required">*</span> ${helpMark("Search the available vouchers.")}</label><div class="search scope-search">${icon("search")}<input id="voucher-scope-search" placeholder="Search Vouchers" data-scope-search="vouchers"></div>${scopeChoices("vouchers", [VOUCHERS[1], VOUCHERS[0], VOUCHERS[3], VOUCHERS[2]], p.vouchers)}</section><section class="field-section team-access-section"><label>Team Access <span class="required">*</span> ${helpMark("Choose teams this user can access.")}</label><label class="search-label" for="team-scope-search">Search <span class="required">*</span> ${helpMark("Search the available teams.")}</label><div class="team-search-row"><div class="search scope-search">${icon("search")}<input id="team-scope-search" placeholder="Search Teams" data-scope-search="teams"></div><label class="check"><input type="checkbox" id="all-teams" ${db.teams.every((t) => p.teams.includes(t)) ? "checked" : ""}>Select All</label></div>${scopeChoices("teams", db.teams, p.teams)}</section><p class="inline-error" id="portal-error" role="alert"></p></div><div id="permission-preview">${summary(p)}</div></div></form>`,
     `<div class="actions">${btn("Cancel", "close-modal", "text")}<button class="button primary" type="submit" form="portal-form">Review Invitation</button></div>`,
     steps("Role and Access", "Review & Send", 1),
   );
@@ -343,12 +376,12 @@ portalReview = function () {
   openModal(
     "Invite Portal User",
     "Choose what this person can access. They will be able to sign in to the portal.",
-    `<section class="portal-review-summary" data-spec="portal.invite.review" data-spec-label="Invitation review"><h3>Summary</h3><p>${esc(reachSentence(p))}</p><div class="review-detail"><dl class="summary-data">${[
+    `<section class="portal-review-summary" data-spec="portal.invite.review" data-spec-label="Invitation Review"><h3>Summary</h3><p>${esc(reachSentence(p))}</p><div class="review-detail"><dl class="summary-data">${[
       ["Email", p.email],
       ["Role", p.role],
       ["Admin Groups", p.groups.join(", ")],
-      ["Voucher access", p.vouchers.join(", ")],
-      ["Team access", p.teams.join(", ")],
+      ["Voucher Access", p.vouchers.join(", ")],
+      ["Team Access", p.teams.join(", ")],
     ]
       .map(([l, v]) => `<div><dt>${l}</dt><dd>${esc(v)}</dd></div>`)
       .join(
@@ -374,7 +407,7 @@ portalSend = function () {
     openModal(
       "",
       "",
-      `<div class="success-icon">${icon("check")}</div><h2>Invite sent</h2><p>They will appear in Portal users as Pending invite until they accept and sign in.</p>`,
+      `<div class="success-icon">${icon("check")}</div><h2>Invite Sent</h2><p>They will appear in Portal users as Pending invite until they accept and sign in.</p>`,
       `<div class="actions">${btn("Done", "finish-portal", "primary")}</div>`,
       "",
       true,
@@ -396,7 +429,7 @@ function studentEntryValues() {
 }
 function savedStudentRow(d, i) {
   return `<div class="student-draft" data-spec="students.add.saved" data-spec-label="Saved student row"><span class="row-step complete">${icon("check")}</span><div class="draft-columns">${[
-    ["Student email", d.email],
+    ["Student Email", d.email],
     ["Voucher", d.voucher],
     ["Admin Group", d.group || "Unassigned"],
     ["Team", d.team || "Unassigned"],
@@ -420,16 +453,16 @@ studentForm = function (editIndex = null) {
   if (!state.drafts.length) state.entryOpen = true;
   const s = state.studentEntry;
   openModal(
-    "Add students",
+    "Add Students",
     "Add each student and choose where their training is funded and managed.",
     `<div class="note student-note">${icon("info")}<span>Students receive an email invitation but do not get access to this portal. All fields marked required must be completed for each student.</span></div>${state.drafts
       .filter((_, i) => i !== editIndex)
       .map((d) => savedStudentRow(d, state.drafts.indexOf(d)))
       .join(
         "",
-      )}${state.entryOpen ? `<form id="student-form" class="student-entry" data-spec="students.add.entry" data-spec-label="Student entry row"><span class="row-step">${editIndex === null ? state.drafts.length + 1 : editIndex + 1}</span><div class="entry-fields"><div class="field"><label for="student-email">Email Address <span class="required">*</span></label><input id="student-email" name="email" type="email" required value="${esc(s.email || "")}" placeholder="Enter student’s email"></div><div class="field"><label for="student-voucher">Voucher <span class="required">*</span></label><select id="student-voucher" name="voucher" required>${opts(VOUCHERS, s.voucher)}</select><p class="hint">Pays for their training.</p></div><div class="field"><label for="student-group">Admin Group</label><select id="student-group" name="group" ${s.voucher ? "" : "disabled"}>${groupOptions(s.voucher, s.group)}</select><p class="hint" id="student-group-hint">${s.voucher ? "Optional · filtered by voucher." : "Choose a voucher first."}</p></div><div class="field"><label for="student-team">Team</label><select id="student-team" name="team">${opts(db.teams, s.team, "Leave unassigned")}</select><p class="hint">Optional · teams can mix vouchers.</p></div></div><div id="student-linked">${linkedNote(s.email, "student")}</div><div class="entry-bottom"><p id="account-status" class="account-status ${accountClass(s.email, "student")}">${accountStatus(s.email, "student")}</p><label class="check"><input type="checkbox" id="reuse-assignments" ${state.reuseAssignments ? "checked" : ""}>Use these assignments for the next student</label><button class="button primary" type="submit">Save student</button></div><p class="inline-error" id="student-error" role="alert"></p></form>` : ""}<button class="add-another" data-action="student-add-another">${icon("users")}Add Another</button>`,
+      )}${state.entryOpen ? `<form id="student-form" class="student-entry" data-spec="students.add.entry" data-spec-label="Student entry row"><span class="row-step">${editIndex === null ? state.drafts.length + 1 : editIndex + 1}</span><div class="entry-fields"><div class="field"><label for="student-email">Email Address <span class="required">*</span></label><input id="student-email" name="email" type="email" required value="${esc(s.email || "")}" placeholder="Enter student’s email"></div><div class="field"><label for="student-voucher">Voucher <span class="required">*</span></label><select id="student-voucher" name="voucher" required>${opts(VOUCHERS, s.voucher)}</select><p class="hint">Pays for their training.</p></div><div class="field"><label for="student-group">Admin Group</label><select id="student-group" name="group" ${s.voucher ? "" : "disabled"}>${groupOptions(s.voucher, s.group)}</select><p class="hint" id="student-group-hint">${s.voucher ? "Optional · filtered by voucher." : "Choose a voucher first."}</p></div><div class="field"><label for="student-team">Team</label><select id="student-team" name="team">${opts(db.teams, s.team, "Leave Unassigned")}</select><p class="hint">Optional · teams can mix vouchers.</p></div></div><div id="student-linked">${linkedNote(s.email, "student")}</div><div class="entry-bottom"><p id="account-status" class="account-status ${accountClass(s.email, "student")}">${accountStatus(s.email, "student")}</p><label class="check"><input type="checkbox" id="reuse-assignments" ${state.reuseAssignments ? "checked" : ""}>Use these assignments for the next student</label><button class="button primary" type="submit">Save Student</button></div><p class="inline-error" id="student-error" role="alert"></p></form>` : ""}<button class="add-another" data-action="student-add-another">${icon("users")}Add Another</button>`,
     `<span class="secondary">${state.drafts.length} ${state.drafts.length === 1 ? "student" : "students"} ready to review</span><div class="actions">${btn("Cancel", "close-modal", "text")}${btn("Save", "student-review", "primary", state.drafts.length ? "" : "disabled")}</div>`,
-    steps("Add student details", "Review & Send", 1),
+    steps("Add Student Details", "Review & Send", 1),
   );
 };
 saveStudent = function () {
@@ -467,15 +500,15 @@ studentReview = function () {
   if (!state.drafts.length) return;
   state.modal = "student-review";
   openModal(
-    "Add students",
+    "Add Students",
     "Review the details and confirm that these people can be invited.",
-    `<p class="review-intro" data-spec="students.add.review" data-spec-label="Students review step">Check each student’s details before sending. You can return to make changes without losing your work.</p>${studentReviewTable(state.drafts)}<label class="check consent"><input id="send-consent" type="checkbox"><span>I confirm these people are employees or contractors of our organisation and may be invited under our ${termLink}.<strong>Required</strong></span></label>`,
-    `<span class="secondary">${state.drafts.length} ${state.drafts.length === 1 ? "student will" : "students will"} receive an invitation email</span><div class="actions">${btn("Back", "student-back", "text")}${btn("Send invitations", "student-send", "primary", 'id="send-button" disabled')}</div>`,
-    steps("Add student details", "Review & Send", 2),
+    `<p class="review-intro" data-spec="students.add.review" data-spec-label="Students review step">Check each student’s details before sending. You can return to make changes without losing your work.</p>${studentReviewTable(state.drafts)}<label class="check consent"><input id="send-consent" type="checkbox"><span>I confirm these people are employees or contractors of our organization and may be invited under our ${termLink}.<strong>Required</strong></span></label>`,
+    `<span class="secondary">${state.drafts.length} ${state.drafts.length === 1 ? "student will" : "students will"} receive an invitation email</span><div class="actions">${btn("Back", "student-back", "text")}${btn("Send Invitations", "student-send", "primary", 'id="send-button" disabled')}</div>`,
+    steps("Add Student Details", "Review & Send", 2),
   );
 };
 function studentReviewTable(rows, results = false) {
-  return `<div class="table-wrap student-review-table"><table><colgroup><col style="width:24%"><col style="width:23%"><col style="width:22%"><col style="width:21%"><col style="width:10%"></colgroup><thead><tr><th>Name</th><th>Voucher</th><th>Admin Group</th><th>Team</th><th></th></tr></thead><tbody>${rows.map((d, i) => `<tr><td><strong>${esc(d.email)}</strong>${results && d.result === "failed" ? '<p class="row-error">Invitation could not be saved</p>' : ""}${d.result === "account" || (!results && !accountLinked(d.email) && !linkedPerson(d.email, "portal")) ? '<p class="secondary account-pending">No SANS account · invited to create one</p>' : ""}${!results && linkedPerson(d.email, "portal") ? `<p class="secondary">Also a portal user</p>` : ""}</td><td>${esc(d.voucher)}</td><td class="${d.group ? "" : "unassigned"}">${esc(d.group || "Unassigned")}</td><td class="${d.team ? "" : "unassigned"}">${esc(d.team || "Unassigned")}</td><td>${results ? (d.result === "sent" || d.result === "account" ? `<span class="result-check">${icon(d.result === "account" ? "mail" : "check")}</span>` : d.result === "failed" ? `<button class="result-failure" data-action="retry-student" data-index="${i}" aria-label="Correct failed invitation for ${esc(d.email)}">${icon("info")}</button>` : '<span class="spinner" aria-label="Sending"></span>') : `<div class="draft-actions"><button class="text-action" data-action="review-draft-delete" data-index="${i}">Delete</button><button class="text-action blue" data-action="draft-edit" data-index="${i}">Edit</button></div>`}</td></tr>`).join("")}</tbody></table></div>`;
+  return `<div class="table-wrap student-review-table"><table><colgroup><col style="width:24%"><col style="width:23%"><col style="width:22%"><col style="width:21%"><col style="width:10%"></colgroup><thead><tr><th>Name</th><th>Voucher</th><th>Admin Group</th><th>Team</th><th></th></tr></thead><tbody>${rows.map((d, i) => `<tr><td><strong>${esc(d.email)}</strong>${results && d.result === "failed" ? '<p class="row-error">Invitation could not be saved</p>' : ""}${d.result === "account" || (!results && !accountLinked(d.email) && !linkedPerson(d.email, "portal")) ? '<p class="secondary account-pending">No SANS account · invited to create one</p>' : ""}${!results && linkedPerson(d.email, "portal") ? `<p class="secondary">Also a Portal User</p>` : ""}</td><td>${esc(d.voucher)}</td><td class="${d.group ? "" : "unassigned"}">${esc(d.group || "Unassigned")}</td><td class="${d.team ? "" : "unassigned"}">${esc(d.team || "Unassigned")}</td><td>${results ? (d.result === "sent" || d.result === "account" ? `<span class="result-check">${icon(d.result === "account" ? "mail" : "check")}</span>` : d.result === "failed" ? `<button class="result-failure" data-action="retry-student" data-index="${i}" aria-label="Correct failed invitation for ${esc(d.email)}">${icon("info")}</button>` : '<span class="spinner" aria-label="Sending"></span>') : `<div class="draft-actions"><button class="text-action" data-action="review-draft-delete" data-index="${i}">Delete</button><button class="text-action blue" data-action="draft-edit" data-index="${i}">Edit</button></div>`}</td></tr>`).join("")}</tbody></table></div>`;
 }
 function renderStudentResults() {
   const rows = state.sendResults,
@@ -487,11 +520,11 @@ function renderStudentResults() {
     failed = rows.filter((r) => r.result === "failed").length;
   state.modal = "student-results";
   openModal(
-    "Add students",
+    "Add Students",
     "Review the details and confirm that these people can be invited.",
     `<div class="note success result-banner" data-spec="students.add.results" data-spec-label="Sending results">${icon("check")}<div><strong>${sent} of ${rows.length} invitations sent</strong><p>${pending ? "Sending invitations. Please wait." : failed ? `Successful students have been emailed. ${failed === 1 ? "One invitation needs" : failed + " invitations need"} your attention below.` : accounts ? `Your students have been invited. ${accounts === 1 ? "One person needs" : accounts + " people need"} to create a SANS account first. They will be added automatically once it is set up.` : "Your students have been invited successfully."}</p></div></div>${studentReviewTable(rows, true)}`,
-    `<span class="secondary">Your successful invitations are now listed on the <button class="button-link" data-action="view-invitations">Invitations</button> page.</span><div class="actions">${btn("Close", "close-modal", "text", pending ? "disabled" : "")}${pending ? btn('<span class="spinner"></span>Sending invitations', "noop", "primary", "disabled") : failed ? btn("Review failed invitations", "retry-all-students", "primary") : btn("Done", "finish-students", "primary")}</div>`,
-    steps("Add student details", "Review & Send", 2),
+    `<span class="secondary">Your successful invitations are now listed on the <button class="button-link" data-action="view-invitations">Invitations</button> page.</span><div class="actions">${btn("Close", "close-modal", "text", pending ? "disabled" : "")}${pending ? btn('<span class="spinner"></span>Sending invitations', "noop", "primary", "disabled") : failed ? btn("Review Failed Invitations", "retry-all-students", "primary") : btn("Done", "finish-students", "primary")}</div>`,
+    steps("Add Student Details", "Review & Send", 2),
   );
 }
 studentSend = function () {
@@ -549,7 +582,7 @@ closeModal = function () {
         "Discard this draft?",
         "These students have not been added yet.",
         "<p>Your existing student records will be kept. Only this unsent draft will be discarded.</p>",
-        `<div class="actions">${btn("Keep editing", "keep-draft")}${btn("Discard draft", "discard-draft", "danger")}</div>`,
+        `<div class="actions">${btn("Keep Editing", "keep-draft")}${btn("Discard Draft", "discard-draft", "danger")}</div>`,
         "",
         true,
       );
@@ -575,13 +608,13 @@ closeModal = function () {
 function csvColumnGuide() {
   const list = (items) => items.map((x) => `<span class="value-chip">${esc(x)}</span>`).join("");
   const vouchers = db.vouchers?.length ? db.vouchers : VOUCHERS;
-  return `<details class="csv-guide" data-spec="csv.column-guide" data-spec-label="Column guide"><summary>${icon("info")}<span>What goes in each column</span>${icon("arrow_drop_down")}</summary><div class="csv-guide-body"><table class="csv-guide-table"><tbody>
+  return `<details class="csv-guide" data-spec="csv.column-guide" data-spec-label="Column Guide"><summary>${icon("info")}<span>What Goes in Each Column</span>${icon("arrow_drop_down")}</summary><div class="csv-guide-body"><table class="csv-guide-table"><tbody>
 <tr><th scope="row">Email <span class="req">Required</span></th><td>Their work email. This is how we match them to a SANS account.</td></tr>
 <tr><th scope="row">Name</th><td>First and last name. Separate First name and Last name columns work too.</td></tr>
 <tr><th scope="row">Voucher</th><td>Pays for their training. Leave it blank to assign one after upload; they won't be invited until you do.<div class="value-list">${list(vouchers)}</div></td></tr>
-<tr><th scope="row">Admin group</th><td>Optional. It must be one the voucher covers.<div class="value-list">${list(db.groups || GROUPS)}</div></td></tr>
+<tr><th scope="row">Admin Group</th><td>Optional. It must be one the voucher covers.<div class="value-list">${list(db.groups || GROUPS)}</div></td></tr>
 <tr><th scope="row">Team</th><td>Optional.<div class="value-list">${list(db.teams || TEAMS)}</div></td></tr>
-<tr><th scope="row">Work role</th><td>Optional, for example SOC Analyst I.</td></tr>
+<tr><th scope="row">Work Role</th><td>Optional, for example SOC Analyst I.</td></tr>
 </tbody></table><p class="csv-guide-foot">Extra columns are ignored. Up to 500 students per file.</p></div></details><p class="csv-guide-hint">Only email is required. Column order doesn't matter.</p>`;
 }
 // The column guide opens and closes by animating its height, so the dialog grows and shrinks with it
@@ -614,10 +647,10 @@ const PROBLEM_LABELS = {
   invalid_email: ["invalid email", "invalid emails"],
   duplicate_email: ["duplicate in this file", "duplicates in this file"],
   already_student: ["already a student", "already students"],
-  unknown_voucher: ["voucher not recognised", "vouchers not recognised"],
-  unknown_group: ["admin group not recognised", "admin groups not recognised"],
+  unknown_voucher: ["voucher not recognized", "vouchers not recognized"],
+  unknown_group: ["admin group not recognized", "admin groups not recognized"],
   group_not_covered: ["admin group outside its voucher", "admin groups outside their voucher"],
-  unknown_team: ["team not recognised", "teams not recognised"],
+  unknown_team: ["team not recognized", "teams not recognized"],
 };
 function csvSummary(u) {
   const c = precheckImport(u.rows);
@@ -644,13 +677,13 @@ function uploadDisplay() {
   const fileRow = u?.fileName
     ? `<div class="csv-file-row ${ready ? "is-ready" : "is-checking"}">${csvIcon()}<div class="csv-file-detail"><strong>${esc(u.fileName)}</strong><p>${esc(u.sizeLabel)} <span class="file-divider">|</span> ${ready ? `<span class="file-done">${icon("check")}</span> Checked` : `Checking ${pluralize(total, "row")}…`}</p>${ready ? "" : `<div class="csv-progress" role="progressbar" aria-label="Checking file" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${u.progress}"><div style="width:${u.progress}%"></div></div>`}</div><button class="icon-btn" data-action="remove-upload" aria-label="Remove ${esc(u.fileName)} and choose another file">${icon("close")}</button></div>`
     : "";
-  const template = `<button class="button-link csv-template-link" data-action="csv-template">${CSV_FILE_ICON}<span>Download a template</span></button>`;
+  const template = `<button class="button-link csv-template-link" data-action="csv-template">${CSV_FILE_ICON}<span>Download a Template</span></button>`;
   const error = u?.error
     ? `<div class="csv-upload-error" role="alert">${icon("error")}<div><strong>${esc(u.errorTitle || "We couldn't read that file")}</strong><p>${esc(u.error)}</p></div></div>`
     : "";
-  const zone = `<div class="upload-zone" id="csv-dropzone" data-spec="csv.dropzone" data-spec-label="Upload drop zone"><label for="csv-file" class="upload-visual"><span class="upload-featured-icon">${UPLOAD_CLOUD_ICON}</span><span><strong>Click to upload</strong> or drag and drop</span><small>csv files only</small></label><input type="file" id="csv-file" accept=".csv,text/csv,.xlsx,.xls" aria-label="Choose a CSV file"></div>`;
+  const zone = `<div class="upload-zone" id="csv-dropzone" data-spec="csv.dropzone" data-spec-label="Upload drop zone"><label for="csv-file" class="upload-visual"><span class="upload-featured-icon">${UPLOAD_CLOUD_ICON}</span><span><strong>Click to upload</strong> or drag and drop</span><small>csv files only</small></label><input type="file" id="csv-file" accept=".csv,text/csv,.xlsx,.xls" aria-label="Choose a CSV File"></div>`;
   openModal(
-    "Import students from a CSV",
+    "Import Students From a CSV",
     "",
     u?.fileName ? `${fileRow}${ready ? csvSummary(u) : ""}` : `${template}${error}${zone}${csvColumnGuide()}`,
     `<div class="actions">${btn("Cancel", "close-modal")}${btn(ready ? `Review ${pluralize(total, "student")}` : "Continue", "csv-continue", "primary", ready ? "" : "disabled")}</div>`,
@@ -734,8 +767,8 @@ function importStateCell(row) {
         validEmail(row.email) &&
         !accountLinked(row.email) &&
         !linkedPerson(row.email, "portal")
-      ? `<span class="result-check" title="Ready · will be invited to create a SANS account" aria-label="Ready, will be invited to create a SANS account">${icon("mail")}</span><span class="secondary account-pending">New SANS account</span>`
-      : `<span class="result-check" title="${row.saved ? "Added to database" : "Ready to add"}" aria-label="${row.saved ? "Added to database" : "Ready to add"}">${icon("check")}</span>`;
+      ? `<span class="result-check" title="Ready · will be invited to create a SANS account" aria-label="Ready, will be invited to create a SANS account">${icon("mail")}</span><span class="secondary account-pending">New SANS Account</span>`
+      : `<span class="result-check" title="${row.saved ? "Added to database" : "Ready to Add"}" aria-label="${row.saved ? "Added to database" : "Ready to Add"}">${icon("check")}</span>`;
 }
 function assignLink(r, i, kind, label, value) {
   return `<button class="inline-assignment ${value ? "assigned" : ""}" data-action="open-picker" data-kind="${kind}" data-index="${i}" ${r.saved ? "disabled" : ""}>${!value && kind === "voucher" ? `<span class="error-icon">${icon("info")}</span>` : ""}${esc(value || label)}</button>`;
@@ -746,14 +779,14 @@ importView = function () {
   const valid = state.staged.filter(
     (r) => !r.saved && !importErrors(r).length,
   ).length;
-  return `<button class="back" data-action="import-cancel">${icon("back")}Back</button>${heading("Review Students", "", btn("Done", "fidelity-import-done", "primary"))}<section class="card import-card">${toolbar(true)}${invalid.length && !state.importAlertDismissed ? `<div class="note warning import-alert"><span class="alert-icon">${icon("info")}</span><div><strong>${invalid.length} ${invalid.length === 1 ? "user could" : "users could"} not be added</strong><ul>${invalid.some((r) => !r.voucher) ? `<li>${invalid.filter((r) => !r.voucher).length} ${invalid.filter((r) => !r.voucher).length === 1 ? "student requires" : "students require"} a Voucher</li>` : ""}${invalid.some((r) => importErrors(r).some((e) => /not covered/.test(e))) ? `<li>${invalid.filter((r) => importErrors(r).some((e) => /not covered/.test(e))).length} admin group ${invalid.filter((r) => importErrors(r).some((e) => /not covered/.test(e))).length === 1 ? "assignment is" : "assignments are"} outside the chosen voucher</li>` : ""}${invalid.some((r) => importErrors(r).some((e) => !/voucher/i.test(e))) ? "<li>Check invalid or duplicate student details</li>" : ""}</ul><div class="alert-actions"><button data-action="dismiss-import-alert">Dismiss</button><button data-action="show-import-errors">${state.onlyErrors ? "Show all users" : "Show users"}</button></div></div><button class="icon-btn alert-close" data-action="dismiss-import-alert" aria-label="Dismiss import summary">${icon("close")}</button></div>` : ""}<div class="table-wrap"><table class="csv-review-table"><colgroup><col class="col-check"><col style="width:21%"><col style="width:16%"><col style="width:16%"><col style="width:16%"><col style="width:18%"><col style="width:8%"><col class="col-menu"></colgroup><thead><tr><th class="selection-col">${checkRow("all", allSelected(rows), "Select all visible import rows")}</th>${tableHead("Name", "name")}${tableHead("Role", "workRole", false)}${tableHead("Voucher", "voucher", false)}${tableHead("Admin Groups", "group", false)}${tableHead("Team", "team", false)}${tableHead("Status", "status", false)}<th></th></tr></thead><tbody>${
+  return `<button class="back" data-action="import-cancel">${icon("back")}Back</button>${heading("Review Students", "", btn("Done", "fidelity-import-done", "primary"))}<section class="card import-card">${toolbar(true)}${invalid.length && !state.importAlertDismissed ? `<div class="note warning import-alert"><span class="alert-icon">${icon("info")}</span><div><strong>${invalid.length} ${invalid.length === 1 ? "user could" : "users could"} not be added</strong><ul>${invalid.some((r) => !r.voucher) ? `<li>${invalid.filter((r) => !r.voucher).length} ${invalid.filter((r) => !r.voucher).length === 1 ? "student requires" : "students require"} a Voucher</li>` : ""}${invalid.some((r) => importErrors(r).some((e) => /not covered/.test(e))) ? `<li>${invalid.filter((r) => importErrors(r).some((e) => /not covered/.test(e))).length} admin group ${invalid.filter((r) => importErrors(r).some((e) => /not covered/.test(e))).length === 1 ? "assignment is" : "assignments are"} outside the chosen voucher</li>` : ""}${invalid.some((r) => importErrors(r).some((e) => !/voucher/i.test(e))) ? "<li>Check invalid or duplicate student details</li>" : ""}</ul><div class="alert-actions"><button data-action="dismiss-import-alert">Dismiss</button><button data-action="show-import-errors">${state.onlyErrors ? "Show All Users" : "Show Users"}</button></div></div><button class="icon-btn alert-close" data-action="dismiss-import-alert" aria-label="Dismiss import summary">${icon("close")}</button></div>` : ""}<div class="table-wrap"><table class="csv-review-table"><colgroup><col class="col-check"><col style="width:21%"><col style="width:16%"><col style="width:16%"><col style="width:16%"><col style="width:18%"><col style="width:8%"><col class="col-menu"></colgroup><thead><tr><th class="selection-col">${checkRow("all", allSelected(rows), "Select all visible import rows")}</th>${tableHead("Name", "name")}${tableHead("Role", "workRole", false)}${tableHead("Voucher", "voucher", false)}${tableHead("Admin Groups", "group", false)}${tableHead("Team", "team", false)}${tableHead("Status", "status", false)}<th></th></tr></thead><tbody>${
     rows
       .map((r) => {
         const i = state.staged.indexOf(r);
-        return `<tr><td class="selection-col">${checkRow(r.id, state.selected.includes(r.id), "Select " + r.email)}</td><td><button class="name-edit" data-action="edit-import" data-index="${i}">${r.name ? `<strong>${esc(r.name)}</strong>` : ""}<span>${esc(r.email)}</span></button></td><td>${assignLink(r, i, "workRole", "Add work role", r.workRole)}</td><td>${assignLink(r, i, "voucher", "Add Voucher", r.voucher)}</td><td>${assignLink(r, i, "group", "Add Admin Group", r.group)}</td><td>${assignLink(r, i, "team", "Add to Team", r.team)}</td><td>${importStateCell(r)}</td><td class="menu-cell"><button class="icon-btn kebab" data-action="edit-import" data-index="${i}" aria-label="Edit import row ${i + 1}">${menuIcon()}</button></td></tr>`;
+        return `<tr><td class="selection-col">${checkRow(r.id, state.selected.includes(r.id), "Select " + r.email)}</td><td><button class="name-edit" data-action="edit-import" data-index="${i}">${r.name ? `<strong>${esc(r.name)}</strong>` : ""}<span>${esc(r.email)}</span></button></td><td>${assignLink(r, i, "workRole", "Add Work Role", r.workRole)}</td><td>${assignLink(r, i, "voucher", "Add Voucher", r.voucher)}</td><td>${assignLink(r, i, "group", "Add Admin Group", r.group)}</td><td>${assignLink(r, i, "team", "Add to Team", r.team)}</td><td>${importStateCell(r)}</td><td class="menu-cell"><button class="icon-btn kebab" data-action="edit-import" data-index="${i}" aria-label="Edit import row ${i + 1}">${menuIcon()}</button></td></tr>`;
       })
       .join("") ||
-    `<tr><td colspan="8"><div class="empty"><h2>No matching students</h2>${btn("Clear filters", "all-filters-clear")}</div></td></tr>`
+    `<tr><td colspan="8"><div class="empty"><h2>No Matching Students</h2>${btn("Clear Filters", "all-filters-clear")}</div></td></tr>`
   }</tbody></table></div><span class="sr-only">${valid} ${valid === 1 ? "student" : "students"} ready to add, ${invalid.length} need attention</span></section>`;
 };
 function pickerItems(kind) {
@@ -775,8 +808,8 @@ function pickerTitle(kind) {
   return {
     voucher: "Add Voucher",
     group: "Add Admin Group",
-    team: "Add to team",
-    workRole: "Add work role",
+    team: "Add to Team",
+    workRole: "Add Work Role",
   }[kind];
 }
 function openPicker(kind, index = null, bulk = false) {
@@ -793,8 +826,8 @@ function showPicker() {
   openModal(
     pickerTitle(p.kind),
     "",
-    `<div class="search picker-search">${icon("search")}<input id="picker-search" placeholder="Search" aria-label="Search ${esc(pickerTitle(p.kind).toLowerCase())}" value="${esc(p.search)}"></div><div class="picker-list" role="listbox" aria-label="${esc(pickerTitle(p.kind))}">${items.map((x) => `<button role="option" aria-selected="${p.value === x}" class="picker-option ${p.value === x ? "selected" : ""}" data-action="picker-select" data-value="${esc(x)}">${esc(x)}</button>`).join("") || '<p class="empty-options">No matches found</p>'}</div>`,
-    `<div class="picker-footer">${p.kind === "team" ? btn("Create a new team", "picker-create-team") : ""}${btn("Done", "picker-save", "primary", p.value ? "" : "disabled")}</div>`,
+    `<div class="search picker-search">${icon("search")}<input id="picker-search" placeholder="Search" aria-label="Search ${esc(pickerTitle(p.kind).toLowerCase())}" value="${esc(p.search)}"></div><div class="picker-list" role="listbox" aria-label="${esc(pickerTitle(p.kind))}">${items.map((x) => `<button role="option" aria-selected="${p.value === x}" class="picker-option ${p.value === x ? "selected" : ""}" data-action="picker-select" data-value="${esc(x)}">${esc(x)}</button>`).join("") || '<p class="empty-options">No Matches Found</p>'}</div>`,
+    `<div class="picker-footer">${p.kind === "team" ? btn("Create a New Team", "picker-create-team") : ""}${btn("Done", "picker-save", "primary", p.value ? "" : "disabled")}</div>`,
   );
 }
 function savePicker() {
@@ -832,7 +865,7 @@ function finishImport() {
       "Some students need attention",
       `${valid.length} students added. ${invalid.length} could not be added.`,
       "<p>Keep reviewing to correct the remaining records, or finish with those records excluded.</p>",
-      `<div class="actions">${btn("Keep reviewing", "close-modal")}${btn("Finish", "leave-import", "primary")}</div>`,
+      `<div class="actions">${btn("Keep Reviewing", "close-modal")}${btn("Finish", "leave-import", "primary")}</div>`,
       "",
       true,
     );
@@ -848,7 +881,7 @@ function confirmBulkDelete() {
     "Delete selected demo records?",
     `${state.selected.length} records selected.`,
     "<p>Only the selected mock records in this browser will be removed.</p>",
-    `<div class="actions">${btn("Cancel", "close-modal")}${btn("Delete records", "confirm-bulk-delete", "danger")}</div>`,
+    `<div class="actions">${btn("Cancel", "close-modal")}${btn("Delete Records", "confirm-bulk-delete", "danger")}</div>`,
     "",
     true,
   );
@@ -860,7 +893,7 @@ function profileData() {
   if (actions)
     actions.insertAdjacentHTML(
       "beforeend",
-      btn("Use sample CSV", "demo-sample"),
+      btn("Use Sample CSV", "demo-sample"),
     );
 }
 document.addEventListener("click", (event) => {
@@ -881,9 +914,24 @@ document.addEventListener("click", (event) => {
           (user) => user.type === "portal" && user.personId === personId,
         );
         state.profileOpen = false;
+        setSansStaff(null);
+        if (SANS_VIEWS.includes(state.view)) state.view = "home";
         dispatch(
           (st) => st.setActor(personId),
           `Signed in as ${person?.name || "portal user"}`,
+        );
+        break;
+      }
+      case "sign-in-as-sans": {
+        // SANS staff work in the organization with full Admin rights, so changes in the organization's
+        // pages run as its first Admin.
+        const staff = SANS_STAFF.find((member) => member.id === target.dataset.staffId);
+        const admin = db.users.find((user) => user.type === "portal" && user.role === "Admin") || signedInPortalUser();
+        state.profileOpen = false;
+        setSansStaff(staff.id);
+        dispatch(
+          (st) => st.setActor(admin.personId),
+          `Signed in as ${staff.name}, ${staff.role}`,
         );
         break;
       }
@@ -1072,10 +1120,10 @@ document.addEventListener("click", (event) => {
         state.returnToPicker = state.picker;
         state.modal = "team";
         openModal(
-          "Create a new team",
+          "Create a New Team",
           "",
-          `<form id="picker-team-form"><div class="field"><label for="picker-team-name">Team name</label><input id="picker-team-name" name="name" required></div><p class="inline-error" id="picker-team-error" role="alert"></p></form>`,
-          `<div class="actions">${btn("Cancel", "return-picker")}<button class="button primary" form="picker-team-form" type="submit">Create team</button></div>`,
+          `<form id="picker-team-form"><div class="field"><label for="picker-team-name">Team Name</label><input id="picker-team-name" name="name" required></div><p class="inline-error" id="picker-team-error" role="alert"></p></form>`,
+          `<div class="actions">${btn("Cancel", "return-picker")}<button class="button primary" form="picker-team-form" type="submit">Create Team</button></div>`,
           "",
           true,
         );
@@ -1114,10 +1162,10 @@ document.addEventListener("click", (event) => {
           state.modal === "portal-review" ? portalReview : studentReview;
         state.modal = "terms";
         openModal(
-          "Terms and conditions",
-          "Prototype reference",
-          "<p>This is a placeholder for the organisation’s actual invitation terms. No agreement is submitted by this local prototype.</p>",
-          `<div class="actions">${btn("Back to review", "close-modal", "primary")}</div>`,
+          "Terms and Conditions",
+          "Prototype Reference",
+          "<p>This is a placeholder for the organization’s actual invitation terms. No agreement is submitted by this local prototype.</p>",
+          `<div class="actions">${btn("Back to Review", "close-modal", "primary")}</div>`,
           "",
           true,
         );
@@ -1128,7 +1176,7 @@ document.addEventListener("click", (event) => {
         if (actions && !actions.querySelector('[data-action="demo-sample"]'))
           actions.insertAdjacentHTML(
             "beforeend",
-            btn("Use sample CSV", "demo-sample"),
+            btn("Use Sample CSV", "demo-sample"),
           );
         break;
       }
@@ -1216,7 +1264,7 @@ document.addEventListener("input", (e) => {
           (x) =>
             `<button role="option" aria-selected="${state.picker.value === x}" class="picker-option ${state.picker.value === x ? "selected" : ""}" data-action="picker-select" data-value="${esc(x)}">${esc(x)}</button>`,
         )
-        .join("") || '<p class="empty-options">No matches found</p>';
+        .join("") || '<p class="empty-options">No Matches Found</p>';
   }
 });
 document.addEventListener("submit", (e) => {
