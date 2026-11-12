@@ -89,7 +89,7 @@ function targetRecord(type, record) {
 
 const SEED_BASE = Date.parse("2026-10-16T10:00:00.000Z");
 
-// Adds the mock course catalogue and training histories to data that has none,
+// Adds the mock course catalog and training histories to data that has none,
 // so older saved databases pick them up on load.
 function ensureImportDrafts(data) {
   if (!Array.isArray(data.importDrafts)) data.importDrafts = [];

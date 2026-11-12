@@ -442,19 +442,19 @@ button:disabled {
   width: 40px;
 }
 .students-table .col-person {
-  width: 27%;
+  width: 24%;
 }
 .students-table .col-group {
-  width: 17%;
+  width: 15%;
 }
 .students-table .col-team {
-  width: 17%;
+  width: 15%;
 }
 .students-table .col-modifier {
-  width: 25%;
+  width: 22%;
 }
 .students-table .col-status {
-  width: 9%;
+  width: 148px; /* fits the widest status badge (Pending Invite, Needs Voucher) */
 }
 .students-table td {
   height: 72px;
@@ -4827,5 +4827,347 @@ aside.sidebar {
   }
   .sidebar .nav-parent > .ms:last-child {
     transition: none;
+  }
+}
+
+/* ---------- Internal Users (internal-users.js) ---------- */
+.iu-toolbar .search {
+  flex: 1 1 280px;
+  max-width: 360px;
+}
+.iu-count {
+  margin-left: auto;
+  color: #61758e;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.profile-card-head .iu-count {
+  margin-left: 0;
+}
+/* Only the name column freezes here: there is no checkbox column. */
+.iu-table tr > :nth-child(2),
+.iu-table tr > :last-child,
+.iu-access-table tr > *,
+.iu-edit-table tr > * {
+  position: static;
+  box-shadow: none !important;
+}
+.iu-table .secondary,
+.iu-access-table .secondary,
+.iu-edit-table .secondary {
+  display: block;
+}
+.iu-role-line + .iu-role-line {
+  margin-top: 8px;
+}
+.iu-role-line > span:first-child {
+  font-weight: 500;
+}
+.iu-menu-cell {
+  text-align: right;
+}
+.iu-menu-cell .row-menu-anchor {
+  position: relative;
+  display: inline-block;
+}
+.iu-menu-cell .row-dropdown {
+  position: absolute;
+}
+.iu-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  color: #8a4b00;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.iu-flag .ms {
+  font-size: 15px;
+}
+.profile-role-list .iu-flag {
+  margin: 0 0 0 8px;
+}
+.iu-notice {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  background: #fffaeb;
+  border: 1px solid #ffd37c;
+}
+.iu-notice > .ms {
+  color: #8a4b00;
+  font-size: 24px;
+}
+.iu-notice div {
+  flex: 1;
+}
+.iu-notice h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+.iu-notice p {
+  margin: 0;
+  color: #455b7c;
+  font-size: 14px;
+}
+.iu-notice-off {
+  background: #f4f6fa;
+  border-color: #c5d4e8;
+}
+.iu-notice-off > .ms {
+  color: #455b7c;
+}
+.iu-details-card {
+  min-height: 0;
+  margin-bottom: 24px;
+}
+#iu-name:focus {
+  outline: none;
+}
+.iu-details-card .profile-detail-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0 24px;
+}
+.iu-details-card .profile-detail-list > div {
+  display: block;
+  border: 0;
+  padding: 0;
+}
+.iu-details-card .profile-detail-list dd {
+  margin: 4px 0 0;
+}
+.iu-access-card {
+  padding-bottom: 8px;
+}
+.iu-access-card .profile-card-head {
+  flex-wrap: wrap;
+}
+.iu-head-title {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.iu-access-table {
+  width: 100%;
+}
+.iu-org-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #0b6e8f;
+  font: inherit;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+.iu-org-link:hover,
+.iu-org-link:focus-visible {
+  text-decoration: underline;
+}
+.iu-note {
+  max-width: 44ch;
+  font-style: italic;
+}
+.iu-modal {
+  width: min(760px, calc(100vw - 32px));
+}
+.iu-confirm-modal {
+  width: min(520px, calc(100vw - 32px));
+}
+.iu-form .field-section {
+  padding: 0 0 20px;
+  margin: 0 0 20px;
+  border-bottom: 1px solid #e3e9f2;
+}
+.iu-form .field-section:last-of-type {
+  border-bottom: 0;
+  margin-bottom: 0;
+}
+.iu-section-title {
+  margin: 0 0 12px;
+  font-size: 16px;
+}
+.iu-person-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.iu-role-picker {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 8px;
+}
+.iu-role-picker .role-option {
+  border: 0;
+  border-bottom: 1px solid #c5d4e8;
+}
+.iu-role-picker .role-option:nth-child(odd) {
+  border-right: 1px solid #c5d4e8;
+}
+.iu-role-picker .role-option:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+.iu-role-picker .role-option:nth-child(odd):last-child {
+  border-bottom: 0;
+}
+/* Four options sit in a grid, so the chosen one needs more than the faint fill used in Invite Portal user. */
+.iu-role-picker .role-option:has(input:checked) {
+  background: #eef9fc;
+  box-shadow: inset 3px 0 0 #00b4d2;
+}
+#iu-scope {
+  margin-top: 12px;
+}
+.iu-picked {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 32px;
+  margin-bottom: 10px;
+}
+.iu-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px 2px 10px;
+  border: 1px solid #9fd3e3;
+  border-radius: 999px;
+  background: #eef9fc;
+  color: #0b5671;
+  font-size: 13px;
+}
+.iu-pill .icon-btn {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  padding: 0;
+}
+.iu-pill .ms {
+  font-size: 15px;
+}
+.iu-org-list {
+  max-height: 232px;
+  overflow: auto;
+  margin-top: 8px;
+}
+.iu-org-list .scope-choice small {
+  margin-left: auto;
+}
+.iu-scope-note {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #f4f6fa;
+  color: #455b7c;
+  font-size: 14px;
+}
+.iu-scope-note .ms {
+  color: #0b6e8f;
+  font-size: 20px;
+}
+.iu-warn {
+  margin-top: 12px;
+  background: #fffaeb;
+  color: #8a4b00;
+}
+.iu-warn .ms {
+  color: #8a4b00;
+}
+.iu-edit-table {
+  width: 100%;
+}
+.iu-edit-table select {
+  width: 100%;
+  max-width: 240px;
+}
+.iu-remove-cell {
+  text-align: right;
+  width: 96px;
+}
+.iu-reason-field textarea {
+  width: 100%;
+  border: 1px solid #c5d4e8;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+  resize: vertical;
+  min-height: 76px;
+}
+.iu-reason-note {
+  margin-top: 6px;
+}
+.iu-reason-note .secondary {
+  margin-left: 6px;
+}
+.iu-confirm-modal .field {
+  margin-top: 16px;
+}
+.iu-confirm-modal input {
+  width: 100%;
+}
+@media (max-width: 900px) {
+  .iu-details-card .profile-detail-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 24px;
+  }
+  .iu-person-grid,
+  .iu-role-picker {
+    grid-template-columns: 1fr;
+  }
+  .iu-role-picker .role-option:nth-child(odd) {
+    border-right: 0;
+  }
+  .iu-role-picker .role-option:nth-last-child(2) {
+    border-bottom: 1px solid #c5d4e8;
+  }
+  .iu-notice {
+    flex-wrap: wrap;
+  }
+}
+
+/* Type-to-confirm prompts: the sentence is regular weight, only the word to type is bold. */
+label.type-confirm-label {
+  font-weight: 400;
+}
+label.type-confirm-label strong {
+  font-weight: 700;
+}
+input.type-confirm-input {
+  text-transform: uppercase;
+}
+
+/* Newly added rows: a light blue tint while you stay on the list, and a one-time slide-in. */
+.people-table tbody tr.row-new td {
+  background: #eef8fc;
+}
+.people-table tbody tr.row-new:hover td {
+  background: #e2f2f9;
+}
+.people-table tbody tr.row-new td:first-child {
+  box-shadow: inset 3px 0 0 #00b4d2;
+}
+.people-table tbody tr.row-enter td {
+  animation: row-slide-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(180ms + var(--row-i, 0) * 70ms);
+}
+@keyframes row-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+    background: #cdeef8;
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .people-table tbody tr.row-enter td {
+    animation: none;
   }
 }

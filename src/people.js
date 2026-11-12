@@ -420,7 +420,7 @@ document.addEventListener(
   true,
 );
 
-// ---------- Live form behaviour ----------
+// ---------- Live form behavior ----------
 document.addEventListener("change", (e) => {
   const el = e.target;
   if (el.id === "student-voucher") {

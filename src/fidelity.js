@@ -211,7 +211,6 @@ const PLANNED_VIEWS = {
   certifications: ["Certifications", "Learner Activity", "Track GIAC certification attempts and renewals."],
   "student-requests": ["Student Requests", "Training", "Review training requests from students."],
   "customer-organizations": ["Customer Organizations", "SANS Administration", "Manage the organizations that use the portal."],
-  "internal-users": ["Internal Users", "SANS Administration", "Manage SANS staff with access to the portal."],
   "dashboard-configuration": ["Default Dashboard Configuration", "SANS Administration", "Choose what new organizations see on their dashboard."],
 };
 const navBaseContent = content;

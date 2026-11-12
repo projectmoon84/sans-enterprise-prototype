@@ -12,7 +12,7 @@ Unzip **SANS Enterprise Prototype.zip** before opening files.
 - If a Mac blocks the downloaded launcher, use Terminal in the extracted folder and run `python3 serve.py`.
 - You can also open the included `index.html` directly in a modern browser. All scripts, styles, and fonts are embedded. Direct-file browser storage varies; the local launcher is the supported way to keep demo data reliably.
 
-No npm installation, account, internet connection, or cloud database is needed to use the client package. The launchers themselves were inspected; the HTTP-served HTML was exercised in the browser. Automated preview cannot open `file://` pages, so direct-file behaviour should be checked in your preferred browser.
+No npm installation, account, internet connection, or cloud database is needed to use the client package. The launchers themselves were inspected; the HTTP-served HTML was exercised in the browser. Automated preview cannot open `file://` pages, so direct-file behavior should be checked in your preferred browser.
 
 ## What works
 
@@ -39,7 +39,7 @@ Learning and Account & Finance contain supporting overview screens. Training del
 
 The built-in sample is intended for a fresh/reset database. Using it again correctly flags already-imported email addresses as duplicates.
 
-## Mock database behaviour
+## Mock database behavior
 
 Records live in **localStorage** under `sans-enterprise-prototype-v3`. Data saved under the old v2 key is migrated automatically on first load. Every browser/profile has a separate database. Data persists after reloads and browser restarts until browser storage is cleared or reset. Moving between file opening and the local server creates separate storage contexts. Keep the localhost port unchanged to retain the same dataset.
 
@@ -69,7 +69,7 @@ python3 serve.py
 - `src/activity.js`: structured event wording and activity filtering. The seeded database includes realistic history and the current actor comes from the profile menu’s “Sign in as…” switcher.
 - `src/app.js`: views, modal flows and interaction handlers. `dispatch()` calls a store command, then refreshes the visible app.
 - `src/styles.css` and `src/fidelity.css`: base presentation and measured Figma layout/component refinements. Fira Sans is bundled into the HTML at build time.
-- `src/tables.js`: table behaviour: sticky header row, frozen checkbox, name and ⋮ columns, right-click row menu, and click-a-row to open the placeholder profile page. Loaded after people.js.
+- `src/tables.js`: table behavior: sticky header row, frozen checkbox, name and ⋮ columns, right-click row menu, and click-a-row to open the placeholder profile page. Loaded after people.js.
 - `src/people.js`: people model v2 (voucher-first admin groups, dual roles, SANS account invites, team membership vs access). Loaded last.
 - `src/fidelity.js`: Figma-specific people tables, invitation steps, student draft/results, CSV progress/review and assignment pickers, reusing the existing persistence boundary.
 - `src/assets/sans-logo.svg`: original vector logo exported from the supplied Figma file.
@@ -95,11 +95,11 @@ Activity = { id, message, time }
 - **Frozen columns:** the checkbox and Name columns stay put while the rest scroll sideways, and the ⋮ column stays pinned on the right. A soft shadow shows when there's more to scroll.
 - **Sticky header:** the header row sticks just under the top bar as the page scrolls. It sits in its own table that is kept in step with the body's sideways scroll.
 - **Right-click** anywhere on a row to open that row's ⋮ menu at the pointer. On the CSV review table, right-click opens the row's correction dialog, which is what its ⋮ does.
-- **Left-click** a row, or press Enter on a focused row, to open the person's profile page. Clicks on checkboxes, tags, links and menus keep their own behaviour. The profile page is a placeholder until it's specced.
+- **Left-click** a row, or press Enter on a focused row, to open the person's profile page. Clicks on checkboxes, tags, links and menus keep their own behavior. The profile page is a placeholder until it's specced.
 
 ## People model (agreed 16 Oct 2026)
 
-- **Admin Groups** is the only name used for organisational sub-divisions (no "Sub-org" or "Organisational reach").
+- **Admin Groups** is the only name used for organizational sub-divisions (no "Sub-org" or "Organizational reach").
 - **Vouchers sit at the top level.** Choosing a voucher narrows the admin groups on offer. The voucher-to-admin-group mapping is mock data in `src/data.js` (`VOUCHER_GROUPS`) and is waiting for SANS to confirm it. Teams are never filtered, because one team can include students from different vouchers.
 - **Students** hold exactly one voucher (required), plus at most one admin group and one team (both optional).
 - **Approvals:** Admins and Limited Admins approve training requests within their scope. Admins also manage voucher settings, teams and portal users. A Limited Admin is scoped to **one voucher** (single choice) but can cover **one or more admin groups** within it.
@@ -128,7 +128,7 @@ The fidelity pass covers the 16 original frames inside the linked **Admin user m
 
 ## Validation
 
-Ten automated data tests pass. Browser checks cover portal invitation creation, role-dependent summaries, confirmation gating, editing multiple access assignments, persistence after reload, live search, individual student creation, CSV validation, row correction, and importing valid rows while retaining invalid ones. The subsequent independent fidelity/behaviour review also checked draft preservation, repeated assignments, searchable assignment pickers, partial-send failure/retry, CSV progress waiting for Continue, and narrow-screen invitation controls. Ten data tests pass; these are not automated screenshot regression tests. The design detector returned zero findings. Final package checks include embedded assets, JavaScript syntax, archive contents and launcher syntax.
+Ten automated data tests pass. Browser checks cover portal invitation creation, role-dependent summaries, confirmation gating, editing multiple access assignments, persistence after reload, live search, individual student creation, CSV validation, row correction, and importing valid rows while retaining invalid ones. The subsequent independent fidelity/behavior review also checked draft preservation, repeated assignments, searchable assignment pickers, partial-send failure/retry, CSV progress waiting for Continue, and narrow-screen invitation controls. Ten data tests pass; these are not automated screenshot regression tests. The design detector returned zero findings. Final package checks include embedded assets, JavaScript syntax, archive contents and launcher syntax.
 
 Fira Sans is distributed under the SIL Open Font License; see `src/fonts/OFL.txt` (or `FONT-LICENSE.txt` in the client package).
 

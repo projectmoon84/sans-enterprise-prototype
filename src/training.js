@@ -1,4 +1,4 @@
-// Mock SANS training data: the course catalogue, GIAC certifications and the
+// Mock SANS training data: the course catalog, GIAC certifications and the
 // seeded training histories. In production this comes from SANS systems.
 // Pure functions only, so the store, the profile page and the tests can share it.
 

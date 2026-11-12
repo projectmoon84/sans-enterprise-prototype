@@ -620,6 +620,8 @@ document.addEventListener("click", (event) => {
 });
 const bulkBaseNavigate = navigate;
 navigate = function (view) {
+  // Leaving the list where new rows were shown ends their "new" tint.
+  if (state.newRows && NEW_ROW_LISTS.includes(state.view) && view !== state.view) state.newRows = null;
   state.bulkMore = false;
   closePopover(false);
   bulkBaseNavigate(view);
@@ -652,9 +654,60 @@ function voucherFlag(u) {
   if (!actorCanBulk()) return "";
   return `<button type="button" class="inline-assignment needs-voucher-flag" data-action="cell-pick" data-kind="voucher" data-row="${esc(u.id)}"><span class="error-icon">${icon("error")}</span>Assign Voucher</button>`;
 }
+// ---------- Newly added rows ----------
+// After an invite, add or import, the new rows carry a light blue tint for as long as you stay on
+// that list, and slide in the first time the list is visible (not hidden behind a dialog).
+// `state.newRows` = { ids: Set of row ids, fresh: true until the entrance has played }.
+const NEW_ROW_LISTS = ["portal", "students", "internal-users"];
+let newRowSeq = 0;
+function markNewRows(ids) {
+  if (!ids.length) return;
+  const keep = state.newRows?.ids || new Set();
+  state.newRows = { ids: new Set([...keep, ...ids]), fresh: true };
+}
+function newRowAttrs(id, classes = []) {
+  const isNew = state.newRows?.ids.has(id);
+  if (isNew) classes.push("row-new");
+  const enter = isNew && state.newRows.fresh && !$("#modal").open;
+  if (enter) classes.push("row-enter");
+  return `${classes.length ? ` class="${classes.join(" ")}"` : ""}${enter ? ` style="--row-i:${newRowSeq++}"` : ""}`;
+}
 function rowHighlight(u) {
+  if (state.newRows?.ids.has(u.id)) return newRowAttrs(u.id);
   return state.highlight?.has(u.id) ? ' class="row-highlight"' : "";
 }
+// New rows sit at the top of their list (keeping the chosen sort below them), so you see them arrive.
+const newRowsBaseOrdered = ordered;
+ordered = function (rows) {
+  const sorted = newRowsBaseOrdered(rows);
+  const ids = state.newRows?.ids;
+  if (!ids?.size) return sorted;
+  return [...sorted.filter((u) => ids.has(u.id)), ...sorted.filter((u) => !ids.has(u.id))];
+};
+const newRowsBaseDispatch = dispatch;
+dispatch = function (command, message) {
+  const before = new Set(db.users.map((u) => u.id));
+  const ok = newRowsBaseDispatch(command, message);
+  if (ok) {
+    const added = db.users.filter((u) => !before.has(u.id)).map((u) => u.id);
+    if (added.length) {
+      markNewRows(added);
+      render();
+    }
+  }
+  return ok;
+};
+const newRowsBaseRender = render;
+render = function (...args) {
+  newRowSeq = 0;
+  const result = newRowsBaseRender.apply(this, args);
+  // The entrance plays once, on the first render where the new rows are actually on screen.
+  if (state.newRows?.fresh && document.querySelector("#main .row-enter")) state.newRows.fresh = false;
+  return result;
+};
+$("#modal").addEventListener("close", () => {
+  if (state.newRows?.fresh) render();
+});
 function studentBanners() {
   const needs = db.users.filter((u) => u.type === "student" && u.status === "Needs voucher").length;
   const drafts = db.importDrafts || [];
@@ -742,7 +795,7 @@ function openRemoveDialog(rowIds) {
     "Choose what to remove.",
     `<form id="remove-form" data-spec="people.remove-dialog" data-spec-label="Remove dialog"><fieldset class="remove-options"><legend class="sr-only">What to Remove</legend>${options
       .map((o, i) => `<label class="remove-option${o.danger ? " danger" : ""}${o.allowed ? "" : " disabled"}"><input type="radio" name="removal" value="${o.kind}" ${o.allowed ? "" : "disabled"} ${i === 0 && o.allowed ? "" : ""}><span><strong>${esc(o.label)}</strong><small>${esc(o.allowed ? o.note : "Only Admins can do this.")}</small></span></label>`)
-      .join("")}</fieldset><div class="field remove-confirm" hidden><label for="remove-confirm-text">Type DELETE to Confirm</label><input id="remove-confirm-text" autocomplete="off" aria-describedby="remove-confirm-hint"><p class="hint" id="remove-confirm-hint">This permanently erases ${esc(many ? "these people" : people[0].name)}.</p></div></form>`,
+      .join("")}</fieldset><div class="field remove-confirm" hidden><label for="remove-confirm-text" class="type-confirm-label">Type <strong>“DELETE”</strong> to confirm</label><input id="remove-confirm-text" class="type-confirm-input" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="remove-confirm-hint"><p class="hint" id="remove-confirm-hint">This permanently erases ${esc(many ? "these people" : people[0].name)}.</p></div></form>`,
     `<div class="actions">${btn("Cancel", "close-modal", "text")}${btn("Remove", "remove-confirm", "danger", "disabled id=\"remove-confirm-button\"")}</div>`,
     "",
     true,
@@ -756,6 +809,20 @@ function removeFormState() {
   const typed = $("#remove-confirm-text")?.value.trim() === "DELETE";
   return { kind, ready: Boolean(kind) && (kind !== "deletePermanently" || typed) };
 }
+// Type-to-confirm words are always capitals: force what the user types to upper case, keeping the caret in place.
+document.addEventListener(
+  "input",
+  (event) => {
+    const el = event.target;
+    if (!el.classList?.contains("type-confirm-input")) return;
+    const upper = el.value.toUpperCase();
+    if (upper === el.value) return;
+    const [start, end] = [el.selectionStart, el.selectionEnd];
+    el.value = upper;
+    el.setSelectionRange(start, end);
+  },
+  true,
+);
 function syncRemoveForm() {
   const current = removeFormState();
   if (!current) return;

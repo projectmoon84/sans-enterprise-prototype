@@ -18,6 +18,7 @@ const activityPage=await readFile('src/activity-page.js','utf8');
 const bulkUi=await readFile('src/bulk-ui.js','utf8');
 const importReview=await readFile('src/import-review.js','utf8');
 const teams=await readFile('src/teams.js','utf8');
+const internalUsers=await readFile('src/internal-users.js','utf8');
 const motion=await readFile('src/motion.js','utf8');
 // Handover layer: the portable overlay, this prototype's adapter and the notes, embedded so hosted copies show them read-only.
 // Handover notes stay out of hosted builds (Vercel sets VERCEL). Set HANDOVER_NOTES=1 to include them.
@@ -40,5 +41,5 @@ css=css.replace(/([^{}]+)\{([^{}]*)\}/g,(rule,selector,decls)=>{
 css=msBase+css;
 const template=await readFile('src/index.html','utf8');
 await mkdir('dist',{recursive:true});
-await writeFile('dist/index.html',template.replace('/* STYLES */',()=>css).replace('/* DATA */',()=>data.replaceAll('export ','' )+'\n'+training.replaceAll('export ','')+'\n'+bulkEngine.replaceAll('export ','')+'\n'+alerts.replaceAll('export ','')+'\n'+store.replaceAll('export ','')+'\n'+activity.replaceAll('export ','')).replace('/* APP */',()=>app+'\n'+fidelity+'\n'+people+'\n'+tables+'\n'+profile+'\n'+activityPage+'\n'+bulkUi+'\n'+importReview+'\n'+teams+'\n'+motion+'\n'+(handoverLayer?'window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||'+handoverData.trim().replace(/</g,'\\u003c')+';\n'+handoverLayer+'\n'+handoverAdapter:'')));
+await writeFile('dist/index.html',template.replace('/* STYLES */',()=>css).replace('/* DATA */',()=>data.replaceAll('export ','' )+'\n'+training.replaceAll('export ','')+'\n'+bulkEngine.replaceAll('export ','')+'\n'+alerts.replaceAll('export ','')+'\n'+store.replaceAll('export ','')+'\n'+activity.replaceAll('export ','')).replace('/* APP */',()=>app+'\n'+fidelity+'\n'+people+'\n'+tables+'\n'+profile+'\n'+activityPage+'\n'+bulkUi+'\n'+importReview+'\n'+teams+'\n'+internalUsers+'\n'+motion+'\n'+(handoverLayer?'window.__HANDOVER_DATA__=window.__HANDOVER_DATA__||'+handoverData.trim().replace(/</g,'\\u003c')+';\n'+handoverLayer+'\n'+handoverAdapter:'')));
 console.log('Built dist/index.html — standalone, no dependencies.');
