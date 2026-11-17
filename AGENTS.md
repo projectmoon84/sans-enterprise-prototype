@@ -4,15 +4,15 @@ This is a browser-only prototype. Source lives in `src/`; `build.mjs` embeds the
 
 ## Source map and load order
 
-The JavaScript load order is significant: `data.js` → `training.js` → `bulk-engine.js` → `alerts.js` → `store.js` → `activity.js` → `app.js` → `fidelity.js` → `people.js` → `tables.js` → `profile.js` → `activity-page.js` → `bulk-ui.js` → `import-review.js` → `teams.js` → `motion.js` → `handover-adapter.js` (after the embedded handover layer).
+The JavaScript load order is significant: `data.js` → `training.js` → `bulk-engine.js` → `alerts.js` → `store.js` → `activity.js` → `app.js` → `fidelity.js` → `people.js` → `tables.js` → `profile.js` → `activity-page.js` → `bulk-ui.js` → `import-review.js` → `teams.js` → `place.js` → `motion.js`.
 
 - `src/data.js`: v2 data schema, fictional seed records, voucher-to-admin-group mapping, CSV parsing and validation.
 - `src/training.js`: mock SANS course catalog, GIAC certifications, seeded training histories and certification-status helpers. Pure functions with no store import; loaded before `store.js`.
 - `src/alerts.js`: `alertsFor()` works out Needs attention alerts from the data (never stored), plus `personPermissions()` for what the signed-in user may do. Pure functions.
 - `src/bulk-ui.js`: toast with Undo, cell pop-over, bulk action bar, quick-filter chips and preview dialog, plus the Students banners and "Needs voucher" flag.
 - `src/import-review.js`: the CSV review screen, saved import drafts and the Done dialogs.
-- `src/teams.js`: the Teams list (cards by default, rows toggle, health strip, filters, sort, bulk delete) and the team page (Members, Portal users with access and History tabs, member bulk bar, add students side panel, create, edit and delete). Member changes run through `store.bulk()` so they share permissions, events and Undo.
-- `src/handover-adapter.js`: connects the portable handover layer (`handover/layer/handover-layer.js`) to this prototype: view names, navigation and how to reveal panels and dialogs. See `handover/README.md`.
+- `src/teams.js`: the Teams list (cards by default, rows toggle, health strip, filters, sort, bulk delete) and the team page (summary tiles for Members, Portal users with access and History that are also its tabs, member bulk bar, the Add Students dialog with three tabs (choose existing students, invite new ones through the Students page entry form, or upload a CSV, each with the team filled in), create, edit and delete). Member changes run through `store.bulk()` so they share permissions, events and Undo.
+- `src/place.js`: keeps the current page in the address (`#/students`, `#/teams/<id>/history`, `#/profile/<id>`) so a refresh stays put; restores it on load and when the address is edited. A CSV import in progress isn't kept.
 - `src/motion.js`: screen and dialog entrances. Wraps `navigate()` and `openModal()` last, so it animates only real screen changes and dialog steps, never ordinary re-renders. Respects reduced motion.
 - `src/activity-page.js`: the global Activity page (filters, batch grouping, CSV export). Reuses entry markup from `profile.js`.
 - `src/bulk-engine.js`: bulk actions on people (voucher, admin group, team, status, resend, remove, portal access, role). Pure; returns applied / unchanged / skipped / cleared lists. Reached through `store.bulk()`, which also supports `dryRun` previews and `undo()`.
@@ -62,6 +62,6 @@ After any source change, run the syntax check, tests and build. Use `http://127.
 - SSO Admin remains future scope and is not offered in invitation flows.
 - SANS staff (`SANS_STAFF` in `fidelity.js`) are not people in the customer organization and are kept out of the database. Sign in as one from the avatar menu; only SANS staff see the SANS Administration section of the sidebar and its pages. In the organization's own pages they act with full Admin rights, as the organization's first Admin.
 
-## Handover notes
+## Design notes and feedback
 
-Design changes are documented for developers with the handover layer (Alt+H in the running prototype) and `handover/cli.mjs`. Notes live in `handover/data.json`. When you add a component worth annotating, give it `data-spec="area.component"` and `data-spec-label`. Keep existing `data-spec` names stable, because notes are attached to them. Read `handover/README.md` before changing the layer or the tool.
+Design notes for developers, review feedback and handover documents are kept in Hobnob, which layers them over this prototype from outside (`hobnob serve`, or the hosted review link). None of Hobnob's code lives in this repository. When you add a component worth annotating, give it `data-spec="area.component"` and `data-spec-label`. Keep existing `data-spec` names stable, because Hobnob's notes are attached to them.

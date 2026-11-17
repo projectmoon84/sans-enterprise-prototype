@@ -8,6 +8,7 @@ const REDUCED_MOTION = matchMedia("(prefers-reduced-motion: reduce)");
 const SECTION_STEP = 45; // ms between page sections
 const ROW_STEP = 18; // ms between table rows
 const ROW_CAP = 12; // rows past this arrive together, so long tables don't drag
+const CARD_STEP = 40; // ms between cards in a grid
 const PAGE_DELAY = 90; // let the old page mostly fade before the new one rises
 
 // Snapshots of the outgoing page or dialog must stay frozen: copied entrance classes would replay
@@ -39,6 +40,11 @@ function staggerIn(root, start) {
     block.querySelectorAll("tbody > tr").forEach((tr, i) => {
       tr.classList.add("motion-row");
       tr.style.setProperty("--motion-delay", `${delay + 60 + Math.min(i, ROW_CAP) * ROW_STEP}ms`);
+    });
+    // Cards in a grid arrive one after another too, a little more slowly than rows.
+    block.querySelectorAll(".team-grid > *, .team-tiles > .team-tile").forEach((card, i) => {
+      card.classList.add("motion-in");
+      card.style.setProperty("--motion-delay", `${delay + 80 + Math.min(i, ROW_CAP) * CARD_STEP}ms`);
     });
     delay += SECTION_STEP;
   }
