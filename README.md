@@ -47,9 +47,9 @@ The zip contains the original seed data, never records from the author's browser
 
 This is mock application state, not a database server. Invitations are simulated; no emails are sent. Use fictional information. A later hosted version can replace the persistence boundary with an authenticated API and a shared database.
 
-## Handover notes
+## Design notes and feedback
 
-Press **Alt+H**, or click **Handover layer** in the bottom-left corner, to see notes for developers on each component. When running locally with `python3 serve.py`, you can add and edit notes. `npm run handover:status`, `npm run handover:report` and `npm run handover:cut -- "Name"` manage handovers and write the handover document. See `handover/README.md`.
+Design notes, review feedback and handover documents are kept in Hobnob, which adds them over the prototype from outside. Nothing for them is built into this prototype.
 
 ## Developer source
 
